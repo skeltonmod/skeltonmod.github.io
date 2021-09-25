@@ -1,0 +1,35 @@
+# For documentation on this file, see:
+# https://github.com/riggraz/no-style-please#customize-the-menu
+
+entries:
+  - title: all posts
+    post_list:
+      limit: 5
+      show_more: true
+      show_more_text: See archive...
+      show_more_url: archive.html
+
+  - title: thoughts
+    post_list:
+      category: thoughts
+      show_more: true
+      show_more_text: See more posts...
+      show_more_url: example2-archive.html
+
+  - title: dev
+    post_list:
+      category: dev
+      show_more: true
+      show_more_text: See more posts...
+      show_more_url: example3-archive.html
+
+  - title: career
+    post_list:
+      category: career
+      show_more: true
+      show_more_text: See more posts...
+      show_more_url: example4-archive.html
+
+  - title: rss
+    url: feed.xml
+  

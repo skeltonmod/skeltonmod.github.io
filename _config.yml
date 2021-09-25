@@ -1,122 +1,72 @@
-# 1. Site Settings
-title               : pRoJEct-VeXEd
-owner               : "DeerRIDER"
-url                : "https://akiritsu.github.io"
-baseurl            : "/pRoJEct-VeXEd"
-permalink           : /:title/
-description         : "A hacker-style note-keeping website template."
-markdown            : kramdown
-statement           : "Designed by DeerRIDER, All Rights Reserved"
-bgtext              : "ABCFGHKLMNPQRSVWXYZabcdefghijklmnopqrstuvwxyz@#$%&*+-;/[]<>~" # texts randomly displayed in background
+# Welcome to Jekyll!
+#
+# This config file is meant for settings that affect your whole blog, values
+# which you are expected to set up once and rarely edit after that. If you find
+# yourself editing this file very often, consider using Jekyll's data files
+# feature for the data you need to update frequently.
+#
+# For technical reasons, this file is *NOT* reloaded automatically when you use
+# 'bundle exec jekyll serve'. If you change this file, please restart the server process.
+#
+# If you need help with YAML syntax, here are some quick references for you: 
+# https://learn-the-web.algonquindesign.ca/topics/markdown-yaml-cheat-sheet/#yaml
+# https://learnxinyminutes.com/docs/yaml/
+#
+# Site settings
+# These are used to personalize your new site. If you look in the HTML files,
+# you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
+# You can create any custom variable you would like, and they will be accessible
+# in the templates via {{ site.myvariable }}.
 
-# 2. Your Collections
-# You can specify the order shown in Archive window. 
-# Keep it null if you want to show items in alphabetic order.
-collection_order    : 
-  [
-    "posts",
-    "math",
-    "album",
-    "physics",
-    "biology",
-    "finance",
-    "physics",
-    "my_notes",
-    "portfolio",
-  ]
-collections:
-  math:   
-    output          : true
-    permalink       : /:collection/:title/
-    sort_by         : date
-    alias           : "Mathematics"
-  portfolio:
-    output          : true
-    permalink       : /:collection/:title/
-    order: # specify post order manually
-      - portfolio3.md
-      - portfolio2.md
-      - portfolio1.md
-  album:
-    output          : true
-    permalink       : /:collection/:title/
-    sort_by         : date
-  physics:
-    output          : true
-    permalink       : /:collection/:title/
-  biology:
-    output          : true
-    permalink       : /:collection/:title/
-  finance:
-    output          : true
-    permalink       : /:collection/:title/
-  my_notes:
-    output          : true
-    permalink       : /:collection/:title/
-    # An alias should be given or the UNDERSCORE will appeared 
-    alias           : "My Notes"
-  posts:
-    output          : true
+title: Your awesome title
+email: your-email@example.com
+description: >- # this means to ignore newlines until "baseurl:"
+  Write an awesome description for your new site here. You can edit this
+  line in _config.yml. It will appear in your document head meta (for
+  Google search results) and in your feed.xml site description.
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "" # the base hostname & protocol for your site, e.g. http://example.com
+twitter_username: jekyllrb
+github_username:  jekyll
 
-# 3. Comment settings（disqus.com）
-disqus_username     : akiritsu
-
-# 4. Default page settings (WILL BE overwriten by front-matters of a page)
-defaults:
-  -    
-    scope:
-      path          : ""  # an empty string here means all files in the project
-    values:
-      layout              : "post"      # which layout to use by default
-      publish             : true        # whether to show by default      
-      btn_text            : true        # whether show button text by default
-      collection_list     : true        # whether show archive button by default
-      home_btn            : true        # whether show home by default
-      maximize            : true        # whether show maximize button by default
-      encrypted_text      : false       # whether use encrytion function by default
-      toc                 : true        # whether show table of content by default
-      toc_level           : 3           # the toc depth by default
-      author              : "DeerRIDER" # author name by default
-      show_date           : true        # whether show date message by default
-      category            :             # category by default
-      post_list           : false       # whether show list of post by default      
-      comment             : true
-      footer              : true        # whether show footer by default
-
-# 5. Social Media Accounts
-email               : "https://github.com/akiritsu/pRoJEct-VeXEd" 
-linkedin            : 
-github              : "just-test" 
-gitlab              : 
-website             : "https://github.com/akiritsu/pRoJEct-VeXEd"
-twitter             : "just-test"
-facebook            : "just-test"
-instagram           : 
-youtube             : "just-test"
-steam               : "just-test"
-weibo               :
-      
-# 6. Where things are
-source              : .
-destination         : ./_site
-collections_dir     : collections
-plugins_dir         : src/_plugins # takes an array of strings and loads plugins in that order
-layouts_dir         : src/_layouts
-data_dir            : src/_data
-includes_dir        : src/_includes
-sass:
-  sass_dir          : src/_sass
-
-# 7. Plugins
+# Build settings
+theme: minima
 plugins:
   - jekyll-feed
-  - jekyll-sitemap
-  - jekyll-seo-tag
-  
-gems: [jekyll-mermaid]
 
-# 8. Others
-# Cross-Origin Resource Sharing header
-webrick:
-  headers:
-    Access-Control-Allow-Origin: "*"
+# Exclude from processing.
+# The following items will not be processed, by default.
+# Any item listed under the `exclude:` key here will be automatically added to
+# the internal "default list".
+#
+# Excluded items can be processed by explicitly listing the directories or
+# their entries' file path in the `include:` list.
+#
+# exclude:
+#   - .sass-cache/
+#   - .jekyll-cache/
+#   - gemfiles/
+#   - Gemfile
+#   - Gemfile.lock
+#   - node_modules/
+#   - vendor/bundle/
+#   - vendor/cache/
+#   - vendor/gems/
+#   - vendor/ruby/
+markdown: kramdown
+title: Elijah's Crib
+theme: no-style-please
+url: https://eloijj.github.io # root address of the site
+permalink: /:slug.html
+description: > # description of the site (multiple lines allowed)
+  2lazy4css... @ 2021
+
+theme_config:
+  appearance: "light" # can be "light", "dark" or "auto"
+  back_home_text: "Go Back" # customize text for homepage link in post layout
+  date_format: "%Y-%m-%d" # customize how date is formatted
+  show_description: true # show blog description in home page
+
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
