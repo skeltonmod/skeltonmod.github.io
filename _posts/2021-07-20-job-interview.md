@@ -1,5 +1,5 @@
 ---
-published: false
+published: true
 ---
 ---
 title: Where am I going?
@@ -22,7 +22,3 @@ All in the name of doing what I love.
 Let's just see if my interviewers like my demo project, if not then that would be totally understandable. **FLIGNO** is a big company from what I have gathered, I might not be even cut out for professional web development.
 
 Thankfully this blogsite's hosting will expire next week, just in time.
-
-
-
-
