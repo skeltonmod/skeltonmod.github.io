@@ -1,7 +1,4 @@
 ---
-published: false
----
----
 title: An Idea
 category: thoughts
 ---
