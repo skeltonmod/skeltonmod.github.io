@@ -56,7 +56,7 @@ plugins:
 markdown: kramdown
 title: Elijah's Crib
 theme: no-style-please
-url: https://eloijj.github.io # root address of the site
+url: / # root address of the site
 permalink: /:slug.html
 description: > # description of the site (multiple lines allowed)
   2lazy4css... @ 2021
