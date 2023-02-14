@@ -1,7 +1,8 @@
 ---
 title: Where am I going?
-category: career
-published: true
+date: 2021-07-20 00:00:00 Z
+categories:
+- career
 ---
 
 Recently, a friend of mine from college hit me up with a job opportunity, it's a web developer position at some australian company called **FLIGNO** I looked them up and they look legit. 

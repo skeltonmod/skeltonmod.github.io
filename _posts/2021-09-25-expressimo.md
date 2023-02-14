@@ -1,6 +1,8 @@
 ---
 title: An Idea
-category: thoughts
+date: 2021-09-25 00:00:00 Z
+categories:
+- thoughts
 ---
 
 #### What?
