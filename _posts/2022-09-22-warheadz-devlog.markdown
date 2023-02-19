@@ -13,7 +13,6 @@ I didn't know brainstorming original ideas are hard, took me 4 hours to get a go
 I have decided to copy the core idea of sneak ops but with a twist, you cannot stay idle for a very specific amount of time.
 This in effect will make the game inline to the theme of "Keep Moving" . The movement for the game will be a one thumb experience.
 
-
 This will include the moving, shooting and interacting of the game.
 
 The real challenge here is that I will be in the office next week. I will need to discipline myself this time if I want to get that $10,000 cash price, or win in general.
@@ -34,7 +33,7 @@ Adieu, see you in the next update!
 \
 **Day 2**
 
-Finally Got the AI to work correctly, but the code is a mess, might need to refactor this shit once I get the other parts done.I also got the shooting mechanics and the core gameplay set, now it's just a matter of implementing the theme of the game,which is the ***"Keep Moving" ***motif. \
+Finally Got the AI to work correctly, but the code is a mess, might need to refactor this shit once I get the other parts done.I also got the shooting mechanics and the core gameplay set, now it's just a matter of implementing the theme of the game,which is the \*\*\*"Keep Moving" \*\*\*motif. \
 The AI was time consuming to implement, thankfully there are a couple of implementations from previous source codes that I have gathered through all the years of my learnings in Game Maker Studio
 
 ![GIF 06-10-2022 9-23-24 pm.gif](/uploads/GIF%2006-10-2022%209-23-24%20pm.gif)
@@ -70,7 +69,7 @@ See you tomorrow with some real updates.
 \
 **Day 5**
 
-So, something came up while I was having a smoke break, an epiphany if you in a sense. 
+So, something came up while I was having a smoke break, an epiphany if you in a sense.
 
 I figured making this a story oriented game with stealth mechanicslooks, feels and sounds a bit boring. The gameplay is now changed from a stealth game, to a roguelike room jumper, the added mechanic this time will bethe current section you're in is timed, encouraging you to keep moving.
 
@@ -80,7 +79,7 @@ Since the game already has a function chase AI, I figured I might as well turn t
 ![GIF 10-10-2022 11-06-32 pm.gif](/uploads/GIF%2010-10-2022%2011-06-32%20pm.gif)
 
 Well, it's a good thing I thought of this now.\
-*So, what's the new mechanic like? *
+\*So, what's the new mechanic like? \*
 
 The game would throw you to a section of the room, and the game will start counting down to a specific timer and once the timer is reach, it willthrow you into a new section of the room all while discarding your current items. it will then give you a new set of weapon.
 
@@ -104,12 +103,18 @@ Until Then. Ciao!
 
 ![GIF 14-10-2022 10-47-47 pm.gif](/uploads/GIF%2014-10-2022%2010-47-47%20pm.gif)
 
-Well, it looks promising now, random map generation took me about 3 days to finish. that and on top of my work schedule.\
-But, I'm happy of the result just copied the code from nuclear throne or wasteland kings for that matter.\
-A few problems with the wasteland king source code is that it's messy and hard to read, mp_grids also doesn't work with randomly placed objects.
+Well, it looks promising now, random map generation took me about 3 days to finish. that and on top of my work schedule.
 
 \
-It took me 2 days to figure out that mp_grid cells aren't 1:1 with room, and I have to convert it to cell coordinates inorder for it to workluckily there existing implementation lying around.\
+But, I'm happy of the result just copied the code from nuclear throne.
+
+\
+A few problems with the nuclear throne source code is that it's messy and hard to read, mp_grids also doesn't work with randomly placed objects.
+
+\
+It took me 2 days to figure out that mp_grid cells aren't 1:1 with the room, and I have to convert it to cell coordinates inorder for it to work luckily there is an existing implementation lying around.
+
+\
 So far so good with where things are going, now I just have to figure out how to properly satisfy the jam theme. I'll probably figure it out tomorrow.
 
 \
