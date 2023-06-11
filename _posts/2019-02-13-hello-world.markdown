@@ -5,12 +5,12 @@ categories:
 - archive
 ---
 
-Hello, Welcome to my blog. Here I'll be writing about things that are worth sharing.
+Hello, welcome to my blog. Here, I will be writing about things that are worth sharing.
 
-My name is Elijah, I am a 3rd year Computer Science student at AMA.
+My name is Elijah, and I am a 3rd-year Computer Science student at AMA.
 
-I'm 21 years old and currently experiencing major existential crisis.
+I am 21 years old, and currently, I am experiencing a major existential crisis.
 
-I love to listen to all kinds of music, I sometimes code and share my progress here, and I also love to play video games but not the usual games you usually play.
+I love to listen to all kinds of music, and sometimes I share my progress here while coding. Moreover, I also enjoy playing video games, but not the usual games that you usually play.
 
-Thanks for stopping by cowboy!
+Thanks for stopping by, cowboy
