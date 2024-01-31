@@ -1,0 +1,204 @@
+
+<html>
+
+<head>
+  <style>
+    body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #222;
+
+}
+main {
+  background: #fff7f1;
+  font-family: courier;
+  height: auto;
+  width: 704px;
+  margin: 16px 0;
+  display: flex;
+  position: relative;
+  transform:scale(0.88);
+}
+/*TEXT*/
+h1, h2, h3, p {
+  color: #545454;
+}
+/*MEDIA*/
+.gif {
+  width: 100%;
+}
+/*CTA*/
+a {
+  color: #ff4040;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 14px;
+}
+/*GRID*/
+.grid {
+  display: flex;
+  padding: 16px;
+}
+.grid-40,
+.grid-60 {
+  flex-direction: column;
+}
+.grid-40 {
+  width: 40%;
+}
+.grid-60 {
+  width: 60%;
+}
+.grid-50 .grid__item {
+  width: 50%;
+}
+/*CARD*/
+.card {
+  border: 2px solid #ffb8b8;
+  border-top: 0 !important;
+  margin: 0 0 16px;
+}
+.card__title {
+  background: #ffb8b8;
+  font-size: 16px;
+  margin: 0 0 0 -2px;
+  padding: 8px;
+}
+.card p {
+  font-size: 16px;
+  margin: 16px;
+}
+/*TEXT BLOCK*/
+.textBlock {
+  margin: 0 16px 24px;
+}
+.textBlock__title {
+  font-size: 16px;
+  margin: 16px 0 0;
+}
+/*ANIMATIONS*/
+.gif {
+    border: 6px dotted red;
+    position: relative;
+    z-index: 0;
+    border-radius: 10px;
+    animation: rotate 1s linear infinite;
+}
+@keyframes rotate {
+0% {
+border-color: orange;
+}
+25% {
+border-color: yellow;
+}
+50% {
+border-color: green;
+}
+75% {
+border-color: blue;
+}
+100% {
+border-color: purple;
+}
+}
+
+@media screen and (max-width: 695px) {
+  main {
+    flex-direction: column;
+    height: unset !important;
+    width: calc(100% - 32px);
+    margin: 16px;
+  }
+  .grid-40,.grid-60, grid__item {
+    width: calc(100% - 32px);
+  }
+}
+
+.absolute {
+  position: absolute;
+  bottom: -40px;
+  right: 4px;
+  opacity: 0.4;
+}
+.absolute a {
+    text-decoration: none;
+  text-transform: lowercase;
+  font-style: italic;
+}
+.absolute a:hover {
+    text-decoration: underline;
+}
+  </style>
+  <title>The Gate</title>
+  </head>
+
+<body>
+  <main>
+    <section class="grid grid-60">
+      <div class="grid__item">
+        <h1>Hi, I'm Elijah. It's nice to meet yuh.</h1>
+      </div>
+      <div class="grid__item">
+        <h1>
+        <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/5jCUsBGXinsu4wIpLorTBZ?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+        </h1> 
+      </div>
+      <div class="grid__item card">
+        <h2 class="card__title">Social</h2>
+        <div class="grid grid-50">
+          <a class="grid__item" href="https://steamcommunity.com/id/fuckthisurlfam/">Steam</a>
+          <a class="grid__item" href="https://www.instagram.com/skoodwurd">Instagram</a>
+        </div>
+        <div class="grid grid-50">
+          <a class="grid__item" href="https://github.com/skeltonmod">Github</a>
+          <a class="grid__item" href="https://blog.elijahstuff.wtf">Personal Blog</a>
+        </div>
+      </div>
+      <div class="grid__item">
+        <img class="gif" alt="nervous gif with smiley faces and a moving border" src="https://mirandawashburn.com/media/gif/nervous.png">
+      </div>
+
+    </section>
+
+    <section class="grid grid-60">
+      <div class="grid__item card">
+        <h2 class="card__title">About</h2>
+        <p>Internet dweller with a lot of free time</p>
+      </div>
+      <div class="grid__item card">
+        <h2 class="card__title">My Projects</h2>
+        <div class="textBlock">
+          <h3 class="textBlock__title">The Wash Anime Downloader</h3>
+          <a class="textBlock__link" href="https://wash.elijahstuff.wtf/search">Check it out >></a>
+        </div>
+        <div class="textBlock">
+          <h3 class="textBlock__title">SPEK</h3>
+          <a class="textBlock__link" href="https://www.spekapp.com/">See the page >></a>
+        </div>
+        <div class="textBlock">
+          <h3 class="textBlock__title">Cagayan De Oro GeoJSON</h3>
+          <a class="textBlock__link" href="https://gist.github.com/skeltonmod/fc1a8ae5682efbc6d459f0fa018e2253">View the GeoJSON >></a>
+        </div>
+
+        <div class="textBlock">
+          <h3 class="textBlock__title">CNN VGG Thesis for Coffee Beans</h3>
+          <a class="textBlock__link" href="https://github.com/skeltonmod/coffee-ai">Check out the code >></a>
+        </div>
+
+        <center>
+            <a class="textBlock__link" href="./projects.html">You can checkout more of my projects here</a>
+         </center>
+      </div>
+     
+    </section>
+    
+    <p class="absolute"><a href="https://elijahstuff.wtf/">skeltonmod</a></p>
+
+  </main>
+  
+</body>
+
+</html>
