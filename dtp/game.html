@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+    />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta charset="utf-8" />
+
+    <!-- Builtin injector for disabling cache -->
+    <meta http-equiv="pragma" content="no-cache" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <!-- Set the title bar of the page -->
+    <title>Destroy The Porn</title>
+    <style>
+      @font-face {
+        font-family: monogram;
+        src: url("../fonts/monogram.ttf");
+      }
+      body {
+        margin: 0;
+        padding: 20px;
+        font-family: "monogram", monospace;
+        font-size: 32px;
+        line-height: 26px;
+
+        font-smooth: never;
+        -webkit-font-smoothing: none;
+        font-synthesis: none;
+      }
+      .canvas-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px; /* Add space between sections */
+      }
+
+      canvas {
+        image-rendering: optimizeSpeed;
+        -webkit-interpolation-mode: nearest-neighbor;
+        -ms-touch-action: none;
+        touch-action: none;
+        border: 2px solid blue;
+      }
+
+      #myCanvas {
+        border: 1px solid #ddd;
+        /* Adjust width and height as needed */
+        width: 500px;
+        height: 300px;
+      }
+      #description {
+        margin-top: 0; /* Remove top margin for better layout */
+        text-align: center;
+      }
+      #controls {
+        display: flex;
+        flex-direction: column; /* Stack controls vertically */
+        width: 100%; /* Match container width */
+      }
+      #controls div {
+        display: flex;
+        align-items: center;
+        justify-content: center; /* Align text and keys */
+        padding: 5px 0; /* Add padding for spacing */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="canvas-container">
+      <div class="gm4html5_div_class" id="gm4html5_div_id">
+        <!-- Builtin injector for splash screen -->
+
+        <!-- Create the canvas element the game draws to -->
+        <canvas id="canvas" width="640" height="544" style="order: 0"></canvas>
+      </div>
+    </div>
+
+    <div id="controls">
+      <div>
+        <b style="color: black">Move</b>:
+        <span style="color: #ff77a8">Arrow Keys</span>
+      </div>
+      <div><b>Jump</b>: <span style="color: #ff77a8">K key </span></div>
+      <div><b>Shoot</b>: <span style="color: #ff77a8">J key </span></div>
+    </div>
+    
+    <p id="description">
+      If for some reason you didn't
+      <span style="color: #29adff"
+        >respawn correctly or you fell through the wall</span
+      ><br />
+      just refresh the page and load the game again. This is an issue with
+      HTML5
+    </p>
+
+    <script
+      type="text/javascript"
+      src="Destroy The Porn/DTPRemake.js?cachebust=733138119"
+    ></script>
+
+    <!-- Builtin injector for injecting runner path -->
+
+    <script>
+      window.onload = GameMaker_Init;
+    </script>
+  </body>
+</html>
