@@ -143,7 +143,7 @@
     <h2>Assteroids</h2>
     <p><strong>Platform:</strong> Windows, 2016</p>
     <p>
-      This made in 2016 during my 11th grade. It's a simple game where you have
+      This was made in 2016 during my 11th grade. It's a simple game where you have
       to dodge and shoot asteroids. This game helped me learn about game
       development basics. This is also a game where I started to write code.
     </p>

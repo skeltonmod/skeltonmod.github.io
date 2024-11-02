@@ -6,8 +6,8 @@
   <div class="game-header">
     <h1>Professional Projects</h1>
     <p>
-      For portfolio sake, these are some of my most notable Professional
-      projects I've worked on.
+      For portfolio sake, these are some of my most notable professional
+      projects that I've worked on.
     </p>
   </div>
 

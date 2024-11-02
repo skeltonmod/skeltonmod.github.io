@@ -4,6 +4,6 @@
     404
 </h4>
 <div class="avatar-container">
-    <img src="/avatar.gif" class="avatar" alt="Cool skeleton gif from the 80s or something" />
+    <img src="/smoke.gif" class="avatar" alt="Cool skeleton gif from the 80s or something" />
     <p>Uhh ohh, the page you are looking for does not exist</p>
 </div>
