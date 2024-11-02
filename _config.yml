@@ -1,0 +1,29 @@
+---
+title: Elijah's Crib
+timezone: UTC
+collections:
+  posts:
+    title: Posts
+    output: true
+  uploads:
+    title: Uploads
+    output: true
+email: abgaoe@gmail.com
+description: '2lazy4css... @ 2021
+
+'
+baseurl: ''
+url: https://skeltonmod.github.io
+twitter_username: jekyllrb
+github_username: jekyll
+remote_theme: pages-themes/hacker@v0.2.0
+plugins:
+- jekyll-feed
+- jekyll-seo-tag
+author: Elijah Abgao
+permalink: "/:slug.html"
+theme_config:
+  appearance: light
+  back_home_text: Go Back
+  date_format: "%Y-%m-%d"
+  show_description: true
