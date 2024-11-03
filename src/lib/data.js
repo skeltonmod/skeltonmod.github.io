@@ -1,5 +1,21 @@
 export const recent_games = [
   {
+    title: "Destroy The Porn HTML5",
+    description: `The first game I made in 2024. It's a remake of Destroy The Porn, a game
+      that was made in 2013. It was mostly an excuse to learn how to make a game
+      in HTML5 for the first time in a while. I did the programming. design and
+      graphics were done by the original DrunkDevs.`,
+    metadata: [
+      {
+        name: "Platform",
+        value: "HTML5, 2024",
+      },
+    ],
+    image: "/preview/dtp.png",
+    link: "/#/games/dtp",
+    link_title: "Play here",
+  },
+  {
     title: "BrannCom",
     description: `A parody of PanCom, this game was made as a love letter for my Girlfriend
       for out 2nd month celebration. This parody does feature a VHS filter
@@ -31,7 +47,7 @@ export const recent_games = [
     link_title: "Play here",
   },
   {
-    title: "BrannCom",
+    title: "Shootyman 2k20",
     description: `A game made in 2020. It's a simple game where you shoot aliens. It started
       out as my curiosity for godot and my attempt to learn how to make a game
       in it. This game was also made during the pandemic because, I got bored
