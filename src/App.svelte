@@ -1,12 +1,20 @@
 <script>
   import Router from "svelte-spa-router";
   import { routes } from "./lib/router";
-  import { push, replace } from "svelte-spa-router";
+  import { replace } from "svelte-spa-router";
+  import { onMount } from "svelte";
 
+  let fake_usage = 0;
   const path = window.location.pathname;
   if (path == "/") {
     replace("/");
   }
+
+  onMount(() => {
+    setInterval(function () {
+      fake_usage = Math.floor(Math.random() * 100 + 1);
+    }, 1000);
+  });
 </script>
 
 <div>
@@ -69,9 +77,11 @@
           <Router {routes} />
         </div>
         <div class="status-bar">
-          <p class="status-bar-field">Hire me</p>
+          <p class="status-bar-field">
+            Elijah Abgao © {new Date().getFullYear()} Powered by Spite™
+          </p>
           <p class="status-bar-field">Slide 1</p>
-          <p class="status-bar-field">CPU Usage: 14%</p>
+          <p class="status-bar-field">CPU Usage: {fake_usage}%</p>
         </div>
       </div>
     </div>
