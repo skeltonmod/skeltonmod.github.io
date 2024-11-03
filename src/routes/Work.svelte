@@ -171,7 +171,7 @@
   .game-container {
     background-color: #fff;
     border: 1px solid #000;
-    max-height: 800px;
+    max-height: 600px;
     overflow-y: auto;
   }
   .game-header h1 {
