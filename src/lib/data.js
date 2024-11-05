@@ -35,7 +35,7 @@ export const recent_games = [
     description: `Created this game back in 2016. It's a badly made clone of another game,
       this was before I knew anything about game development. I did the
       programming, design and graphics. This game was made as a joke for my
-      friends who liked M LP and Undertale.`,
+      friends who liked MLP and Undertale.`,
     metadata: [
       {
         name: "Platform",
@@ -102,10 +102,8 @@ export const experimental_games = [
 export const old_games = [
   {
     title: "MLG Mykel",
-    description: `Back when I discovered that you can actually make more accessible games by
-          publishing them on the web, this was a recreation of Dan Remar's Hyper
-          Princess Pitch. It never got finished because of my conflicting schedules
-          at that time.`,
+    description: `The very first game that I have made during highschool. It's created in
+      Clickteam Fusion 2.5. I guess you could say this kicked off my career. It's a parody game to poke fun at my friend Michael`,
     metadata: [
       {
         name: "Platform",
@@ -137,8 +135,7 @@ export const game_headers = [
   {
     title: "Completed and somewhat finished games",
     description: `This is the list all of my games that are considered completed and finished. Do note that while the games are finished, 
-    they can either be unpolished or have bugs that I've decided not to fix because I'm lazy."
-  `,
+    they can either be unpolished or have bugs that I've decided not to fix because I'm lazy.`,
   },
   {
     title: "Experiments",

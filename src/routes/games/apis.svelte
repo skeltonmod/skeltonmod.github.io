@@ -5,7 +5,7 @@
 </script>
 
 <div class="game-container">
-  <iframe class="game-iframe" src="https://serve.gamejolt.net/e44a32f9a7014a13aea2ca533378f26493a584d976fc3d3e9a6eaa2e3b2d0a13,1730651017,7/data/games/2/242/139242/files/57067684e1e54/index.html" title="BrannCom"
+  <iframe class="game-iframe" src="https://gamejolt.net/?token=jmXHNQbaBFqBW9yyLCHX7ho6db7ieC" title="BrannCom"
   ></iframe>
 </div>
 
