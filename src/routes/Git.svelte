@@ -121,16 +121,22 @@
   }
 
   /* Breakpoint for screens larger than 768px (tablet) */
-  @media (min-width: 968px) {
+  @media (min-width: 768px) {
     .feed-container {
-      max-height: 400px;
+      max-height: 100px;
     }
   }
 
   /* Breakpoint for screens larger than 1024px (desktop) */
-  @media (min-width: 1024px) {
+  @media (min-width: 1189px) {
     .feed-container {
-      max-height: 600px;
+      max-height: 400px;
+    }
+  }
+  /* Breakpoint for 1080p monitors (1920px and above) */
+  @media (min-width: 1920px) {
+    .feed-container {
+      max-height: 500px; /* Adjust this height as needed */
     }
   }
 </style>
