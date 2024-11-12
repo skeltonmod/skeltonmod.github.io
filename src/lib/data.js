@@ -12,7 +12,7 @@ export const recent_games = [
       },
     ],
     image: "/preview/dtp.png",
-    link: "/#/games/dtp",
+    link: "https://gamejolt.com/games/dtpremake/935631",
     link_title: "Play here",
   },
   {
@@ -43,7 +43,7 @@ export const recent_games = [
       },
     ],
     image: "/preview/apis.png",
-    link: "/#/games/apis",
+    link: "https://gamejolt.com/games/a-place-in-space-v1-5/139242",
     link_title: "Play here",
   },
   {
