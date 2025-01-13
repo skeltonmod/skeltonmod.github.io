@@ -12,7 +12,7 @@ export const recent_games = [
       },
     ],
     image: "/preview/dtp.png",
-    link: "/#/games/dtp",
+    link: "https://gamejolt.com/games/dtpremake/935631",
     link_title: "Play here",
   },
   {
@@ -43,7 +43,7 @@ export const recent_games = [
       },
     ],
     image: "/preview/apis.png",
-    link: "/#/games/apis",
+    link: "https://gamejolt.com/games/a-place-in-space-v1-5/139242",
     link_title: "Play here",
   },
   {
@@ -152,7 +152,7 @@ export const game_headers = [
 export const professional_projects = [
   {
     title: "Change GPS V2",
-    description: `An accounting web app that has a lot of modues, mainly working on their
+    description: `An accounting web app that has a lot of modules, mainly working on their
       blueprint and letters merge module.`,
     metadata: [
       {
@@ -184,7 +184,7 @@ export const professional_projects = [
   },
   {
     title: "Spek",
-    description: `One of the longest project that I have worked on, Spek is a web
+    description: `One of the longest project that I have worked on. Spek is a web
       application that helps real estate professionals create and manage their
       real estate properties.`,
     metadata: [
@@ -237,7 +237,7 @@ export const personal_projects = [
   },
   {
     title: "Rankboss",
-    description: `An SEO optimzation and optimzation platform, I was comissioned by my
+    description: `An SEO optimzation platform, I was comissioned by my
       colleagues for this project. This may or may not be the source of my
       distrust towards my said colleagues.`,
     metadata: [

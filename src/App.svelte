@@ -34,14 +34,6 @@
           >
         </li>
         <li>
-          <div class="tooltip">Blog</div>
-          <!-- svelte-ignore a11y_missing_attribute -->
-          <!-- svelte-ignore a11y_consider_explicit_label -->
-          <a href="/#/blog" class="dock-button button"
-            ><img src="/img/html2.png" class="dock-icon" /></a
-          >
-        </li>
-        <li>
           <div class="tooltip">Games</div>
           <!-- svelte-ignore a11y_missing_attribute -->
           <!-- svelte-ignore a11y_consider_explicit_label -->
