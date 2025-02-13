@@ -11,6 +11,7 @@ import Shootyman from "../routes/games/shootyman.svelte";
 import ShootyCrate from "../routes/games/scb.svelte";
 import Pitch from "../routes/games/pitch.svelte";
 import Git from "../routes/Git.svelte";
+import Loe from "../routes/games/loe.svelte";
 
 export const routes = {
   // Exact path
@@ -25,6 +26,7 @@ export const routes = {
   "/games/shootyman": Shootyman,
   "/games/scb": ShootyCrate,
   "/games/pitch": Pitch,
+  "/games/loe": Loe,
   "/git": Git,
   // This is optional, but if present it must be the last
   "*": NotFound,

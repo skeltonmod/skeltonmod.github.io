@@ -1,5 +1,18 @@
 export const recent_games = [
   {
+    title: "Erika Sprite Game",
+    description: `The very first top down adventure game that I've made. Released in 2025. A very short game that took 7 months to finish.`,
+    metadata: [
+      {
+        name: "Platform",
+        value: "HTML5, 2025",
+      },
+    ],
+    image: "/preview/loe.png",
+    link: "/#/games/loe",
+    link_title: "Play here",
+  },
+  {
     title: "Destroy The Porn HTML5",
     description: `The first game I made in 2024. It's a remake of Destroy The Porn, a game
       that was made in 2013. It was mostly an excuse to learn how to make a game

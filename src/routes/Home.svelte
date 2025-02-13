@@ -42,7 +42,7 @@
   />
   <p>Hi, I'm Elijah. It's nice to meet yuh.</p>
   <p>
-    <strong>Unorthodox developer with a lot of free time</strong>
+    <strong>Unorthodoxed developer with a lot of free time</strong>
   </p>
   <p>You can also find my work related stuff here</p>
   <p>Site was last updated at <strong>{current_date}</strong></p>
