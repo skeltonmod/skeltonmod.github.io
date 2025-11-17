@@ -1,14 +1,321 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/icon.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="https://unpkg.com/98.css" />
-    <title>Skelton's Lair</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.js"></script>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="public/icon.png">
+    <title>The Veil</title>
+    <style>
+        @font-face {
+            font-family: 'Silver';
+            src: url('public/fonts/monogram.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            -webkit-font-smoothing: none;
+            -moz-osx-font-smoothing: grayscale;
+            font-smooth: never;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #000;
+            color: #0f0;
+            font-family: 'Silver', monospace;
+            /* Crispy pixel font rendering */
+            -webkit-font-smoothing: none;
+            -moz-osx-font-smoothing: grayscale;
+            font-smooth: never;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        
+        pre {
+            font-family: monospace;
+            line-height: 1.2;
+            margin: 0;
+            padding: 20px;
+            font-size: 12px;
+            color: #555;
+            white-space: pre;
+        }
+        
+        .message {
+            font-family: 'Silver', monospace;
+            margin-top: 20px;
+            font-size: 16px;
+            letter-spacing: 2px;
+            color: #0f0;
+            min-height: 1.2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content {
+            margin-top: 40px;
+            font-size: 16px;
+            line-height: 1.6;
+            max-width: 600px;
+            text-align: left;
+            width: 100%;
+        }
+
+        .content p {
+            margin: 0 0 10px 0;
+        }
+
+        .content .prompt {
+            color: #0f0;
+            margin-right: 8px;
+            font-size: 16px;
+        }
+
+        .content span {
+            color: #ccc;
+        }
+
+        .content a {
+            color: #0ff;
+            text-decoration: none;
+            border-bottom: 1px dashed #0ff;
+        }
+
+        .content a:hover {
+            color: #000;
+            background-color: #0ff;
+            border-bottom: 1px dashed #0ff;
+        }
+
+        .hidden-for-render {
+            visibility: hidden;
+        }
+        
+        .cursor-line::after {
+            content: '█';
+            color: #0f0;
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            from, to { color: transparent; }
+            50% { color: #0f0; }
+        }
+
+        .glitching-active {
+            text-shadow: 
+                -2px -2px 0 #0ff, 
+                 2px  2px 0 #f00;
+            opacity: 0.8;
+            animation: glitch-shake-active 80ms linear infinite;
+        }
+
+        @keyframes glitch-shake-active {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(2px, -1px); }
+            50% { transform: translate(-1px, 2px); }
+            75% { transform: translate(1px, -2px); }
+        }
+        
+        @media (max-width: 768px) {
+            pre {
+                font-size: 6px;
+                line-height: 1.1;
+                padding: 10px;
+            }
+            .message {
+                font-size: 12px;
+            }
+            .content {
+                font-size: 12px;
+                margin-top: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <pre class="hidden-for-render">  ██████  ██ ▄█▀▓█████  ██▓  ▄▄▄█████▓ ▒█████   ███▄    █  ███▄ ▄███▓ ▒█████  ▓█████▄ 
+▒██    ▒  ██▄█▒ ▓█   ▀ ▓██▒  ▓  ██▒ ▓▒▒██▒  ██▒ ██ ▀█   █ ▓██▒▀█▀ ██▒▒██▒  ██▒▒██▀ ██▌
+░ ▓██▄   ▓███▄░ ▒███   ▒██░  ▒ ▓██░ ▒░▒██░  ██▒▓██  ▀█ ██▒▓██    ▓██░▒██░  ██▒░██   █▌
+  ▒   ██▒▓██ █▄ ▒▓█  ▄ ▒██░  ░ ▓██▓ ░ ▒██   ██░▓██▒  ▐▌██▒▒██    ▒██ ▒██   ██░░▓█▄   ▌
+▒██████▒▒▒██▒ █▄░▒████▒░██████▒▒██▒ ░ ░ ████▓▒░▒██░   ▓██░▒██▒   ░██▒░ ████▓▒░░▒████▓ 
+▒ ▒▓▒ ▒ ░▒ ▒▒ ▓▒░░ ▒░ ░░ ▒░▓  ░▒ ░░   ░ ▒░▒░▒░ ░ ▒░   ▒ ▒ ░ ▒░   ░  ░░ ▒░▒░▒░  ▒▒▓  ▒ 
+░ ░▒  ░ ░░ ░▒ ▒░ ░ ░  ░░ ░ ▒  ░  ░      ░ ▒ ▒░ ░ ░░   ░ ▒░░  ░      ░  ░ ▒ ▒░  ░ ▒  ▒ 
+░  ░  ░  ░ ░░ ░    ░     ░ ░   ░      ░ ░ ░ ▒     ░   ░ ░ ░      ░   ░ ░ ░ ▒   ░ ░  ░ 
+      ░  ░  ░      ░  ░    ░  ░           ░ ░           ░        ░       ░ ░     ░    
+                                                                               ░      </pre>
+    
+    <div class="message hidden-for-render">[the veil has been broken]</div>
+
+    <div class="content">
+        <p class="hidden-for-render"><span class="prompt">></span> <span>STATUS: UNKNOWN</span></p>
+        <p class="hidden-for-render"><span class="prompt">></span> <span>IDENTITY: [ELIJAH]</span></p>
+        <p class="hidden-for-render"><span class="prompt">></span> <span>PRAGMA: [FULL TIME ENGINEER // CARBON BASED LIFE FORM]</span></p>
+        <p class="hidden-for-render"><span class="prompt">></span> <span>ABOUT: THAT'S ON A NEED TO KNOW BASIS</span></p>
+        <p class="hidden-for-render">
+            <span class="prompt">></span> <span>CONNECT: [<a href="https://github.com/skeltonmod" target="_blank">GitHub</a>] [<a href="https://www.linkedin.com/in/abgaoe/" target="_blank">LinkedIn</a>] [<a href="mailto:abgaoe@gmail.com">Email</a>]</span>
+        </p>
+        <p class="hidden-for-render"><span class="prompt">></span> <span>...</span></p>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const preLineDelay = 100;
+            const wordDelay = 60;
+            const elementPause = 200;
+
+            const preElement = document.querySelector('pre.hidden-for-render');
+            const messageElement = document.querySelector('.message.hidden-for-render');
+            const contentElements = document.querySelectorAll('.content p.hidden-for-render');
+
+            async function runAnimations() {
+                if (preElement) {
+                    await animatePreElement(preElement);
+                }
+                if (messageElement) {
+                    messageElement.textContent = '[the veil has been broken]';
+                    await animateNodeWordByWord(messageElement);
+                }
+
+                for (const p of contentElements) {
+                    await pause(elementPause);
+                    await animateNodeWordByWord(p);
+                }
+
+                const lastElement = contentElements.length > 0 ? contentElements[contentElements.length - 1] : messageElement;
+                if (lastElement) {
+                    const lastChild = lastElement.lastChild;
+                    if (lastChild) {
+                        lastChild.classList.add('cursor-line');
+                    } else {
+                        lastElement.classList.add('cursor-line');
+                    }
+                }
+
+                if (messageElement) {
+                    startGlitchCycle(messageElement);
+                }
+            }
+
+            function pause(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            async function animatePreElement(el) {
+                const originalText = el.textContent;
+                const lines = originalText.split('\n');
+                
+                el.textContent = '';
+                el.style.visibility = 'visible';
+
+                for (const line of lines) {
+                    await pause(preLineDelay);
+                    el.textContent += line + '\n';
+                }
+            }
+            
+            async function animateNodeWordByWord(el) {
+                const wordsToAnimate = [];
+
+                function findTextNodes(node) {
+                    if (node.nodeType === Node.TEXT_NODE && node.nodeValue.trim().length > 0) {
+                        const words = node.nodeValue.trim().split(' ');
+                        const parent = node.parentNode;
+                        
+                        const fragment = document.createDocumentFragment();
+                        words.forEach(word => {
+                            if (word.length > 0) {
+                                const wordSpan = document.createElement('span');
+                                wordSpan.textContent = word;
+                                wordSpan.style.visibility = 'hidden';
+                                fragment.appendChild(wordSpan);
+                                fragment.appendChild(document.createTextNode(' ')); 
+                                wordsToAnimate.push(wordSpan);
+                            }
+                        });
+                        
+                        parent.replaceChild(fragment, node);
+                    } else {
+                        Array.from(node.childNodes).forEach(findTextNodes);
+                    }
+                }
+                
+                findTextNodes(el);
+
+                el.style.visibility = 'visible';
+
+                for (const wordSpan of wordsToAnimate) {
+                    await pause(wordDelay);
+                    wordSpan.style.visibility = 'visible';
+                }
+            }
+
+            const glitchMessages = [
+                '[the veil has been broken]',
+                '[in the heavens they are waiting]',
+                '[work enobles man]'
+            ];
+            let currentMessageIndex = 0;
+            const glitchChars = '█▓▒░Z_H/E@V*N$S!#?)(+<>';
+            const glitchInterval = 3000;
+            const scrambleDuration = 600;
+            const scrambleFrameRate = 40; 
+
+            function startGlitchCycle(el) {
+                setInterval(() => {
+                    currentMessageIndex = (currentMessageIndex + 1) % glitchMessages.length;
+                    const nextMessage = glitchMessages[currentMessageIndex];
+                    scrambleText(el, nextMessage);
+                }, glitchInterval + scrambleDuration);
+            }
+
+            function scrambleText(el, nextText) {
+                el.classList.add('glitching-active');
+
+                const numFrames = Math.floor(scrambleDuration / scrambleFrameRate);
+                const currentText = el.textContent;
+                const len = Math.max(currentText.length, nextText.length);
+
+                return new Promise((resolve) => {
+                    let frame = 0;
+
+                    const scrambler = setInterval(() => {
+                        frame++;
+                        if (frame >= numFrames) {
+                            clearInterval(scrambler);
+                            el.textContent = nextText;
+                            el.classList.remove('glitching-active');
+                            resolve();
+                            return;
+                        }
+
+                        let glitchedText = '';
+                        for (let i = 0; i < len; i++) {
+                            const revealChance = frame / numFrames;
+                            if (i < nextText.length && Math.random() < revealChance) {
+                                glitchedText += nextText[i];
+                            } else {
+                                glitchedText += glitchChars[Math.floor(Math.random() * glitchChars.length)];
+                            }
+                        }
+                        el.textContent = glitchedText;
+
+                    }, scrambleFrameRate);
+                });
+            }
+
+            runAnimations();
+        });
+    </script>
+
+</body>
 </html>
