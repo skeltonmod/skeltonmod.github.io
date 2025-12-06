@@ -34,7 +34,7 @@ function financeReport() {
     statusText: "Ready",
     tempSectionName: "",
 
-    filterType: "monthrange",
+    filterType: "none",
     filterYear: new Date().getFullYear(),
     filterMonth: new Date().getMonth() + 1,
     filterStartMonth: 1,
