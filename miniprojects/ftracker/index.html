@@ -22,6 +22,7 @@
   </head>
   <body>
     <div class="frame" x-data="financeReport()" x-init="init()" x-cloak>
+      
       <div class="title">
         <div>Elijah's Dogshit expense tracker (for morons)</div>
         <div style="font-size: 11px; opacity: 0.9">v2006 · local-only</div>
@@ -49,8 +50,8 @@
         <div class="left">
           <!-- Section selection -->
           <div style="margin-bottom: 12px; padding: 8px; background: #f9f9f9; border: 1px solid #aaa;">
-            <div style="margin-bottom: 6px;">
-              <label class="small" style="font-weight: bold;">
+            <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 6px;">
+              <label class="small" style="font-weight: bold; flex: 1;">
                 Current Section:
                 <select
                   class="input-old"
@@ -63,21 +64,24 @@
                   </template>
                 </select>
               </label>
+              <button class="ym-button mini" @click="$dispatch('open-section-modal')">+ Add Section</button>
             </div>
-            <div style="display: flex; gap: 6px; align-items: center;">
+            <div x-show="currentSection !== 'default'" style="display: flex; gap: 6px; align-items: center;">
               <input
                 class="input-old"
                 type="text"
-                x-model="newSectionName"
-                placeholder="New section name"
-                @keyup.enter="addSection()"
+                :value="sections.find(s => s.id === currentSection)?.name || ''"
+                @input="tempSectionName = $event.target.value"
+                placeholder="Section name"
                 style="flex: 1;"
               />
-              <button class="ym-button mini" @click="addSection()">+ Add Section</button>
+              <button 
+                class="ym-button mini" 
+                @click="updateSectionName()"
+              >Save Name</button>
               <button 
                 class="ym-button mini" 
                 @click="deleteSection(currentSection)"
-                x-show="currentSection !== 'default'"
               >Delete Section</button>
             </div>
           </div>
@@ -96,13 +100,14 @@
                   <option value="none">No Filter</option>
                   <option value="year">By Year</option>
                   <option value="month">By Month</option>
+                  <option value="monthrange">Month Range</option>
                   <option value="daterange">Date Range</option>
                 </select>
               </label>
             </div>
 
             <!-- Year Filter -->
-            <div x-show="filterType === 'year' || filterType === 'month'" style="margin-bottom: 6px;">
+            <div x-show="filterType === 'year' || filterType === 'month' || filterType === 'monthrange'" style="margin-bottom: 6px;">
               <label class="small">
                 Year:
                 <select
@@ -111,6 +116,7 @@
                   @change="drawChart()"
                   style="width: 80px; margin-left: 6px;"
                 >
+                  <option value="all">All</option>
                   <template x-for="y in years" :key="y">
                     <option :value="y" x-text="y"></option>
                   </template>
@@ -133,6 +139,40 @@
                   </template>
                 </select>
               </label>
+            </div>
+
+            <!-- Month Range Filter -->
+            <div x-show="filterType === 'monthrange'">
+              <div style="margin-bottom: 4px;">
+                <label class="small">
+                  From Month:
+                  <select
+                    class="input-old small"
+                    x-model="filterStartMonth"
+                    @change="drawChart()"
+                    style="width: 100px; margin-left: 6px;"
+                  >
+                    <template x-for="(m,i) in months" :key="i">
+                      <option :value="i+1" x-text="m"></option>
+                    </template>
+                  </select>
+                </label>
+              </div>
+              <div style="margin-bottom: 6px;">
+                <label class="small">
+                  To Month:
+                  <select
+                    class="input-old small"
+                    x-model="filterEndMonth"
+                    @change="drawChart()"
+                    style="width: 100px; margin-left: 6px;"
+                  >
+                    <template x-for="(m,i) in months" :key="i">
+                      <option :value="i+1" x-text="m"></option>
+                    </template>
+                  </select>
+                </label>
+              </div>
             </div>
 
             <!-- Date Range Filter -->
@@ -170,7 +210,7 @@
                   <th style="width: 140px">Source</th>
                   <th>Description</th>
                   <th style="width: 100px">Amount (PHP)</th>
-                  <th style="width: 40px">#</th>
+                  <th style="width: 80px">#</th>
                 </tr>
               </thead>
               <tbody>
@@ -210,7 +250,8 @@
                       />
                     </td>
                     <td>
-                      <button class="ym-button" @click="removeIncomeById(it.id)">x</button>
+                      <button class="bevel mini" @click="duplicateIncome(it.id)" title="Duplicate">+</button>
+                      <button class="bevel mini" @click="removeIncomeById(it.id)">x</button>
                     </td>
                   </tr>
                 </template>
@@ -233,7 +274,7 @@
                   <th style="width: 110px">Category</th>
                   <th>Description</th>
                   <th style="width: 100px">Amount (PHP)</th>
-                  <th style="width: 40px">#</th>
+                  <th style="width: 100px">#</th>
                 </tr>
               </thead>
               <tbody>
@@ -273,7 +314,8 @@
                       />
                     </td>
                     <td>
-                      <button class="ym-button" @click="removeExpenseById(it.id)">
+                      <button class="bevel mini" @click="duplicateExpense(it.id)" title="Duplicate">+</button>
+                      <button class="bevel mini" @click="removeExpenseById(it.id)">
                         x
                       </button>
                     </td>
@@ -293,33 +335,118 @@
           <div style="margin-bottom: 8px"><strong>Monthly Summary</strong></div>
 
           <div style="margin-bottom: 8px">
-            <label class="small"
-              >Summary month:
+            <label class="small" style="display: block; margin-bottom: 6px;">
+              Summary Filter:
               <select
                 class="input-old small"
-                x-model="summaryMonth"
+                x-model="summaryFilterType"
                 @change="drawChart()"
-                style="width: 100px"
+                style="width: 120px; margin-left: 6px;"
               >
-                <option value="all">-- All --</option>
-                <template x-for="(m,i) in months" :key="i">
-                  <option :value="i+1" x-text="m"></option>
-                </template>
+                <option value="all">All Data</option>
+                <option value="year">By Year</option>
+                <option value="month">By Month</option>
+                <option value="monthrange">Month Range</option>
+                <option value="daterange">Date Range</option>
               </select>
             </label>
-            <label class="small" style="margin-top: 6px; display: block"
-              >Year:
-              <select
-                class="input-old small"
-                x-model="summaryYear"
-                @change="drawChart()"
-                style="width: 80px"
-              >
-                <template x-for="y in years" :key="y">
-                  <option x-text="y" :value="y"></option>
-                </template>
-              </select>
-            </label>
+
+            <!-- Year Filter for Summary -->
+            <div x-show="summaryFilterType === 'year' || summaryFilterType === 'month' || summaryFilterType === 'monthrange'" style="margin-bottom: 6px;">
+              <label class="small">
+                Year:
+                <select
+                  class="input-old small"
+                  x-model="summaryYear"
+                  @change="drawChart()"
+                  style="width: 80px; margin-left: 6px;"
+                >
+                  <option value="all">All</option>
+                  <template x-for="y in years" :key="y">
+                    <option :value="y" x-text="y"></option>
+                  </template>
+                </select>
+              </label>
+            </div>
+
+            <!-- Month Filter for Summary -->
+            <div x-show="summaryFilterType === 'month'" style="margin-bottom: 6px;">
+              <label class="small">
+                Month:
+                <select
+                  class="input-old small"
+                  x-model="summaryMonth"
+                  @change="drawChart()"
+                  style="width: 100px; margin-left: 6px;"
+                >
+                  <template x-for="(m,i) in months" :key="i">
+                    <option :value="i+1" x-text="m"></option>
+                  </template>
+                </select>
+              </label>
+            </div>
+
+            <!-- Month Range Filter for Summary -->
+            <div x-show="summaryFilterType === 'monthrange'">
+              <div style="margin-bottom: 4px;">
+                <label class="small">
+                  From Month:
+                  <select
+                    class="input-old small"
+                    x-model="summaryStartMonth"
+                    @change="drawChart()"
+                    style="width: 100px; margin-left: 6px;"
+                  >
+                    <template x-for="(m,i) in months" :key="i">
+                      <option :value="i+1" x-text="m"></option>
+                    </template>
+                  </select>
+                </label>
+              </div>
+              <div style="margin-bottom: 6px;">
+                <label class="small">
+                  To Month:
+                  <select
+                    class="input-old small"
+                    x-model="summaryEndMonth"
+                    @change="drawChart()"
+                    style="width: 100px; margin-left: 6px;"
+                  >
+                    <template x-for="(m,i) in months" :key="i">
+                      <option :value="i+1" x-text="m"></option>
+                    </template>
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            <!-- Date Range Filter for Summary -->
+            <div x-show="summaryFilterType === 'daterange'">
+              <div style="margin-bottom: 4px;">
+                <label class="small">
+                  From:
+                  <input
+                    class="input-old small"
+                    type="date"
+                    x-model="summaryStartDate"
+                    @change="drawChart()"
+                    style="width: 130px; margin-left: 6px;"
+                  />
+                </label>
+              </div>
+              <div style="margin-bottom: 6px;">
+                <label class="small">
+                  To:
+                  <input
+                    class="input-old small"
+                    type="date"
+                    x-model="summaryEndDate"
+                    @change="drawChart()"
+                    style="width: 130px; margin-left: 6px;"
+                  />
+                </label>
+              </div>
+            </div>
           </div>
 
           <table class="grid small" style="width: 100%; margin-bottom: 8px">
@@ -371,20 +498,6 @@
             >
               Print
             </button>
-            <button
-              class="ym-button"
-              style="width: 100%; margin-bottom: 4px"
-              @click="generatePDF()"
-            >
-              Generate PDF
-            </button>
-            <button
-              class="ym-button"
-              style="width: 100%"
-              @click="generatePDFAllMonths()"
-            >
-              Export All (PDF)
-            </button>
           </div>
 
           <div style="margin-top: 10px">
@@ -404,6 +517,70 @@
           x-text="income.length + ' income · ' + expenses.length + ' expenses'"
         >
           0 income · 0 expenses
+        </div>
+      </div>
+    </div>
+
+    <!-- Section Creation Modal -->
+    <div x-data="{ 
+      showModal: false, 
+      sectionName: '',
+      createSection() {
+        if (!this.sectionName.trim()) {
+          alert('Please enter a section name');
+          return;
+        }
+        this.$dispatch('create-section', this.sectionName.trim());
+        this.sectionName = '';
+        this.showModal = false;
+      }
+    }" @open-section-modal.window="showModal = true; $nextTick(() => $refs.modalInput.focus())">
+      <div 
+        class="modal-wrapper"
+        :class="{ 'active': showModal }"
+        x-cloak
+      >
+        <div class="backdrop" @click="showModal = false; sectionName = ''"></div>
+        <div 
+          class="modal-panel"
+          :class="{ 'active': showModal }"
+          @click.stop
+        >
+          <div class="modal-header">
+            Create New Section
+          </div>
+          
+          <div class="modal-body">
+            <label class="small" style="display: block; margin-bottom: 3px;">
+              Section Name:
+            </label>
+            <input
+              class="input-old"
+              type="text"
+              x-model="sectionName"
+              @keyup.enter="createSection()"
+              placeholder="Enter section name"
+              style="width: 100%; padding: 4px;"
+              x-ref="modalInput"
+            />
+          </div>
+          
+          <div class="modal-footer">
+            <button 
+              class="ym-button mini" 
+              @click="showModal = false; sectionName = ''"
+              style="min-width: 70px;"
+            >
+              Cancel
+            </button>
+            <button 
+              class="ym-button mini" 
+              @click="createSection()"
+              style="min-width: 70px;"
+            >
+              Create
+            </button>
+          </div>
         </div>
       </div>
     </div>

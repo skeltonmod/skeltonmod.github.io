@@ -10,6 +10,11 @@ function financeReport() {
     selectedMonth: new Date().getMonth() + 1,
     summaryYear: new Date().getFullYear(),
     summaryMonth: new Date().getMonth() + 1,
+    summaryFilterType: "month",
+    summaryStartMonth: 1,
+    summaryEndMonth: 12,
+    summaryStartDate: "",
+    summaryEndDate: "",
     years: [],
     months: [
       "Jan",
@@ -27,20 +32,21 @@ function financeReport() {
     ],
     autoSaveEnabled: true,
     statusText: "Ready",
-    newSectionName: "",
+    tempSectionName: "",
 
-    filterType: "none",
+    filterType: "monthrange",
     filterYear: new Date().getFullYear(),
     filterMonth: new Date().getMonth() + 1,
+    filterStartMonth: 1,
+    filterEndMonth: 12,
     filterStartDate: "",
     filterEndDate: "",
-
+    
     init() {
       var now = new Date();
       var cy = now.getFullYear();
       this.years = [];
       for (var y = cy - 4; y <= cy + 1; y++) this.years.push(y);
-
       this.newSectionName = this.getDefaultSectionName();
 
       this.load();
@@ -49,6 +55,19 @@ function financeReport() {
 
       this.$nextTick(() => {
         this.drawChart();
+        
+        // Set the selected attribute on the option element matching the current year
+        const yearSelect = document.querySelector('select[x-model="summaryYear"]');
+        if (yearSelect) {
+          const options = yearSelect.querySelectorAll('option');
+          options.forEach(option => {
+            if (parseInt(option.value) === cy) {
+              option.setAttribute('selected', 'selected');
+            } else {
+              option.removeAttribute('selected');
+            }
+          });
+        }
       });
 
       this.$watch(
@@ -67,18 +86,36 @@ function financeReport() {
         },
         { deep: true }
       );
-      this.$watch("selectedMonth", () => {
-        this.drawChart();
-      });
-      this.$watch("selectedYear", () => {
-        this.drawChart();
-      });
       this.$watch("summaryMonth", () => {
         this.drawChart();
       });
       this.$watch("summaryYear", () => {
         this.drawChart();
       });
+      this.$watch("currentSection", () => {
+        const section = this.sections.find(s => s.id === this.currentSection);
+        this.tempSectionName = section ? section.name : "";
+      });
+      
+      // Listen for create-section event from modal (only once per instance)
+      if (!this._createSectionListenerAdded) {
+        this.handleCreateSection = (event) => {
+          const sectionName = event.detail;
+          console.log("Creating section:", sectionName);
+          if (sectionName && sectionName.trim()) {
+            const id = "sec" + Date.now();
+            this.sections.push({
+              id: id,
+              name: sectionName.trim(),
+            });
+            this.currentSection = id;
+            this.persistIfAuto();
+          }
+        };
+        
+        window.addEventListener('create-section', this.handleCreateSection);
+        this._createSectionListenerAdded = true;
+      }
     },
 
     save() {
@@ -87,7 +124,6 @@ function financeReport() {
           income: this.income,
           expenses: this.expenses,
           sections: this.sections,
-          currentSection: this.currentSection,
         };
         localStorage.setItem(this.storageKey, JSON.stringify(payload));
         alert("Saved locally.");
@@ -105,7 +141,8 @@ function financeReport() {
           this.sections = p.sections || [
             { id: "default", name: "Default Section" },
           ];
-          this.currentSection = p.currentSection || "default";
+          // Always start with default section, don't load saved section
+          this.currentSection = "default";
         }
       } catch (e) {
         console.error("Load failed", e);
@@ -130,7 +167,6 @@ function financeReport() {
               income: this.income,
               expenses: this.expenses,
               sections: this.sections,
-              currentSection: this.currentSection,
             })
           );
         } catch (e) {
@@ -168,6 +204,17 @@ function financeReport() {
         this.persistIfAuto();
       }
     },
+    duplicateIncome(id) {
+      const original = this.income.find((item) => item.id === id);
+      if (original) {
+        const duplicate = {
+          ...original,
+          id: "i" + Date.now() + Math.random().toString(36).slice(2, 6),
+        };
+        this.income.push(duplicate);
+        this.persistIfAuto();
+      }
+    },
     removeExpense(i) {
       this.expenses.splice(i, 1);
       this.persistIfAuto();
@@ -179,20 +226,48 @@ function financeReport() {
         this.persistIfAuto();
       }
     },
-
-    addSection() {
-      if (!this.newSectionName.trim()) {
-        alert("Please enter a section name");
+    duplicateExpense(id) {
+      const original = this.expenses.find((item) => item.id === id);
+      if (original) {
+        const duplicate = {
+          ...original,
+          id: "e" + Date.now() + Math.random().toString(36).slice(2, 6),
+        };
+        this.expenses.push(duplicate);
+        this.persistIfAuto();
+      }
+    },
+    editSection(sectionId) {
+      const section = this.sections.find((s) => s.id === sectionId);
+      if (!section) return;
+      
+      if (sectionId === "default") {
+        alert("Cannot rename the default section");
         return;
       }
-      const id = "sec" + Date.now();
-      this.sections.push({
-        id: id,
-        name: this.newSectionName.trim(),
-      });
-      this.newSectionName = this.getDefaultSectionName();
-      this.currentSection = id;
-      this.persistIfAuto();
+      
+      const newName = prompt("Enter new section name:", section.name);
+      if (newName && newName.trim()) {
+        section.name = newName.trim();
+        this.persistIfAuto();
+      }
+    },
+    updateSectionName() {
+      const section = this.sections.find((s) => s.id === this.currentSection);
+      if (!section) return;
+      
+      if (this.currentSection === "default") {
+        alert("Cannot rename the default section");
+        return;
+      }
+      
+      if (this.tempSectionName && this.tempSectionName.trim()) {
+        section.name = this.tempSectionName.trim();
+        this.persistIfAuto();
+      } else {
+        alert("Section name cannot be empty");
+        this.tempSectionName = section.name;
+      }
     },
     deleteSection(sectionId) {
       if (sectionId === "default") {
@@ -201,7 +276,7 @@ function financeReport() {
       }
       if (
         !confirm(
-          "Delete this section? Items in this section will remain but won't be visible unless you switch sections."
+          "Delete this section and all its income/expense items?"
         )
       ) {
         return;
@@ -209,15 +284,21 @@ function financeReport() {
       const index = this.sections.findIndex((s) => s.id === sectionId);
       if (index !== -1) {
         this.sections.splice(index, 1);
+        
+        // Delete all income and expense items belonging to this section
+        this.income = this.income.filter((item) => item.section !== sectionId);
+        this.expenses = this.expenses.filter((item) => item.section !== sectionId);
+        
         if (this.currentSection === sectionId) {
           this.currentSection = "default";
         }
         this.persistIfAuto();
+        this.drawChart();
       }
     },
     switchSection(sectionId) {
       this.currentSection = sectionId;
-      this.persistIfAuto();
+      // Don't persist section selection
     },
 
     addSample() {
@@ -298,13 +379,48 @@ function financeReport() {
 
       switch (this.filterType) {
         case "year":
+          if (this.filterYear === "all") return true;
           return itemDate.getFullYear() === Number(this.filterYear);
 
         case "month":
+          if (this.filterYear === "all") {
+            return itemDate.getMonth() + 1 === Number(this.filterMonth);
+          }
           return (
             itemDate.getFullYear() === Number(this.filterYear) &&
             itemDate.getMonth() + 1 === Number(this.filterMonth)
           );
+
+        case "monthrange":
+          if (this.filterYear === "all") {
+            // Month range across all years
+            const itemMonth = itemDate.getMonth() + 1;
+            const startMonth = Number(this.filterStartMonth);
+            const endMonth = Number(this.filterEndMonth);
+            
+            if (startMonth <= endMonth) {
+              return itemMonth >= startMonth && itemMonth <= endMonth;
+            } else {
+              // Handle wrap-around (e.g., Nov-Feb)
+              return itemMonth >= startMonth || itemMonth <= endMonth;
+            }
+          } else {
+            // Month range within a specific year
+            const itemMonth = itemDate.getMonth() + 1;
+            const startMonth = Number(this.filterStartMonth);
+            const endMonth = Number(this.filterEndMonth);
+            
+            if (itemDate.getFullYear() !== Number(this.filterYear)) {
+              return false;
+            }
+            
+            if (startMonth <= endMonth) {
+              return itemMonth >= startMonth && itemMonth <= endMonth;
+            } else {
+              // Handle wrap-around within same year
+              return itemMonth >= startMonth || itemMonth <= endMonth;
+            }
+          }
 
         case "daterange":
           if (!this.filterStartDate && !this.filterEndDate) return true;
@@ -346,10 +462,7 @@ function financeReport() {
     get summaryIncome() {
       var filtered = this.income.filter((it) => {
         if (!it.date) return false;
-        var d = new Date(it.date);
-        if (d.getFullYear() != this.summaryYear) return false;
-        if (this.summaryMonth === "all") return true;
-        return d.getMonth() + 1 == Number(this.summaryMonth);
+        return this.applySummaryFilter(it);
       });
       return filtered.reduce((s, i) => s + (Number(i.amount) || 0), 0);
     },
@@ -357,12 +470,81 @@ function financeReport() {
     get summaryExpenses() {
       var filtered = this.expenses.filter((it) => {
         if (!it.date) return false;
-        var d = new Date(it.date);
-        if (d.getFullYear() != this.summaryYear) return false;
-        if (this.summaryMonth === "all") return true;
-        return d.getMonth() + 1 == Number(this.summaryMonth);
+        return this.applySummaryFilter(it);
       });
       return filtered.reduce((s, i) => s + (Number(i.amount) || 0), 0);
+    },
+
+    applySummaryFilter(item) {
+      if (this.summaryFilterType === "all") return true;
+      if (!item.date) return false;
+
+      const itemDate = new Date(item.date);
+
+      switch (this.summaryFilterType) {
+        case "year":
+          if (this.summaryYear === "all") return true;
+          return itemDate.getFullYear() === Number(this.summaryYear);
+
+        case "month":
+          if (this.summaryYear === "all") {
+            return itemDate.getMonth() + 1 === Number(this.summaryMonth);
+          }
+          return (
+            itemDate.getFullYear() === Number(this.summaryYear) &&
+            itemDate.getMonth() + 1 === Number(this.summaryMonth)
+          );
+
+        case "monthrange":
+          if (this.summaryYear === "all") {
+            // Month range across all years
+            const itemMonth = itemDate.getMonth() + 1;
+            const startMonth = Number(this.summaryStartMonth);
+            const endMonth = Number(this.summaryEndMonth);
+            
+            if (startMonth <= endMonth) {
+              return itemMonth >= startMonth && itemMonth <= endMonth;
+            } else {
+              // Handle wrap-around (e.g., Nov-Feb)
+              return itemMonth >= startMonth || itemMonth <= endMonth;
+            }
+          } else {
+            // Month range within a specific year
+            const itemMonth = itemDate.getMonth() + 1;
+            const startMonth = Number(this.summaryStartMonth);
+            const endMonth = Number(this.summaryEndMonth);
+            
+            if (itemDate.getFullYear() !== Number(this.summaryYear)) {
+              return false;
+            }
+            
+            if (startMonth <= endMonth) {
+              return itemMonth >= startMonth && itemMonth <= endMonth;
+            } else {
+              // Handle wrap-around within same year
+              return itemMonth >= startMonth || itemMonth <= endMonth;
+            }
+          }
+
+        case "daterange":
+          if (!this.summaryStartDate && !this.summaryEndDate) return true;
+          const start = this.summaryStartDate
+            ? new Date(this.summaryStartDate)
+            : null;
+          const end = this.summaryEndDate ? new Date(this.summaryEndDate) : null;
+
+          if (start && end) {
+            return itemDate >= start && itemDate <= end;
+          } else if (start) {
+            return itemDate >= start;
+          } else if (end) {
+            return itemDate <= end;
+          }
+          return true;
+
+        default:
+          return true;
+      }
     },
 
     get summaryNet() {
@@ -385,21 +567,27 @@ function financeReport() {
       ctx.fillStyle = "#e9e9e9";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      var year = Number(this.selectedYear);
+      var year = this.summaryYear === "all" ? null : Number(this.summaryYear);
       var incBuckets = new Array(12).fill(0);
       var expBuckets = new Array(12).fill(0);
+      
       this.income.forEach((it) => {
         if (it.date) {
           var d = new Date(it.date);
-          if (d.getFullYear() == year)
+          // If year is "all", aggregate across all years
+          if (year === null || d.getFullYear() == year) {
             incBuckets[d.getMonth()] += Number(it.amount || 0);
+          }
         }
       });
+      
       this.expenses.forEach((it) => {
         if (it.date) {
           var d = new Date(it.date);
-          if (d.getFullYear() == year)
+          // If year is "all", aggregate across all years
+          if (year === null || d.getFullYear() == year) {
             expBuckets[d.getMonth()] += Number(it.amount || 0);
+          }
         }
       });
 
@@ -523,7 +711,7 @@ function financeReport() {
             <div style="font-weight:bold; margin-bottom:6px;">Income</div>
             <table style="width:100%; border-collapse:collapse; font-size:12px;">
               <thead>
-                <tr><th style="border:1px solid #999; padding:6px;">Date</th><th style="border:1px solid #999; padding:6px;">Source</th><th style="border:1px solid #999; padding:6px;">Amount</th></tr>
+                <tr><th style="border:1px solid #999; padding:6px;">Date</th><th style="border:1px solid #999; padding:6px;">Source</th><th style="border:1px solid #999; padding:6px;">Description</th><th style="border:1px solid #999; padding:6px;">Amount</th></tr>
               </thead>
               <tbody>
                 ${incRows
@@ -533,6 +721,8 @@ function financeReport() {
                         r.date
                       }</td><td style="border:1px solid #999; padding:6px;">${escapeHtml(
                         r.name
+                      )}</td><td style="border:1px solid #999; padding:6px;">${escapeHtml(
+                        r.desc || ""
                       )}</td><td style="border:1px solid #999; padding:6px; text-align:right;">${Number(
                         r.amount || 0
                       ).toFixed(2)}</td></tr>`
@@ -546,7 +736,7 @@ function financeReport() {
             <div style="font-weight:bold; margin-bottom:6px;">Expenses</div>
             <table style="width:100%; border-collapse:collapse; font-size:12px;">
               <thead>
-                <tr><th style="border:1px solid #999; padding:6px;">Date</th><th style="border:1px solid #999; padding:6px;">Category</th><th style="border:1px solid #999; padding:6px;">Amount</th></tr>
+                <tr><th style="border:1px solid #999; padding:6px;">Date</th><th style="border:1px solid #999; padding:6px;">Category</th><th style="border:1px solid #999; padding:6px;">Description</th><th style="border:1px solid #999; padding:6px;">Amount</th></tr>
               </thead>
               <tbody>
                 ${expRows
@@ -555,7 +745,9 @@ function financeReport() {
                       `<tr><td style="border:1px solid #999; padding:6px;">${
                         r.date
                       }</td><td style="border:1px solid #999; padding:6px;">${escapeHtml(
-                        r.name
+                        r.name || r.category || ""
+                      )}</td><td style="border:1px solid #999; padding:6px;">${escapeHtml(
+                        r.desc || ""
                       )}</td><td style="border:1px solid #999; padding:6px; text-align:right;">${Number(
                         r.amount || 0
                       ).toFixed(2)}</td></tr>`
@@ -576,12 +768,132 @@ function financeReport() {
       return frag;
     },
 
+    _makeSectionReportFragment() {
+      var frag = document.createElement("div");
+      frag.style.width = "720px";
+      frag.style.padding = "12px";
+      frag.style.background = "#fff";
+      frag.style.color = "#000";
+      frag.style.fontFamily = "Tahoma, Arial, sans-serif";
+      
+      let htmlContent = `
+        <div style="border-bottom:2px solid #222; margin-bottom:8px; padding-bottom:6px;">
+          <div style="font-weight:bold; font-size:18px;">Dogshit Finance Tracker</div>
+          <div style="font-size:13px; color:#333;">Report by Sections</div>
+        </div>
+      `;
+      
+      let grandTotalIncome = 0;
+      let grandTotalExpenses = 0;
+      
+      // Loop through each section
+      this.sections.forEach((section) => {
+        const sectionIncome = this.income.filter((it) => 
+          (it.section === section.id) || (!it.section && section.id === "default")
+        );
+        const sectionExpenses = this.expenses.filter((it) => 
+          (it.section === section.id) || (!it.section && section.id === "default")
+        );
+        
+        const sectionIncomeTotal = sectionIncome.reduce((s, r) => s + Number(r.amount || 0), 0);
+        const sectionExpensesTotal = sectionExpenses.reduce((s, r) => s + Number(r.amount || 0), 0);
+        const sectionNet = sectionIncomeTotal - sectionExpensesTotal;
+        
+        grandTotalIncome += sectionIncomeTotal;
+        grandTotalExpenses += sectionExpensesTotal;
+        
+        htmlContent += `
+          <div style="margin-top:16px; page-break-inside: avoid;">
+            <div style="font-weight:bold; font-size:14px; background:#e0e0e0; padding:6px; border:1px solid #999;">
+              Section: ${escapeHtml(section.name)}
+            </div>
+            
+            <div style="margin-top:8px;">
+              <div style="font-weight:bold; margin-bottom:4px; font-size:12px;">Income</div>
+              <table style="width:100%; border-collapse:collapse; font-size:11px;">
+                <thead>
+                  <tr>
+                    <th style="border:1px solid #999; padding:4px;">Date</th>
+                    <th style="border:1px solid #999; padding:4px;">Source</th>
+                    <th style="border:1px solid #999; padding:4px;">Description</th>
+                    <th style="border:1px solid #999; padding:4px;">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${sectionIncome.length > 0 ? sectionIncome
+                    .map(
+                      (r) =>
+                        `<tr><td style="border:1px solid #999; padding:4px;">${
+                          r.date
+                        }</td><td style="border:1px solid #999; padding:4px;">${escapeHtml(
+                          r.name
+                        )}</td><td style="border:1px solid #999; padding:4px;">${escapeHtml(
+                          r.desc || ""
+                        )}</td><td style="border:1px solid #999; padding:4px; text-align:right;">₱${Number(
+                          r.amount || 0
+                        ).toFixed(2)}</td></tr>`
+                    )
+                    .join("") : '<tr><td colspan="4" style="border:1px solid #999; padding:4px; text-align:center; color:#999;">No income</td></tr>'}
+                </tbody>
+              </table>
+            </div>
+            
+            <div style="margin-top:8px;">
+              <div style="font-weight:bold; margin-bottom:4px; font-size:12px;">Expenses</div>
+              <table style="width:100%; border-collapse:collapse; font-size:11px;">
+                <thead>
+                  <tr>
+                    <th style="border:1px solid #999; padding:4px;">Date</th>
+                    <th style="border:1px solid #999; padding:4px;">Category</th>
+                    <th style="border:1px solid #999; padding:4px;">Description</th>
+                    <th style="border:1px solid #999; padding:4px;">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${sectionExpenses.length > 0 ? sectionExpenses
+                    .map(
+                      (r) =>
+                        `<tr><td style="border:1px solid #999; padding:4px;">${
+                          r.date
+                        }</td><td style="border:1px solid #999; padding:4px;">${escapeHtml(
+                          r.name || r.category || ""
+                        )}</td><td style="border:1px solid #999; padding:4px;">${escapeHtml(
+                          r.desc || ""
+                        )}</td><td style="border:1px solid #999; padding:4px; text-align:right;">₱${Number(
+                          r.amount || 0
+                        ).toFixed(2)}</td></tr>`
+                    )
+                    .join("") : '<tr><td colspan="4" style="border:1px solid #999; padding:4px; text-align:center; color:#999;">No expenses</td></tr>'}
+                </tbody>
+              </table>
+            </div>
+            
+            <div style="margin-top:8px; padding:6px; border:1px solid #888; background:#f9f9f9;">
+              <div style="font-size:11px;"><strong>Subtotal Income:</strong> ₱${sectionIncomeTotal.toFixed(2)}</div>
+              <div style="font-size:11px;"><strong>Subtotal Expenses:</strong> ₱${sectionExpensesTotal.toFixed(2)}</div>
+              <div style="font-size:11px; margin-top:4px;"><strong>Subtotal Net:</strong> ₱${sectionNet.toFixed(2)}</div>
+            </div>
+          </div>
+        `;
+      });
+      
+      const grandNet = grandTotalIncome - grandTotalExpenses;
+      
+      htmlContent += `
+        <div style="margin-top:16px; padding:10px; border:3px ridge #555; background:#e8e8e8;">
+          <div style="font-size:13px;"><strong>Grand Total Income:</strong> ₱${grandTotalIncome.toFixed(2)}</div>
+          <div style="font-size:13px;"><strong>Grand Total Expenses:</strong> ₱${grandTotalExpenses.toFixed(2)}</div>
+          <div style="font-size:14px; margin-top:6px;"><strong>Grand Total Net:</strong> ₱${grandNet.toFixed(2)}</div>
+        </div>
+      `;
+      
+      frag.innerHTML = htmlContent;
+      return frag;
+    },
+
     printReport() {
       var w = window.open("", "_blank", "width=900,height=700");
-      var frag = this._makeReportFragment(
-        Number(this.selectedYear),
-        this.selectedMonth === "all" ? "all" : Number(this.selectedMonth)
-      );
+      var frag = this._makeSectionReportFragment();
       w.document.write(
         '<!doctype html><html><head><meta charset="utf-8"></head><body>'
       );
@@ -594,10 +906,7 @@ function financeReport() {
 
     async generatePDF() {
       try {
-        var frag = this._makeReportFragment(
-          Number(this.selectedYear),
-          this.selectedMonth === "all" ? "all" : Number(this.selectedMonth)
-        );
+        var frag = this._makeSectionReportFragment();
         document.body.appendChild(frag);
 
         await new Promise((r) => setTimeout(r, 100));
@@ -611,7 +920,7 @@ function financeReport() {
         const imgW = pageW - 40;
         const imgH = canvas.height * (imgW / canvas.width);
         pdf.addImage(imgData, "JPEG", 20, 20, imgW, imgH);
-        pdf.save(`finance_${this.selectedYear}_${this.selectedMonth}.pdf`);
+        pdf.save(`finance_sections_report.pdf`);
       } catch (e) {
         alert("PDF generation failed: " + e.message);
         console.error(e);
@@ -620,55 +929,20 @@ function financeReport() {
 
     async generatePDFAllMonths() {
       try {
-        var year = Number(this.selectedYear);
-
-        var monthsWithData = new Set();
-        this.income.forEach((i) => {
-          if (i.date) {
-            var d = new Date(i.date);
-            if (d.getFullYear() == year) monthsWithData.add(d.getMonth() + 1);
-          }
-        });
-        this.expenses.forEach((i) => {
-          if (i.date) {
-            var d = new Date(i.date);
-            if (d.getFullYear() == year) monthsWithData.add(d.getMonth() + 1);
-          }
-        });
-        if (!monthsWithData.size) {
-          if (
-            !confirm(
-              'No monthly data found for this year. Export a single "all months" page instead?'
-            )
-          )
-            return;
-          monthsWithData = new Set(["all"]);
-        }
+        // Generate a comprehensive report with all sections
+        var frag = this._makeSectionReportFragment();
+        document.body.appendChild(frag);
+        await new Promise((r) => setTimeout(r, 100));
+        const canvas = await html2canvas(frag, { scale: 2 });
+        document.body.removeChild(frag);
+        const imgData = canvas.toDataURL("image/jpeg", 0.95);
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF("p", "pt", "a4");
-        let first = true;
-
-        let monthList = Array.from(monthsWithData).sort(
-          (a, b) => (a === "all" ? 13 : a) - (b === "all" ? 13 : b)
-        );
-        for (const m of monthList) {
-          var frag = this._makeReportFragment(
-            year,
-            m === "all" ? "all" : Number(m)
-          );
-          document.body.appendChild(frag);
-          await new Promise((r) => setTimeout(r, 100));
-          const canvas = await html2canvas(frag, { scale: 2 });
-          document.body.removeChild(frag);
-          const imgData = canvas.toDataURL("image/jpeg", 0.95);
-          const pageW = pdf.internal.pageSize.getWidth();
-          const imgW = pageW - 40;
-          const imgH = canvas.height * (imgW / canvas.width);
-          if (!first) pdf.addPage();
-          pdf.addImage(imgData, "JPEG", 20, 20, imgW, imgH);
-          first = false;
-        }
-        pdf.save(`finance_${year}_months.pdf`);
+        const pageW = pdf.internal.pageSize.getWidth();
+        const imgW = pageW - 40;
+        const imgH = canvas.height * (imgW / canvas.width);
+        pdf.addImage(imgData, "JPEG", 20, 20, imgW, imgH);
+        pdf.save(`finance_all_sections_report.pdf`);
       } catch (e) {
         alert("Export failed: " + e.message);
         console.error(e);
