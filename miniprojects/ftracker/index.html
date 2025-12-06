@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>HTML + CSS</title>
+    <link rel="stylesheet" href="style.css" />
+    <!-- AlpineJS (user-requested CDN) -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+      defer
+    ></script>
+
+    <!-- html2canvas + jsPDF for PDF generation -->
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
+      defer
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
+      defer
+    ></script>
+    <script src="script.js"></script>
+  </head>
+  <body>
+    <div class="frame" x-data="financeReport()" x-init="init()" x-cloak>
+      <div class="title">
+        <div>Elijah's Dogshit expense tracker (for morons)</div>
+        <div style="font-size: 11px; opacity: 0.9">v2006 · local-only</div>
+      </div>
+
+      <div class="toolbar">
+        <button class="ym-button" @click="addSample()">+ Sample</button>
+        <button class="ym-button" @click="save()">Save</button>
+        <button class="ym-button" @click="load()">Load</button>
+        <button class="ym-button" @click="resetStorage()">Reset</button>
+        <button class="ym-button" @click="downloadCSV()">Export CSV</button>
+        <div style="flex: 1"></div>
+        <div class="muted small">
+          Auto-save: <span x-text="autoSaveEnabled ? 'ON' : 'OFF'"></span>
+        </div>
+        <button
+          class="ym-button"
+          @click="autoSaveEnabled = !autoSaveEnabled"
+          x-text="autoSaveEnabled ? 'Disable' : 'Enable'"
+        ></button>
+      </div>
+
+      <div class="panel">
+        <div class="left">
+          <!-- Filters / month selection -->
+          <div style="margin-bottom: 8px">
+            <label class="small"
+              >Filter month:
+              <select
+                class="input-old small"
+                x-model="selectedMonth"
+                @change="drawChart()"
+                style="width: 100px"
+              >
+                <option value="all">-- All --</option>
+                <template x-for="(m,i) in months" :key="i">
+                  <option :value="i+1" x-text="m"></option>
+                </template>
+              </select>
+            </label>
+            <label class="small" style="margin-left: 8px"
+              >Year:
+              <select
+                class="input-old small"
+                x-model="selectedYear"
+                @change="recomputeMonths(); drawChart();"
+                style="width: 80px"
+              >
+                <template x-for="y in years" :key="y">
+                  <option x-text="y" :value="y"></option>
+                </template>
+              </select>
+            </label>
+          </div>
+
+          <!-- Income table -->
+          <div style="margin-bottom: 8px">
+            <strong>Income</strong>
+            <table class="grid">
+              <thead>
+                <tr>
+                  <th style="width: 110px">Date</th>
+                  <th style="width: 140px">Source</th>
+                  <th>Description</th>
+                  <th style="width: 100px">Amount (PHP)</th>
+                  <th style="width: 40px">#</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="(it, idx) in income" :key="it.id">
+                  <tr>
+                    <td>
+                      <input
+                        class="input-old"
+                        type="date"
+                        x-model="it.date"
+                        @change="persistIfAuto()"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        class="input-old"
+                        x-model="it.name"
+                        @input="persistIfAuto()"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        class="input-old"
+                        x-model="it.desc"
+                        @input="persistIfAuto()"
+                        placeholder="Description"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        class="input-old"
+                        type="number"
+                        step="0.01"
+                        x-model.number="it.amount"
+                        @input="persistIfAuto()"
+                        style="text-align: right"
+                      />
+                    </td>
+                    <td>
+                      <button class="ym-button" @click="removeIncome(idx)">x</button>
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+            <div style="text-align: right; margin-top: 6px">
+              <button class="ym-button mini" @click="addIncome()">
+                + Add Income
+              </button>
+            </div>
+          </div>
+
+          <!-- Expenses table -->
+          <div>
+            <strong>Expenses</strong>
+            <table class="grid">
+              <thead>
+                <tr>
+                  <th style="width: 110px">Date</th>
+                  <th style="width: 110px">Category</th>
+                  <th>Description</th>
+                  <th style="width: 100px">Amount (PHP)</th>
+                  <th style="width: 40px">#</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="(it, idx) in expenses" :key="it.id">
+                  <tr>
+                    <td>
+                      <input
+                        class="input-old"
+                        type="date"
+                        x-model="it.date"
+                        @change="persistIfAuto()"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        class="input-old"
+                        x-model="it.category"
+                        @input="persistIfAuto()"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        class="input-old"
+                        x-model="it.desc"
+                        @input="persistIfAuto()"
+                        placeholder="Description"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        class="input-old"
+                        type="number"
+                        step="0.01"
+                        x-model.number="it.amount"
+                        @input="persistIfAuto()"
+                        style="text-align: right"
+                      />
+                    </td>
+                    <td>
+                      <button class="ym-button" @click="removeExpense(idx)">
+                        x
+                      </button>
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+            <div style="text-align: right; margin-top: 6px">
+              <button class="ym-button mini" @click="addExpense()">
+                + Add Expense
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="right">
+          <div style="margin-bottom: 8px"><strong>Monthly Summary</strong></div>
+
+          <div style="margin-bottom: 8px">
+            <label class="small"
+              >Summary month:
+              <select
+                class="input-old small"
+                x-model="summaryMonth"
+                @change="drawChart()"
+                style="width: 100px"
+              >
+                <option value="all">-- All --</option>
+                <template x-for="(m,i) in months" :key="i">
+                  <option :value="i+1" x-text="m"></option>
+                </template>
+              </select>
+            </label>
+            <label class="small" style="margin-top: 6px; display: block"
+              >Year:
+              <select
+                class="input-old small"
+                x-model="summaryYear"
+                @change="drawChart()"
+                style="width: 80px"
+              >
+                <template x-for="y in years" :key="y">
+                  <option x-text="y" :value="y"></option>
+                </template>
+              </select>
+            </label>
+          </div>
+
+          <table class="grid small" style="width: 100%; margin-bottom: 8px">
+            <tr>
+              <th>Income Total</th>
+              <td style="text-align: right" x-text="format(summaryIncome)">
+                0.00
+              </td>
+            </tr>
+            <tr>
+              <th>Expenses Total</th>
+              <td style="text-align: right" x-text="format(summaryExpenses)">
+                0.00
+              </td>
+            </tr>
+            <tr>
+              <th>Net Income</th>
+              <td style="text-align: right">
+                <strong x-text="format(summaryNet)">0.00</strong>
+              </td>
+            </tr>
+          </table>
+
+          <div class="canvas-frame">
+            <canvas
+              id="barChart"
+              width="280"
+              height="160"
+              style="
+                display: block;
+                margin: 0 auto;
+                background: #efefef;
+                border: 1px solid #aaa;
+              "
+            ></canvas>
+            <div
+              class="muted small"
+              style="text-align: center; margin-top: 6px"
+            >
+              Monthly chart
+            </div>
+          </div>
+
+          <div style="margin-top: 10px">
+            <button
+              class="ym-button"
+              style="width: 100%; margin-bottom: 4px"
+              @click="printReport()"
+            >
+              Print
+            </button>
+            <button
+              class="ym-button"
+              style="width: 100%; margin-bottom: 4px"
+              @click="generatePDF()"
+            >
+              Generate PDF
+            </button>
+            <button
+              class="ym-button"
+              style="width: 100%"
+              @click="generatePDFAllMonths()"
+            >
+              Export All (PDF)
+            </button>
+          </div>
+
+          <div style="margin-top: 10px">
+            <strong>Legend</strong>
+            <div class="small muted">
+              Use filters to view specific months. Save to browser storage.
+              Export for backup.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="statusbar">
+        <div id="status" x-text="statusText">Ready</div>
+        <div
+          class="muted"
+          x-text="income.length + ' income · ' + expenses.length + ' expenses'"
+        >
+          0 income · 0 expenses
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
