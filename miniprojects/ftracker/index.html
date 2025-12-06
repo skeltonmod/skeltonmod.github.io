@@ -4,15 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>HTML + CSS</title>
+    <title>FTracker</title>
     <link rel="stylesheet" href="style.css" />
-    <!-- AlpineJS (user-requested CDN) -->
     <script
       src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
       defer
     ></script>
-
-    <!-- html2canvas + jsPDF for PDF generation -->
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
       defer
@@ -35,6 +32,7 @@
         <button class="ym-button" @click="save()">Save</button>
         <button class="ym-button" @click="load()">Load</button>
         <button class="ym-button" @click="resetStorage()">Reset</button>
+        <button class="ym-button" @click="importCSV()">Import CSV</button>
         <button class="ym-button" @click="downloadCSV()">Export CSV</button>
         <div style="flex: 1"></div>
         <div class="muted small">
@@ -49,35 +47,117 @@
 
       <div class="panel">
         <div class="left">
-          <!-- Filters / month selection -->
-          <div style="margin-bottom: 8px">
-            <label class="small"
-              >Filter month:
-              <select
-                class="input-old small"
-                x-model="selectedMonth"
-                @change="drawChart()"
-                style="width: 100px"
-              >
-                <option value="all">-- All --</option>
-                <template x-for="(m,i) in months" :key="i">
-                  <option :value="i+1" x-text="m"></option>
-                </template>
-              </select>
-            </label>
-            <label class="small" style="margin-left: 8px"
-              >Year:
-              <select
-                class="input-old small"
-                x-model="selectedYear"
-                @change="recomputeMonths(); drawChart();"
-                style="width: 80px"
-              >
-                <template x-for="y in years" :key="y">
-                  <option x-text="y" :value="y"></option>
-                </template>
-              </select>
-            </label>
+          <!-- Section selection -->
+          <div style="margin-bottom: 12px; padding: 8px; background: #f9f9f9; border: 1px solid #aaa;">
+            <div style="margin-bottom: 6px;">
+              <label class="small" style="font-weight: bold;">
+                Current Section:
+                <select
+                  class="input-old"
+                  x-model="currentSection"
+                  @change="drawChart()"
+                  style="width: 200px; margin-left: 6px;"
+                >
+                  <template x-for="section in sections" :key="section.id">
+                    <option :value="section.id" x-text="section.name"></option>
+                  </template>
+                </select>
+              </label>
+            </div>
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <input
+                class="input-old"
+                type="text"
+                x-model="newSectionName"
+                placeholder="New section name"
+                @keyup.enter="addSection()"
+                style="flex: 1;"
+              />
+              <button class="ym-button mini" @click="addSection()">+ Add Section</button>
+              <button 
+                class="ym-button mini" 
+                @click="deleteSection(currentSection)"
+                x-show="currentSection !== 'default'"
+              >Delete Section</button>
+            </div>
+          </div>
+
+          <!-- Date Filtering -->
+          <div style="margin-bottom: 12px; padding: 8px; background: #f0f0f0; border: 1px solid #aaa;">
+            <div style="margin-bottom: 6px;">
+              <label class="small" style="font-weight: bold;">
+                Date Filter:
+                <select
+                  class="input-old small"
+                  x-model="filterType"
+                  @change="drawChart()"
+                  style="width: 120px; margin-left: 6px;"
+                >
+                  <option value="none">No Filter</option>
+                  <option value="year">By Year</option>
+                  <option value="month">By Month</option>
+                  <option value="daterange">Date Range</option>
+                </select>
+              </label>
+            </div>
+
+            <!-- Year Filter -->
+            <div x-show="filterType === 'year' || filterType === 'month'" style="margin-bottom: 6px;">
+              <label class="small">
+                Year:
+                <select
+                  class="input-old small"
+                  x-model="filterYear"
+                  @change="drawChart()"
+                  style="width: 80px; margin-left: 6px;"
+                >
+                  <template x-for="y in years" :key="y">
+                    <option :value="y" x-text="y"></option>
+                  </template>
+                </select>
+              </label>
+            </div>
+
+            <!-- Month Filter -->
+            <div x-show="filterType === 'month'" style="margin-bottom: 6px;">
+              <label class="small">
+                Month:
+                <select
+                  class="input-old small"
+                  x-model="filterMonth"
+                  @change="drawChart()"
+                  style="width: 100px; margin-left: 6px;"
+                >
+                  <template x-for="(m,i) in months" :key="i">
+                    <option :value="i+1" x-text="m"></option>
+                  </template>
+                </select>
+              </label>
+            </div>
+
+            <!-- Date Range Filter -->
+            <div x-show="filterType === 'daterange'" style="display: flex; gap: 6px; align-items: center;">
+              <label class="small">
+                From:
+                <input
+                  class="input-old small"
+                  type="date"
+                  x-model="filterStartDate"
+                  @change="drawChart()"
+                  style="width: 130px; margin-left: 6px;"
+                />
+              </label>
+              <label class="small">
+                To:
+                <input
+                  class="input-old small"
+                  type="date"
+                  x-model="filterEndDate"
+                  @change="drawChart()"
+                  style="width: 130px; margin-left: 6px;"
+                />
+              </label>
+            </div>
           </div>
 
           <!-- Income table -->
@@ -94,7 +174,7 @@
                 </tr>
               </thead>
               <tbody>
-                <template x-for="(it, idx) in income" :key="it.id">
+                <template x-for="(it, idx) in filteredIncome" :key="it.id">
                   <tr>
                     <td>
                       <input
@@ -130,7 +210,7 @@
                       />
                     </td>
                     <td>
-                      <button class="ym-button" @click="removeIncome(idx)">x</button>
+                      <button class="ym-button" @click="removeIncomeById(it.id)">x</button>
                     </td>
                   </tr>
                 </template>
@@ -157,7 +237,7 @@
                 </tr>
               </thead>
               <tbody>
-                <template x-for="(it, idx) in expenses" :key="it.id">
+                <template x-for="(it, idx) in filteredExpenses" :key="it.id">
                   <tr>
                     <td>
                       <input
@@ -193,7 +273,7 @@
                       />
                     </td>
                     <td>
-                      <button class="ym-button" @click="removeExpense(idx)">
+                      <button class="ym-button" @click="removeExpenseById(it.id)">
                         x
                       </button>
                     </td>
