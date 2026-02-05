@@ -10,7 +10,7 @@ function financeReport() {
     selectedMonth: new Date().getMonth() + 1,
     summaryYear: new Date().getFullYear(),
     summaryMonth: new Date().getMonth() + 1,
-    summaryFilterType: "none",
+    summaryFilterType: "month",
     summaryStartMonth: 1,
     summaryEndMonth: 12,
     summaryStartDate: "",
@@ -951,8 +951,7 @@ function financeReport() {
 
     downloadCSV() {
       var lines = ["type,date,category_or_source,description,amount,section"];
-      this.income.forEach((r) => {
-        const sectionName = this.getSectionName(r.section);
+      this.income.forEach((r) =>
         lines.push(
           [
             "income",
@@ -960,14 +959,13 @@ function financeReport() {
             r.name || "",
             r.desc || "",
             Number(r.amount || 0).toFixed(2),
-            sectionName,
+            r.section || "default",
           ]
             .map(escapeCsv)
             .join(",")
-        );
-      });
-      this.expenses.forEach((r) => {
-        const sectionName = this.getSectionName(r.section);
+        )
+      );
+      this.expenses.forEach((r) =>
         lines.push(
           [
             "expense",
@@ -975,12 +973,12 @@ function financeReport() {
             r.name || r.category || "",
             r.desc || "",
             Number(r.amount || 0).toFixed(2),
-            sectionName,
+            r.section || "default",
           ]
             .map(escapeCsv)
             .join(",")
-        );
-      });
+        )
+      );
       var blob = new Blob([lines.join("\n")], {
         type: "text/csv;charset=utf-8;",
       });
@@ -990,14 +988,6 @@ function financeReport() {
       document.body.appendChild(a);
       a.click();
       a.remove();
-    },
-
-    getSectionName(sectionId) {
-      if (!sectionId || sectionId === "default") {
-        return "default";
-      }
-      const section = this.sections.find(s => s.id === sectionId);
-      return section ? section.name : "default";
     },
 
     importCSV() {
@@ -1016,7 +1006,6 @@ function financeReport() {
 
             let importedIncome = 0;
             let importedExpenses = 0;
-            const newSections = new Set();
 
             for (let i = 1; i < lines.length; i++) {
               const line = lines[i].trim();
@@ -1028,31 +1017,6 @@ function financeReport() {
               const [type, date, nameOrCategory, description, amount, section] =
                 values;
 
-              // Determine which section to use
-              let targetSection = section && section.trim() ? section.trim() : "default";
-              
-              // Check if section exists, if not create it
-              if (targetSection !== "default") {
-                const sectionExists = this.sections.some(s => s.id === targetSection || s.name === targetSection);
-                
-                if (!sectionExists && !newSections.has(targetSection)) {
-                  // Create new section
-                  const sectionId = "sec" + Date.now() + Math.random().toString(36).slice(2, 6);
-                  this.sections.push({
-                    id: sectionId,
-                    name: targetSection
-                  });
-                  newSections.add(targetSection);
-                  targetSection = sectionId;
-                } else if (sectionExists) {
-                  // Find the section ID by name if it was specified as a name
-                  const existingSection = this.sections.find(s => s.name === targetSection);
-                  if (existingSection) {
-                    targetSection = existingSection.id;
-                  }
-                }
-              }
-
               if (type === "income") {
                 this.income.push({
                   id: "i" + Date.now() + Math.random().toString(36).slice(2, 6),
@@ -1060,7 +1024,7 @@ function financeReport() {
                   name: nameOrCategory,
                   desc: description,
                   amount: parseFloat(amount) || 0,
-                  section: targetSection,
+                  section: section || "default",
                 });
                 importedIncome++;
               } else if (type === "expense") {
@@ -1071,7 +1035,7 @@ function financeReport() {
                   category: nameOrCategory,
                   desc: description,
                   amount: parseFloat(amount) || 0,
-                  section: targetSection,
+                  section: section || "default",
                 });
                 importedExpenses++;
               }
@@ -1079,12 +1043,9 @@ function financeReport() {
 
             this.persistIfAuto();
             this.drawChart();
-            
-            let message = `Imported ${importedIncome} income and ${importedExpenses} expense entries.`;
-            if (newSections.size > 0) {
-              message += `\nCreated ${newSections.size} new section(s): ${Array.from(newSections).join(', ')}`;
-            }
-            alert(message);
+            alert(
+              `Imported ${importedIncome} income and ${importedExpenses} expense entries.`
+            );
           } catch (err) {
             alert("Failed to import CSV: " + err.message);
             console.error(err);
