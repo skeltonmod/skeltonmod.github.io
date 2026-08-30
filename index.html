@@ -1,321 +1,1839 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="public/icon.png">
-    <title>The Veil</title>
-    <style>
-        @font-face {
-            font-family: 'Silver';
-            src: url('public/fonts/monogram.ttf') format('truetype');
-            font-weight: normal;
-            font-style: normal;
-            -webkit-font-smoothing: none;
-            -moz-osx-font-smoothing: grayscale;
-            font-smooth: never;
-            image-rendering: pixelated;
-            image-rendering: -moz-crisp-edges;
-            image-rendering: crisp-edges;
-        }
+<meta charset="UTF-8" />
+<link rel="icon" type="image/png" href="/public/icon.png" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#5a86c4" />
+<title>Skelton's Lair</title>
+<style>
+  
+:root {
+  --aqua:      #3f7fd0;
+  --aqua-dk:   #2a62ad;
+  --aqua-pale: #edf3fe;
 
-        body {
-            margin: 0;
-            padding: 20px;
-            background-color: #000;
-            color: #0f0;
-            font-family: 'Silver', monospace;
-            /* Crispy pixel font rendering */
-            -webkit-font-smoothing: none;
-            -moz-osx-font-smoothing: grayscale;
-            font-smooth: never;
-            image-rendering: pixelated;
-            image-rendering: -moz-crisp-edges;
-            image-rendering: crisp-edges;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            box-sizing: border-box;
-        }
-        
-        pre {
-            font-family: monospace;
-            line-height: 1.2;
-            margin: 0;
-            padding: 20px;
-            font-size: 12px;
-            color: #555;
-            white-space: pre;
-        }
-        
-        .message {
-            font-family: 'Silver', monospace;
-            margin-top: 20px;
-            font-size: 16px;
-            letter-spacing: 2px;
-            color: #0f0;
-            min-height: 1.2em;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+  --ink:       #2c2c2c;
+  --ink-soft:  #6a6a6a;
+  --ink-faint: #9a9a9a;
 
-        .content {
-            margin-top: 40px;
-            font-size: 16px;
-            line-height: 1.6;
-            max-width: 600px;
-            text-align: left;
-            width: 100%;
-        }
+  --font-ui: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans",
+             -apple-system, "Segoe UI", Tahoma, Verdana, sans-serif;
+  --font-mono: Monaco, "Andale Mono", "Courier New", monospace;
 
-        .content p {
-            margin: 0 0 10px 0;
-        }
+  --pinstripe: repeating-linear-gradient(
+    180deg,
+    rgba(255,255,255,.65) 0 1px,
+    rgba(0,0,0,.025) 1px 2px
+  );
 
-        .content .prompt {
-            color: #0f0;
-            margin-right: 8px;
-            font-size: 16px;
-        }
+  --menubar-h: 22px;
+  --dock-h: 104px;
+}
 
-        .content span {
-            color: #ccc;
-        }
+*, *::before, *::after { box-sizing: border-box; }
 
-        .content a {
-            color: #0ff;
-            text-decoration: none;
-            border-bottom: 1px dashed #0ff;
-        }
+html, body {
+  margin: 0;
+  height: 100dvh;
+  overflow: hidden;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+}
 
-        .content a:hover {
-            color: #000;
-            background-color: #0ff;
-            border-bottom: 1px dashed #0ff;
-        }
+/* The Aqua Blue desktop: a lit dome of blue, pinstriped. */
+body {
+  background:
+    var(--pinstripe),
+    radial-gradient(120% 90% at 50% 8%, #b7d4f2 0%, #6d9bd4 42%, #3f6ea8 78%, #2b5083 100%);
+  background-attachment: fixed;
+}
 
-        .hidden-for-render {
-            visibility: hidden;
-        }
-        
-        .cursor-line::after {
-            content: '█';
-            color: #0f0;
-            animation: blink 1s step-end infinite;
-        }
+a { color: var(--aqua-dk); text-decoration: none; }
+a:hover { text-decoration: underline; }
 
-        @keyframes blink {
-            from, to { color: transparent; }
-            50% { color: #0f0; }
-        }
+:focus-visible { outline: 2px solid #7fb0e8; outline-offset: 1px; }
 
-        .glitching-active {
-            text-shadow: 
-                -2px -2px 0 #0ff, 
-                 2px  2px 0 #f00;
-            opacity: 0.8;
-            animation: glitch-shake-active 80ms linear infinite;
-        }
+/* --- Aqua gel scrollbars ------------------------------------------ */
 
-        @keyframes glitch-shake-active {
-            0%, 100% { transform: translate(0, 0); }
-            25% { transform: translate(2px, -1px); }
-            50% { transform: translate(-1px, 2px); }
-            75% { transform: translate(1px, -2px); }
-        }
-        
-        @media (max-width: 768px) {
-            pre {
-                font-size: 6px;
-                line-height: 1.1;
-                padding: 10px;
-            }
-            .message {
-                font-size: 12px;
-            }
-            .content {
-                font-size: 12px;
-                margin-top: 20px;
-            }
-        }
-    </style>
+* { scrollbar-color: #6ba3e0 #e9e9e9; scrollbar-width: thin; }
+
+::-webkit-scrollbar { width: 15px; height: 15px; }
+::-webkit-scrollbar-track {
+  background: var(--pinstripe), linear-gradient(90deg, #dcdcdc, #ececec);
+  border-left: 1px solid #c2c2c2;
+}
+::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  border: 1px solid #3f74ac;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.85) 0%, rgba(255,255,255,.15) 48%, rgba(255,255,255,0) 52%),
+    linear-gradient(180deg, #9fc8ef, #4a8bd8 55%, #3874bd);
+}
+::-webkit-scrollbar-thumb:hover { filter: brightness(1.06); }
+::-webkit-scrollbar-corner { background: #e4e4e4; }
+
+/* ===================================================================
+   Menu bar
+   =================================================================== */
+
+.menubar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: var(--menubar-h);
+  z-index: 200;
+  display: flex;
+  align-items: stretch;
+  padding: 0 8px;
+  border-radius: 6px 6px 0 0;
+  border-bottom: 1px solid #9d9d9d;
+  background: var(--pinstripe), linear-gradient(#ffffff, #e6e6e6);
+  box-shadow: 0 1px 3px rgba(0,0,0,.25);
+  font-size: 13px;
+  user-select: none;
+}
+
+.menubar .spacer { flex: 1 1 auto; }
+
+.menu-title {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: #1c1c1c;
+  padding: 0 9px;
+  cursor: default;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+.menu-title.app { font-weight: bold; }
+.menu-title.apple { font-size: 15px; padding: 0 10px; }
+.menu-title:hover,
+.menu-title[aria-expanded="true"] {
+  background: linear-gradient(#5c92dd, #2f6cbe);
+  color: #fff;
+}
+
+.clock {
+  display: flex;
+  align-items: center;
+  padding: 0 6px 0 10px;
+  color: #1c1c1c;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.menu-panel {
+  position: fixed;
+  top: var(--menubar-h);
+  z-index: 210;
+  min-width: 216px;
+  padding: 4px 0;
+  display: none;
+  background: rgba(255,255,255,.97);
+  border: 1px solid #8f8f8f;
+  border-top: 0;
+  border-radius: 0 0 6px 6px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.35);
+}
+.menu-panel.open { display: block; }
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+  padding: 3px 14px 3px 8px;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: #1c1c1c;
+  text-align: left;
+  cursor: default;
+  white-space: nowrap;
+}
+.menu-item:hover:not([disabled]) { background: var(--aqua); color: #fff; }
+.menu-item[disabled] { color: #b0b0b0; }
+.menu-item .shortcut { color: #8b8b8b; font-size: 12px; }
+.menu-item:hover:not([disabled]) .shortcut { color: #dbe8f8; }
+.menu-item .tick { display: inline-block; width: 14px; }
+
+.menu-sep { height: 1px; margin: 4px 12px; background: #d5d5d5; }
+
+/* ===================================================================
+   Desktop + window
+   =================================================================== */
+
+.desktop {
+  position: fixed;
+  inset: var(--menubar-h) 0 0 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 26px 18px var(--dock-h);
+}
+
+.window {
+  width: 100%;
+  max-width: 860px;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border: 1px solid #6f6f6f;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 22px 48px rgba(0,0,0,.42), 0 3px 10px rgba(0,0,0,.24);
+  overflow: hidden;
+}
+
+.title-bar {
+  flex: 0 0 auto;
+  position: relative;
+  height: 23px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  border-bottom: 1px solid #8e8e8e;
+  background: var(--pinstripe), linear-gradient(#efefef, #c9c9c9);
+  cursor: default;
+  user-select: none;
+}
+
+/* Deliberately decoration: this is a picture of a window, not controls. */
+.traffic { display: flex; gap: 8px; pointer-events: none; }
+.traffic i {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  position: relative;
+  border: 1px solid rgba(0,0,0,.35);
+  box-shadow: inset 0 -3px 4px rgba(0,0,0,.18);
+}
+.traffic i::after {
+  content: "";
+  position: absolute;
+  inset: 1px 2.5px 6px;
+  border-radius: 50%;
+  background: linear-gradient(rgba(255,255,255,.95), rgba(255,255,255,.05));
+}
+.traffic .red    { background: radial-gradient(circle at 40% 35%, #ffa49b, #e8564b 55%, #b3322a); }
+.traffic .yellow { background: radial-gradient(circle at 40% 35%, #ffe08a, #f5b32d 55%, #bf8410); }
+.traffic .green  { background: radial-gradient(circle at 40% 35%, #b9f39a, #61c247 55%, #3d8f2b); }
+
+.title-bar-text {
+  position: absolute;
+  left: 0; right: 0;
+  text-align: center;
+  font-size: 13px;
+  font-weight: bold;
+  color: #4a4a4a;
+  text-shadow: 0 1px 0 rgba(255,255,255,.85);
+  pointer-events: none;
+  padding: 0 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.window-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  background: #fff;
+  position: relative;
+}
+
+.status-bar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 4px;
+  border-top: 1px solid #b9b9b9;
+  background: var(--pinstripe), linear-gradient(#f2f2f2, #dcdcdc);
+  color: #5e5e5e;
+  font-size: 11px;
+  user-select: none;
+}
+.status-bar .field {
+  margin: 0;
+  padding: 0 9px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.status-bar .field + .field { border-left: 1px solid #c6c6c6; }
+.status-bar .field:first-child { flex: 1 1 auto; min-width: 0; }
+.status-bar .grip {
+  margin-left: 6px;
+  width: 14px; height: 14px;
+  background:
+    linear-gradient(135deg, transparent 46%, #a9a9a9 46% 52%, transparent 52%),
+    linear-gradient(135deg, transparent 64%, #a9a9a9 64% 70%, transparent 70%),
+    linear-gradient(135deg, transparent 82%, #a9a9a9 82% 88%, transparent 88%);
+}
+
+/* ===================================================================
+   Aqua controls
+   =================================================================== */
+
+.aqua-btn {
+  display: inline-block;
+  appearance: none;
+  font: 13px/1 var(--font-ui);
+  color: #1f1f1f;
+  text-decoration: none;
+  padding: 5px 15px 6px;
+  border: 1px solid #9a9a9a;
+  border-radius: 11px;
+  cursor: pointer;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.95) 0 46%, rgba(255,255,255,0) 46%),
+    linear-gradient(180deg, #fdfdfd, #ededed 46%, #d6d6d6 50%, #f3f3f3);
+  box-shadow: 0 1px 2px rgba(0,0,0,.16), inset 0 1px 0 #fff;
+}
+.aqua-btn:hover { text-decoration: none; filter: brightness(1.03); }
+.aqua-btn:active { background: linear-gradient(#cfcfcf, #e8e8e8); box-shadow: inset 0 1px 3px rgba(0,0,0,.2); }
+
+.aqua-btn.primary {
+  color: #fff;
+  border-color: #2b5f9e;
+  text-shadow: 0 -1px 0 rgba(0,0,0,.3);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.75) 0 46%, rgba(255,255,255,0) 46%),
+    linear-gradient(180deg, #8fbdf0, #4a8bd8 46%, #2f6cbe 50%, #79aee9);
+}
+.aqua-btn.primary:active { background: linear-gradient(#2f6cbe, #4a8bd8); }
+
+/* The default button pulsed. It is the single most Aqua thing there is. */
+.aqua-btn.pulse { animation: pulse 1.9s ease-in-out infinite; }
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 1px 2px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.6), 0 0 0 0 rgba(90,150,225,.55); }
+  50%      { box-shadow: 0 1px 2px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.6), 0 0 0 5px rgba(90,150,225,0); }
+}
+
+/* Barber-pole indeterminate progress, for every loading state. */
+.aqua-progress {
+  height: 12px;
+  border-radius: 7px;
+  border: 1px solid #6f9bc9;
+  overflow: hidden;
+  background: repeating-linear-gradient(-45deg, #4a8bd8 0 8px, #a8ccf0 8px 16px);
+  background-size: 22.63px 22.63px;
+  animation: barber .9s linear infinite;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.2);
+}
+@keyframes barber { to { background-position: 22.63px 0; } }
+
+.loading { display: flex; flex-direction: column; gap: 8px; align-items: center; padding: 26px 20px; color: var(--ink-soft); }
+.loading .aqua-progress { width: 190px; }
+
+/* ===================================================================
+   Pages
+   =================================================================== */
+
+.page { padding: 20px 22px 26px; }
+
+.sheet-title {
+  margin: 0 0 4px;
+  font-size: 21px;
+  font-weight: bold;
+  letter-spacing: -.2px;
+  color: #303030;
+  text-align: center;
+}
+.sheet-sub { margin: 0 0 18px; text-align: center; color: var(--ink-soft); }
+
+.avatar-container { text-align: center; }
+.avatar {
+  max-width: 100%;
+  border-radius: 10px;
+  background: #fff;
+  padding: 5px;
+  border: 1px solid #cfcfcf;
+  box-shadow: 0 4px 12px rgba(0,0,0,.16);
+}
+.home-lines { margin: 14px auto 0; max-width: 440px; text-align: center; }
+.home-lines p { margin: 6px 0; }
+
+.updated {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 4px 12px;
+  border-radius: 10px;
+  border: 1px solid #c8d6e6;
+  background: var(--aqua-pale);
+  color: #40566f;
+  font-size: 12px;
+}
+
+/* --- Finder / iTunes list, used by Games and Work --- */
+
+.list { padding: 0; }
+
+.group-header {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  padding: 8px 16px 9px;
+  border-top: 1px solid #fff;
+  border-bottom: 1px solid #a9b6c6;
+  background: var(--pinstripe), linear-gradient(#f4f7fb, #dae2ec);
+  box-shadow: 0 1px 3px rgba(0,0,0,.07);
+}
+.group-header h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: bold;
+  color: #35485f;
+  text-shadow: 0 1px 0 rgba(255,255,255,.8);
+}
+.group-header p { margin: 3px 0 0; font-size: 12px; color: #62717f; }
+.group-header.note { position: static; background: #f7f9fb; border-bottom: 0; }
+.group-header.note p { color: #55606b; }
+
+.entry {
+  display: flex;
+  gap: 14px;
+  padding: 13px 16px;
+  border-bottom: 1px solid #e4e4e4;
+}
+.entry.alt { background: var(--aqua-pale); }
+
+.entry-thumb {
+  flex: 0 0 108px;
+  width: 108px;
+  height: auto;
+  align-self: flex-start;
+  border-radius: 4px;
+  border: 1px solid #b9b9b9;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,.14);
+}
+
+.entry-body { flex: 1 1 auto; min-width: 0; }
+.entry-body h3 { margin: 0 0 2px; font-size: 14px; font-weight: bold; color: #26364a; }
+.entry-meta { margin: 0 0 6px; font-size: 11px; color: var(--ink-faint); }
+.entry-meta b { font-weight: normal; color: var(--ink-soft); }
+.entry-desc { margin: 0 0 10px; color: #4a4a4a; }
+.entry-desc strong { color: #2c2c2c; }
+
+/* --- git --- */
+
+.feed {
+  margin: 16px 0 0;
+  border: 1px solid #c6ced8;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fff;
+  text-align: left;
+}
+.event-card { display: flex; gap: 10px; align-items: flex-start; padding: 9px 11px; border-bottom: 1px solid #ebebeb; }
+.event-card:last-child { border-bottom: 0; }
+.event-card:nth-child(even) { background: var(--aqua-pale); }
+.profile-picture {
+  flex: 0 0 32px; width: 32px; height: 32px;
+  border-radius: 5px; border: 1px solid #c2c2c2; background: #e4e4e4;
+}
+.event-details { min-width: 0; }
+.commit-message { margin: 0; font-family: var(--font-mono); font-size: 12px; color: #22436e; overflow-wrap: anywhere; }
+.event-repo { margin: 2px 0 0; font-size: 11px; color: var(--ink-soft); }
+.event-time { margin: 1px 0 0; font-size: 11px; color: var(--ink-faint); }
+
+.fb {
+  --fb-blue: #3B5998;
+  --fb-dark: #133783;
+  --fb-pale: #EDEFF4;
+  --fb-line: #C3CBD8;
+  --fb-rule: #E9EBEE;
+
+  min-height: 100%;
+  background: #D8DFEA;
+  font-family: "lucida grande", "Lucida Grande", tahoma, verdana, arial, sans-serif;
+  font-size: 11px;
+  line-height: 1.45;
+  color: #333;
+}
+.fb a { color: var(--fb-blue); text-decoration: none; }
+.fb a:hover { text-decoration: underline; }
+
+.fb-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 42px;
+  padding: 0 10px;
+  background: var(--fb-blue);
+  border-bottom: 1px solid var(--fb-dark);
+}
+.fb-logo {
+  color: #fff;
+  font-family: tahoma, verdana, sans-serif;
+  font-size: 20px;
+  font-weight: bold;
+  letter-spacing: -.6px;
+}
+.fb-bar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.fb-bar-right input {
+  width: 180px;
+  padding: 3px 6px;
+  border: 1px solid #1d3a6e;
+  border-radius: 2px;
+  background: #fff;
+  font: inherit;
+  color: #333;
+}
+.fb-bar-right input:disabled { background: #dfe3ec; color: #8b93a4; }
+.fb-barlink { color: #dfe4ef !important; font-weight: bold; }
+.fb-barlink:hover { color: #fff !important; }
+
+.fb-tabs {
+  display: flex;
+  padding: 0 8px;
+  background: #fff;
+  border-bottom: 1px solid var(--fb-line);
+  overflow-x: auto;
+}
+.fb-tab {
+  appearance: none;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  font: inherit;
+  color: var(--fb-blue);
+  padding: 8px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.fb-tab:hover { background: var(--fb-pale); }
+.fb-tab[aria-selected="true"] { font-weight: bold; border-bottom-color: var(--fb-blue); background: #fff; }
+
+.fb-body { display: flex; align-items: flex-start; gap: 10px; padding: 10px; }
+.fb-side { flex: 0 0 186px; }
+.fb-main { flex: 1 1 auto; min-width: 0; }
+
+.fb-box { background: #fff; border: 1px solid var(--fb-line); margin-bottom: 10px; }
+.fb-box:last-child { margin-bottom: 0; }
+.fb-box-head {
+  padding: 4px 8px;
+  background: var(--fb-pale);
+  border-bottom: 1px solid var(--fb-line);
+  color: var(--fb-blue);
+  font-weight: bold;
+}
+.fb-box-row { padding: 5px 8px; border-bottom: 1px solid #f2f2f2; }
+.fb-box-row:last-child { border-bottom: 0; }
+.fb-box-row .k { display: block; color: #999; }
+
+.fb-pic { padding: 8px; text-align: center; }
+.fb-pic img { width: 100%; max-width: 160px; padding: 2px; border: 1px solid #bbb; background: #fff; }
+.fb-pic .who { margin-top: 6px; font-size: 13px; font-weight: bold; color: var(--fb-blue); }
+.fb-pic .sub { color: #777; }
+
+.fb-wall { background: #fff; border: 1px solid var(--fb-line); }
+.fb-post { display: flex; gap: 9px; padding: 10px; border-bottom: 1px solid var(--fb-rule); }
+.fb-post:last-child { border-bottom: 0; }
+.fb-avatar {
+  flex: 0 0 50px;
+  width: 50px; height: 50px;
+  object-fit: cover;
+  padding: 1px;
+  border: 1px solid #ccc;
+  background: #fff;
+}
+.fb-post-body { flex: 1 1 auto; min-width: 0; }
+.fb-post-head { margin-bottom: 3px; }
+.fb-post-head .name { font-weight: bold; color: var(--fb-blue); }
+.fb-post-text { margin: 0 0 4px; }
+.fb-post-meta, .fb-actions { color: #999; }
+.fb-actions { margin-top: 4px; }
+
+.fb-empty { padding: 22px; text-align: center; color: #777; background: #fff; border: 1px solid var(--fb-line); }
+
+.fb-article { padding: 12px 15px 14px; background: #fff; border: 1px solid var(--fb-line); }
+.fb-article h1 { margin: 0 0 3px; font-size: 17px; color: #333; }
+.fb-article .byline {
+  margin-bottom: 11px;
+  padding-bottom: 9px;
+  border-bottom: 1px solid var(--fb-rule);
+  color: #999;
+}
+.fb-content { font-size: 13px; line-height: 1.62; overflow-wrap: break-word; }
+.fb-content img { max-width: 100%; height: auto; }
+.fb-content h4 { margin: 15px 0 4px; font-size: 13px; }
+.fb-content blockquote {
+  margin: 11px 0;
+  padding: 7px 11px;
+  background: var(--fb-pale);
+  border-left: 3px solid #B7BFCC;
+  color: #555;
+}
+.fb-content pre { padding: 8px; overflow: auto; background: #f5f5f5; }
+.fb-content code { background: #f0f0f0; padding: 1px 3px; }
+
+/* --- 404 rendered as an Aqua alert --- */
+
+.alert {
+  max-width: 440px;
+  margin: 26px auto;
+  padding: 20px 22px 18px;
+  display: flex;
+  gap: 16px;
+  border: 1px solid #b6b6b6;
+  border-radius: 9px;
+  background: linear-gradient(#fdfdfd, #eef0f2);
+  box-shadow: 0 8px 22px rgba(0,0,0,.16);
+}
+.alert-icon { flex: 0 0 56px; width: 56px; height: 56px; }
+.alert h2 { margin: 0 0 5px; font-size: 14px; font-weight: bold; color: #2c2c2c; }
+.alert p { margin: 0 0 14px; font-size: 12px; color: var(--ink-soft); }
+.alert .buttons { display: flex; justify-content: flex-end; gap: 9px; }
+
+/* --- game embeds; sizes preserved from the Svelte routes --- */
+
+.game-container { margin: 0 auto; padding: 16px; }
+.game-container.is-narrow { max-width: 632px; }
+.game-container.is-clipped { overflow: hidden; }
+.game-stage {
+  border: 1px solid #8d8d8d;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #000;
+  box-shadow: 0 6px 18px rgba(0,0,0,.28);
+  line-height: 0;
+}
+.game-iframe { display: block; width: 100%; height: 600px; border: 0; }
+.game-iframe.h-544 { height: 544px; }
+.game-iframe.h-480 { height: 480px; }
+.game-iframe.fixed-dtp { width: 640px; height: 544px; }
+.game-iframe.fixed-scb { width: 900px; height: 640px; }
+.game-back { display: block; margin: 12px auto 0; width: max-content; }
+
+/* ===================================================================
+   The Dock
+   =================================================================== */
+
+.dock-wrap {
+  position: fixed;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  z-index: 150;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.dock {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  margin: 0;
+  padding: 7px 10px 5px;
+  list-style: none;
+  pointer-events: auto;
+  border: 1px solid rgba(255,255,255,.55);
+  border-radius: 14px;
+  background: linear-gradient(rgba(255,255,255,.42), rgba(255,255,255,.2));
+  backdrop-filter: blur(9px) saturate(1.3);
+  -webkit-backdrop-filter: blur(9px) saturate(1.3);
+  box-shadow: 0 6px 20px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.65);
+  user-select: none;
+}
+
+.dock li { position: relative; display: flex; flex-direction: column; align-items: center; }
+
+.dock a {
+  display: block;
+  width: 52px; height: 52px;
+  transform-origin: 50% 100%;
+  transition: transform .16s ease-out;
+}
+.dock a:hover { text-decoration: none; }
+.dock svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 2px 3px rgba(0,0,0,.3)); }
+
+/* Neighbour magnification, the cheap honest version. */
+.dock li:hover a { transform: scale(1.55) translateY(-9px); }
+.dock li:hover + li a,
+.dock li:has(+ li:hover) a { transform: scale(1.22) translateY(-3px); }
+
+.dock .pip {
+  width: 5px; height: 5px;
+  margin-top: 3px;
+  border-radius: 50%;
+  background: rgba(20,20,20,.72);
+  box-shadow: 0 0 3px rgba(255,255,255,.75);
+  opacity: 0;
+}
+.dock a[aria-current="page"] + .pip { opacity: 1; }
+
+/* The magnified icon is transformed, so it makes its own stacking context and
+   paints over anything earlier in the DOM. The label needs both a z-index and
+   enough clearance to sit above a 1.55x icon growing from its bottom edge. */
+.dock .tip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  z-index: 30;
+  transform: translateX(-50%);
+  margin-bottom: 52px;
+  padding: 3px 10px 4px;
+  border-radius: 5px;
+  border: 1px solid rgba(0,0,0,.25);
+  background: linear-gradient(#fdfdf4, #f0efdf);
+  color: #2b2b2b;
+  font-size: 12px;
+  white-space: nowrap;
+  box-shadow: 0 3px 9px rgba(0,0,0,.3);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .12s;
+}
+.dock .tip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #f0efdf;
+}
+.dock li:hover .tip, .dock li:focus-within .tip { opacity: 1; }
+
+/* ===================================================================
+   Narrow screens: the window stops floating and fills the screen.
+   =================================================================== */
+
+@media (max-width: 760px) {
+  :root { --dock-h: 84px; }
+
+  .menubar { border-radius: 0; padding: 0 4px; }
+  .menu-title { padding: 0 7px; }
+  .menu-title.hide-sm { display: none; }
+
+  .desktop { padding: 0 0 var(--dock-h); }
+
+  .window {
+    max-width: none;
+    height: 100%;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .page { padding: 16px 14px 22px; }
+  .entry { flex-direction: column; gap: 10px; }
+  .entry-thumb { flex: 0 0 auto; width: 100%; max-width: 260px; }
+  .group-header { padding: 8px 14px; }
+  .status-bar .field:nth-child(2) { display: none; }
+
+  .dock { gap: 3px; padding: 6px 8px 4px; border-radius: 12px; }
+  .dock a { width: 44px; height: 44px; }
+  /* Magnification is a pointer idea; on touch it only makes things jump. */
+  .dock li:hover a,
+  .dock li:hover + li a,
+  .dock li:has(+ li:hover) a { transform: none; }
+  .dock .tip { display: none; }
+
+  .game-container { padding: 10px; }
+  .game-iframe.fixed-dtp, .game-iframe.fixed-scb { width: 100%; }
+
+  .fb-body { flex-direction: column; }
+  .fb-side { flex: 0 0 auto; width: 100%; }
+  .fb-pic img { max-width: 120px; }
+  .fb-bar-right input { width: 130px; }
+  .fb-content { font-size: 15px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .aqua-progress { background: linear-gradient(#4a8bd8, #a8ccf0); }
+}
+</style>
 </head>
 <body>
-    <pre class="hidden-for-render">  ██████  ██ ▄█▀▓█████  ██▓  ▄▄▄█████▓ ▒█████   ███▄    █  ███▄ ▄███▓ ▒█████  ▓█████▄ 
-▒██    ▒  ██▄█▒ ▓█   ▀ ▓██▒  ▓  ██▒ ▓▒▒██▒  ██▒ ██ ▀█   █ ▓██▒▀█▀ ██▒▒██▒  ██▒▒██▀ ██▌
-░ ▓██▄   ▓███▄░ ▒███   ▒██░  ▒ ▓██░ ▒░▒██░  ██▒▓██  ▀█ ██▒▓██    ▓██░▒██░  ██▒░██   █▌
-  ▒   ██▒▓██ █▄ ▒▓█  ▄ ▒██░  ░ ▓██▓ ░ ▒██   ██░▓██▒  ▐▌██▒▒██    ▒██ ▒██   ██░░▓█▄   ▌
-▒██████▒▒▒██▒ █▄░▒████▒░██████▒▒██▒ ░ ░ ████▓▒░▒██░   ▓██░▒██▒   ░██▒░ ████▓▒░░▒████▓ 
-▒ ▒▓▒ ▒ ░▒ ▒▒ ▓▒░░ ▒░ ░░ ▒░▓  ░▒ ░░   ░ ▒░▒░▒░ ░ ▒░   ▒ ▒ ░ ▒░   ░  ░░ ▒░▒░▒░  ▒▒▓  ▒ 
-░ ░▒  ░ ░░ ░▒ ▒░ ░ ░  ░░ ░ ▒  ░  ░      ░ ▒ ▒░ ░ ░░   ░ ▒░░  ░      ░  ░ ▒ ▒░  ░ ▒  ▒ 
-░  ░  ░  ░ ░░ ░    ░     ░ ░   ░      ░ ░ ░ ▒     ░   ░ ░ ░      ░   ░ ░ ░ ▒   ░ ░  ░ 
-      ░  ░  ░      ░  ░    ░  ░           ░ ░           ░        ░       ░ ░     ░    
-                                                                               ░      </pre>
-    
-    <div class="message hidden-for-render">[the veil has been broken]</div>
 
-    <div class="content">
-        <p class="hidden-for-render"><span class="prompt">></span> <span>STATUS: UNKNOWN</span></p>
-        <p class="hidden-for-render"><span class="prompt">></span> <span>IDENTITY: [ELIJAH]</span></p>
-        <p class="hidden-for-render"><span class="prompt">></span> <span>PRAGMA: [FULL TIME ENGINEER // CARBON BASED LIFE FORM]</span></p>
-        <p class="hidden-for-render"><span class="prompt">></span> <span>ABOUT: THAT'S ON A NEED TO KNOW BASIS</span></p>
-        <p class="hidden-for-render">
-            <span class="prompt">></span> <span>CONNECT: [<a href="https://github.com/skeltonmod" target="_blank">GitHub</a>] [<a href="https://www.linkedin.com/in/abgaoe/" target="_blank">LinkedIn</a>] [<a href="mailto:abgaoe@gmail.com">Email</a>]</span>
-        </p>
-        <p class="hidden-for-render"><span class="prompt">></span> <span>...</span></p>
+<!-- ============================ menu bar ============================ -->
+<div class="menubar" id="menubar">
+  <button type="button" class="menu-title apple" data-menu="apple" aria-expanded="false" aria-haspopup="true" aria-label="Apple menu">&#63743;</button>
+  <button type="button" class="menu-title app" data-menu="app" aria-expanded="false" aria-haspopup="true">Skelton's Lair</button>
+  <button type="button" class="menu-title hide-sm" data-menu="file" aria-expanded="false" aria-haspopup="true">File</button>
+  <button type="button" class="menu-title" data-menu="go" aria-expanded="false" aria-haspopup="true">Go</button>
+  <button type="button" class="menu-title hide-sm" data-menu="help" aria-expanded="false" aria-haspopup="true">Help</button>
+  <div class="spacer"></div>
+  <div class="clock" id="clock"></div>
+</div>
+<div class="menu-panel" id="menuPanel" role="menu"></div>
+
+<!-- ============================= desktop ============================ -->
+<div class="desktop">
+  <div class="window">
+    <div class="title-bar">
+      <div class="traffic" aria-hidden="true"><i class="red"></i><i class="yellow"></i><i class="green"></i></div>
+      <div class="title-bar-text" id="title-bar-text">Skelton's Lair</div>
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const preLineDelay = 100;
-            const wordDelay = 60;
-            const elementPause = 200;
+    <div class="window-body" id="outlet"></div>
+    <div class="status-bar">
+      <p class="field" id="status-copyright"></p>
+      <p class="field" id="status-items">&nbsp;</p>
+      <p class="field" id="status-cpu">CPU 0%</p>
+      <div class="grip" aria-hidden="true"></div>
+    </div>
+  </div>
+</div>
 
-            const preElement = document.querySelector('pre.hidden-for-render');
-            const messageElement = document.querySelector('.message.hidden-for-render');
-            const contentElements = document.querySelectorAll('.content p.hidden-for-render');
+<!-- ============================== dock ============================== -->
+<div class="dock-wrap">
+  <ol class="dock" id="dock">
+    <li>
+      <span class="tip">About Me</span>
+      <a href="#/" data-nav="/" aria-label="About Me">
+        <svg viewBox="0 0 48 48" aria-hidden="true">
+          <defs>
+            <linearGradient id="gA" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#8fc4f5"/><stop offset=".5" stop-color="#3f7fd0"/><stop offset="1" stop-color="#1f4e93"/>
+            </linearGradient>
+            <linearGradient id="gloss" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#fff" stop-opacity=".8"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <rect x="3" y="3" width="42" height="42" rx="10" fill="url(#gA)" stroke="#17427f"/>
+          <circle cx="24" cy="20" r="6.5" fill="#fff"/>
+          <path d="M12 39c0-6.6 5.4-11 12-11s12 4.4 12 11z" fill="#fff"/>
+          <path d="M6 14a10 10 0 0 1 36 0c0 6-8 9-18 9S6 20 6 14z" fill="url(#gloss)"/>
+        </svg>
+      </a>
+      <span class="pip"></span>
+    </li>
+    <li>
+      <span class="tip">Games</span>
+      <a href="#/games" data-nav="/games" aria-label="Games">
+        <svg viewBox="0 0 48 48" aria-hidden="true">
+          <defs>
+            <linearGradient id="gB" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#a9ee8d"/><stop offset=".5" stop-color="#49b23a"/><stop offset="1" stop-color="#20701c"/>
+            </linearGradient>
+          </defs>
+          <rect x="3" y="3" width="42" height="42" rx="10" fill="url(#gB)" stroke="#1c5c19"/>
+          <rect x="9" y="18" width="30" height="17" rx="8" fill="#fff"/>
+          <rect x="14" y="24.9" width="8" height="2.6" rx="1.3" fill="#3a8a2f"/>
+          <rect x="16.7" y="22.2" width="2.6" height="8" rx="1.3" fill="#3a8a2f"/>
+          <circle cx="30.5" cy="24" r="2.2" fill="#3a8a2f"/>
+          <circle cx="34.2" cy="28.4" r="2.2" fill="#3a8a2f"/>
+          <path d="M6 14a10 10 0 0 1 36 0c0 6-8 9-18 9S6 20 6 14z" fill="url(#gloss)"/>
+        </svg>
+      </a>
+      <span class="pip"></span>
+    </li>
+    <li>
+      <span class="tip">Work</span>
+      <a href="#/work" data-nav="/work" aria-label="Work">
+        <svg viewBox="0 0 48 48" aria-hidden="true">
+          <defs>
+            <linearGradient id="gC" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#ffd98a"/><stop offset=".5" stop-color="#e0952a"/><stop offset="1" stop-color="#96590c"/>
+            </linearGradient>
+          </defs>
+          <rect x="3" y="3" width="42" height="42" rx="10" fill="url(#gC)" stroke="#7d4a09"/>
+          <path d="M18.5 17.5h11v4.2h-3v-1.6h-5v1.6h-3z" fill="#fff"/>
+          <rect x="9" y="20.5" width="30" height="16" rx="3" fill="#fff"/>
+          <rect x="9" y="26.4" width="30" height="2.4" fill="#c68222"/>
+          <rect x="21" y="24.6" width="6" height="5.6" rx="1.4" fill="#c68222"/>
+          <path d="M6 14a10 10 0 0 1 36 0c0 6-8 9-18 9S6 20 6 14z" fill="url(#gloss)"/>
+        </svg>
+      </a>
+      <span class="pip"></span>
+    </li>
+    <li>
+      <span class="tip">Git Activity</span>
+      <a href="#/git" data-nav="/git" aria-label="Git Activity">
+        <svg viewBox="0 0 48 48" aria-hidden="true">
+          <defs>
+            <linearGradient id="gD" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#ffb18a"/><stop offset=".5" stop-color="#e8622c"/><stop offset="1" stop-color="#9c3410"/>
+            </linearGradient>
+          </defs>
+          <rect x="3" y="3" width="42" height="42" rx="10" fill="url(#gD)" stroke="#832c0d"/>
+          <path d="M17 19v16M17 27h9a5 5 0 0 0 5-5v-3" stroke="#fff" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+          <circle cx="17" cy="16.6" r="3.6" fill="#fff"/>
+          <circle cx="17" cy="36.4" r="3.6" fill="#fff"/>
+          <circle cx="31" cy="16.6" r="3.6" fill="#fff"/>
+          <path d="M6 14a10 10 0 0 1 36 0c0 6-8 9-18 9S6 20 6 14z" fill="url(#gloss)"/>
+        </svg>
+      </a>
+      <span class="pip"></span>
+    </li>
+    <!-- <li>
+      <span class="tip">Blog</span>
+      <a href="#/blog" data-nav="/blog" aria-label="Blog">
+        <svg viewBox="0 0 48 48" aria-hidden="true">
+          <defs>
+            <linearGradient id="gE" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#e9e9ef"/><stop offset=".5" stop-color="#b6bbc7"/><stop offset="1" stop-color="#6f7684"/>
+            </linearGradient>
+          </defs>
+          <rect x="3" y="3" width="42" height="42" rx="10" fill="url(#gE)" stroke="#5b6270"/>
+          <rect x="12.5" y="12" width="23" height="28" rx="2.5" fill="#fff" stroke="#8d94a1"/>
+          <rect x="16.5" y="18" width="15" height="2.4" fill="#828b99"/>
+          <rect x="16.5" y="24" width="15" height="2.4" fill="#828b99"/>
+          <rect x="16.5" y="30" width="9" height="2.4" fill="#828b99"/>
+          <path d="M6 14a10 10 0 0 1 36 0c0 6-8 9-18 9S6 20 6 14z" fill="url(#gloss)"/>
+        </svg>
+      </a>
+      <span class="pip"></span>
+    </li> -->
+  </ol>
+</div>
 
-            async function runAnimations() {
-                if (preElement) {
-                    await animatePreElement(preElement);
-                }
-                if (messageElement) {
-                    messageElement.textContent = '[the veil has been broken]';
-                    await animateNodeWordByWord(messageElement);
-                }
+<script>
+(function () {
+  "use strict";
 
-                for (const p of contentElements) {
-                    await pause(elementPause);
-                    await animateNodeWordByWord(p);
-                }
+  /* ==========================================================
+     Data — unchanged from src/lib/data.js
+     ========================================================== */
 
-                const lastElement = contentElements.length > 0 ? contentElements[contentElements.length - 1] : messageElement;
-                if (lastElement) {
-                    const lastChild = lastElement.lastChild;
-                    if (lastChild) {
-                        lastChild.classList.add('cursor-line');
-                    } else {
-                        lastElement.classList.add('cursor-line');
-                    }
-                }
+  const recent_games = [
+    {
+      title: "Erika Sprite Game",
+      description: `The very first top down adventure game that I've made. Released in 2025. A very short game that took 7 months to finish.`,
+      metadata: [{ name: "Platform", value: "HTML5, 2025" }],
+      image: "/public/preview/loe.png",
+      link: "#/games/loe",
+      link_title: "Play here"
+    },
+    {
+      title: "Destroy The Porn HTML5",
+      description: `The first game I made in 2024. It's a remake of Destroy The Porn, a game
+      that was made in 2013. It was mostly an excuse to learn how to make a game
+      in HTML5 for the first time in a while. I did the programming. design and
+      graphics were done by the original DrunkDevs.`,
+      metadata: [{ name: "Platform", value: "HTML5, 2024" }],
+      image: "/public/preview/dtp.png",
+      link: "https://gamejolt.com/games/dtpremake/935631",
+      link_title: "Play here"
+    },
+    {
+      title: "BrannCom",
+      description: `A parody of PanCom, this game was made as a love letter for my Girlfriend
+      for out 2nd month celebration. This parody does feature a VHS filter
+      effect to make it more fun to watch.`,
+      metadata: [{ name: "Platform", value: "HTML5, 2024" }],
+      image: "/public/preview/branncom.png",
+      link: "#/games/branncom",
+      link_title: "Play here"
+    },
+    {
+      title: "Appraise in Space",
+      description: `Created this game back in 2016. It's a badly made clone of another game,
+      this was before I knew anything about game development. I did the
+      programming, design and graphics. This game was made as a joke for my
+      friends who liked MLP and Undertale.`,
+      metadata: [{ name: "Platform", value: "HTML5, 2016" }],
+      image: "/public/preview/apis.png",
+      link: "https://gamejolt.com/games/a-place-in-space-v1-5/139242",
+      link_title: "Play here"
+    },
+    {
+      title: "Shootyman 2k20",
+      description: `A game made in 2020. It's a simple game where you shoot aliens. It started
+      out as my curiosity for godot and my attempt to learn how to make a game
+      in it. This game was also made during the pandemic because, I got bored
+      during the lockdown.`,
+      metadata: [{ name: "Platform", value: "HTML5, 2020" }],
+      image: "/public/preview/shootyman.png",
+      link: "#/games/shootyman",
+      link_title: "Play here"
+    }
+  ];
 
-                if (messageElement) {
-                    startGlitchCycle(messageElement);
-                }
-            }
+  const experimental_games = [
+    {
+      title: "Super Crate Clone",
+      description: ` A game I made back in 2023, It's more of a prototype for my online
+      highscore API, this experiment was culmination of my combined experience
+      with Software Engineering and Game Development. This game is an obvious
+      rip off of <strong>Super Create Box</strong>`,
+      metadata: [{ name: "Platform", value: "HTML5, 2024" }],
+      image: "/public/preview/scb.png",
+      link: "#/games/scb",
+      link_title: "Play here"
+    },
+    {
+      title: "Princess Pitch HTML5",
+      description: `Back when I discovered that you can actually make more accessible games by
+      publishing them on the web, this was a recreation of Dan Remar's Hyper
+      Princess Pitch. It never got finished because of my conflicting schedules
+      at that time.`,
+      metadata: [{ name: "Platform", value: "HTML5, 2022" }],
+      image: "/public/preview/pitch.png",
+      link: "#/games/pitch",
+      link_title: "Play here"
+    }
+  ];
 
-            function pause(ms) {
-                return new Promise(resolve => setTimeout(resolve, ms));
-            }
+  const old_games = [
+    {
+      title: "MLG Mykel",
+      description: `The very first game that I have made during highschool. It's created in
+      Clickteam Fusion 2.5. I guess you could say this kicked off my career. It's a parody game to poke fun at my friend Michael`,
+      metadata: [{ name: "Platform", value: "Windows, 2015" }],
+      image: "/public/preview/superm.png",
+      link: "https://download.gamejolt.net/f3d6405900556e4740c4c837d587755fa81cc7d91ebace6a315c4e0296155142,1730642600,7/data/games/2/248/138998/files/5704aa61376da/MLG-asteroids.exe",
+      link_title: "Download"
+    },
+    {
+      title: "Assteroids",
+      description: `This was made in 2016 during my 11th grade. It's a simple game where you
+      have to dodge and shoot asteroids. This game helped me learn about game
+      development basics. This is also a game where I started to write code.`,
+      metadata: [{ name: "Platform", value: "Windows, 2016" }],
+      image: "/public/preview/ass.png",
+      link: "https://download.gamejolt.net/a823d7045334ef5867513c9591b89074e7f114b05d3046a96bc6f2584761519f,1730642531,7/data/games/3/1/216001/files/5848ec28256ad/Asteroids.zip",
+      link_title: "Download"
+    }
+  ];
 
-            async function animatePreElement(el) {
-                const originalText = el.textContent;
-                const lines = originalText.split('\n');
-                
-                el.textContent = '';
-                el.style.visibility = 'visible';
+  const game_headers = [
+    {
+      title: "Completed and somewhat finished games",
+      description: `This is the list all of my games that are considered completed and finished. Do note that while the games are finished,
+    they can either be unpolished or have bugs that I've decided not to fix because I'm lazy.`
+    },
+    {
+      title: "Experiments",
+      description: `These are the games that are not finished but offer some insights to my
+      game development learning.`
+    },
+    {
+      title: "Old Games",
+      description: `These are the games that were made during my highschool and junior years.`
+    }
+  ];
 
-                for (const line of lines) {
-                    await pause(preLineDelay);
-                    el.textContent += line + '\n';
-                }
-            }
-            
-            async function animateNodeWordByWord(el) {
-                const wordsToAnimate = [];
+  const professional_projects = [
+    {
+      title: "Change GPS V2",
+      description: `An accounting web app that has a lot of modules, mainly working on their
+      blueprint and letters merge module.`,
+      metadata: [{ name: "Role", value: "Frontend" }, { name: "Project Lifecycle", value: "2024" }],
+      image: "/public/preview/cgps.png"
+    },
+    {
+      title: "Give N Get",
+      description: `A non profit challenge app for donating to charity. I did the porting of
+      their old codebase to our internal tech stack at work.`,
+      metadata: [{ name: "Role", value: "Fullstack" }, { name: "Project Lifecycle", value: "2021 to 2023" }],
+      image: "/public/preview/gg.png"
+    },
+    {
+      title: "Spek",
+      description: `One of the longest project that I have worked on. Spek is a web
+      application that helps real estate professionals create and manage their
+      real estate properties.`,
+      metadata: [{ name: "Role", value: "Fullstack" }, { name: "Project Lifecycle", value: "2020 to 2024" }],
+      image: "/public/preview/spek.png"
+    }
+  ];
 
-                function findTextNodes(node) {
-                    if (node.nodeType === Node.TEXT_NODE && node.nodeValue.trim().length > 0) {
-                        const words = node.nodeValue.trim().split(' ');
-                        const parent = node.parentNode;
-                        
-                        const fragment = document.createDocumentFragment();
-                        words.forEach(word => {
-                            if (word.length > 0) {
-                                const wordSpan = document.createElement('span');
-                                wordSpan.textContent = word;
-                                wordSpan.style.visibility = 'hidden';
-                                fragment.appendChild(wordSpan);
-                                fragment.appendChild(document.createTextNode(' ')); 
-                                wordsToAnimate.push(wordSpan);
-                            }
-                        });
-                        
-                        parent.replaceChild(fragment, node);
-                    } else {
-                        Array.from(node.childNodes).forEach(findTextNodes);
-                    }
-                }
-                
-                findTextNodes(el);
+  const personal_projects = [
+    {
+      title: "The Wash",
+      description: `Started way back as a basis for this very site, it's now used to scrape
+      Anime from sites that are littered with Ads. This site was also the start
+      of my blogging era.`,
+      metadata: [{ name: "Role", value: "All around" }, { name: "Project Lifecycle", value: "2019 to Present" }],
+      image: "/public/preview/wash.png"
+    },
+    {
+      title: "Coolaborate",
+      description: `A udemy clone commissioned to me by TechYes, a course sharing platform for
+      local teachers.`,
+      metadata: [{ name: "Role", value: "All around" }, { name: "Project Lifecycle", value: "2022 to early 2023" }],
+      image: "/public/preview/coolaborate.png"
+    },
+    {
+      title: "Rankboss",
+      description: `An SEO optimzation platform, I was comissioned by my
+      colleagues for this project. This may or may not be the source of my
+      distrust towards my said colleagues.`,
+      metadata: [{ name: "Role", value: "All around" }, { name: "Project Lifecycle", value: "2023 to 2024" }],
+      image: "/public/preview/rankboss.png"
+    },
+    {
+      title: "CNN Coffee Image Classification",
+      description: `A small experiment with CNN Resnet for image classification base on
+      various stages of coffee beans. This was comissioned to me by Nescafe
+      researchers.`,
+      metadata: [{ name: "Role", value: "Researcher" }, { name: "Project Lifecycle", value: "2023" }],
+      image: "/public/preview/coffee.png"
+    },
+    {
+      title: "Roadside Assistance Web Admin dashboard",
+      description: `A companion web application for Roadside Assistance, this dashboard is for
+      managing and analyzing data.`,
+      metadata: [{ name: "Role", value: "Frontend" }, { name: "Project Lifecycle", value: "2024" }],
+      image: "/public/preview/roadside.png"
+    },
+    {
+      title: "MiniPlayer",
+      description: `A short lived experiment I did to make a spotify clone, had to ditch the project because IOS doesn't like
+      to support m4a.`,
+      metadata: [{ name: "Role", value: "Researcher" }, { name: "Project Lifecycle", value: "2024" }],
+      image: "/public/preview/mp.png"
+    },
+    {
+      title: "Mini Messenger",
+      description: `Back when facebook still has messenger support for it's mbasic domain, this was more of an experiment to
+      see if I can make my own messenger UI using teutonic css.`,
+      metadata: [{ name: "Role", value: "Fullstack" }, { name: "Project Lifecycle", value: "2024" }],
+      image: "/public/preview/mm.png"
+    }
+  ];
 
-                el.style.visibility = 'visible';
+  const work_headers = [
+    {
+      title: "Professional Projects",
+      description: `For portfolio sake, these are some of my most notable professional
+      projects that I've worked on.`
+    },
+    {
+      title: "Personal Projects",
+      description: `A not so exhaustive list of my personal projects. some of them are
+      comissions from various clients while some of them are just for fun or to
+      satiate my curiosity.`
+    },
+    {
+      description: `<strong>While the concept of putting effort in my portfolio site is new to me, there are still other projects I've worked on
+      that I may not have listed here due to the fact that most of them are still in source form, I might add them in the future
+      if I ever find the time to compile them and provide atleast a decent screenshot.</strong>`
+    }
+  ];
 
-                for (const wordSpan of wordsToAnimate) {
-                    await pause(wordDelay);
-                    wordSpan.style.visibility = 'visible';
-                }
-            }
+  /* ==========================================================
+     Helpers
+     ========================================================== */
 
-            const glitchMessages = [
-                '[the veil has been broken]',
-                '[in the heavens they are waiting]',
-                '[work enobles man]'
-            ];
-            let currentMessageIndex = 0;
-            const glitchChars = '█▓▒░Z_H/E@V*N$S!#?)(+<>';
-            const glitchInterval = 3000;
-            const scrambleDuration = 600;
-            const scrambleFrameRate = 40; 
+  // Titles and metadata were escaped by Svelte; descriptions used {@html}
+  // and stay raw on purpose.
+  function esc(value) {
+    return String(value == null ? "" : value).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
 
-            function startGlitchCycle(el) {
-                setInterval(() => {
-                    currentMessageIndex = (currentMessageIndex + 1) % glitchMessages.length;
-                    const nextMessage = glitchMessages[currentMessageIndex];
-                    scrambleText(el, nextMessage);
-                }, glitchInterval + scrambleDuration);
-            }
+  const outlet = document.getElementById("outlet");
+  const titleBar = document.getElementById("title-bar-text");
+  const statusItems = document.getElementById("status-items");
 
-            function scrambleText(el, nextText) {
-                el.classList.add('glitching-active');
+  const LOADING =
+    '<div class="loading"><div class="aqua-progress"></div><span>Loading\u2026</span></div>';
 
-                const numFrames = Math.floor(scrambleDuration / scrambleFrameRate);
-                const currentText = el.textContent;
-                const len = Math.max(currentText.length, nextText.length);
+  async function fetchEvents() {
+    const response = await fetch("https://api.github.com/users/skeltonmod/events");
+    if (!response.ok) throw new Error("GitHub returned " + response.status);
+    const data = await response.json();
+    return Array.isArray(data) ? data : [];
+  }
 
-                return new Promise((resolve) => {
-                    let frame = 0;
+  let postsCache = null;
+  let feedBase = "https://sckickar.github.io/";
 
-                    const scrambler = setInterval(() => {
-                        frame++;
-                        if (frame >= numFrames) {
-                            clearInterval(scrambler);
-                            el.textContent = nextText;
-                            el.classList.remove('glitching-active');
-                            resolve();
-                            return;
-                        }
+  // Post bodies contain paths like /uploads/x.png. Left alone they resolve
+  // against this site and 404, so rewrite them against the blog's own origin.
+  function absolutize(html, base) {
+    if (!html) return "";
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    doc.querySelectorAll("[src]").forEach(function (el) {
+      try { el.setAttribute("src", new URL(el.getAttribute("src"), base).href); } catch (e) {}
+    });
+    doc.querySelectorAll("a[href]").forEach(function (el) {
+      try { el.setAttribute("href", new URL(el.getAttribute("href"), base).href); } catch (e) {}
+      el.setAttribute("target", "_blank");
+      el.setAttribute("rel", "noopener");
+    });
+    return doc.body.innerHTML;
+  }
 
-                        let glitchedText = '';
-                        for (let i = 0; i < len; i++) {
-                            const revealChance = frame / numFrames;
-                            if (i < nextText.length && Math.random() < revealChance) {
-                                glitchedText += nextText[i];
-                            } else {
-                                glitchedText += glitchChars[Math.floor(Math.random() * glitchChars.length)];
-                            }
-                        }
-                        el.textContent = glitchedText;
+  async function fetchPosts() {
+    if (postsCache) return postsCache;
+    const response = await fetch("https://sckickar.github.io/feed.xml");
+    if (!response.ok) throw new Error("Feed returned " + response.status);
+    const text = await response.text();
+    const xml = new DOMParser().parseFromString(text, "application/xml");
+    const entries = xml.getElementsByTagName("entry");
 
-                    }, scrambleFrameRate);
-                });
-            }
+    // The feed names its own canonical origin; trust that over the fetch URL.
+    const alt = Array.from(xml.documentElement.children).find(function (n) {
+      return n.tagName === "link" && n.getAttribute("rel") === "alternate";
+    });
+    if (alt && alt.getAttribute("href")) feedBase = alt.getAttribute("href");
 
-            runAnimations();
+    postsCache = Array.from(entries).map(function (entry) {
+      const pick = function (tag) {
+        const node = entry.getElementsByTagName(tag)[0];
+        return node ? node.textContent : "";
+      };
+      const linkNode = entry.getElementsByTagName("link")[0];
+      const categoryNode = entry.getElementsByTagName("category")[0];
+      return {
+        id: pick("id").split("/").pop().toLowerCase(),
+        title: pick("title"),
+        link: linkNode ? linkNode.getAttribute("href") : "",
+        content: absolutize(pick("content"), feedBase),
+        summary: pick("summary"),
+        published: pick("published"),
+        updated: pick("updated"),
+        category: categoryNode ? categoryNode.getAttribute("term") : "Uncategorized"
+      };
+    });
+    return postsCache;
+  }
+
+  /* ==========================================================
+     List rendering — Finder rows with alternating stripes
+     ========================================================== */
+
+  function groupHeader(header, isNote) {
+    return (
+      '<div class="group-header' + (isNote ? " note" : "") + '">' +
+        (header.title ? "<h2>" + esc(header.title) + "</h2>" : "") +
+        (header.description ? "<p>" + header.description + "</p>" : "") +
+      "</div>"
+    );
+  }
+
+  function entryRow(item, index) {
+    const meta = (item.metadata || [])
+      .map(function (m) { return "<b>" + esc(m.name) + ":</b> " + esc(m.value); })
+      .join(" &nbsp;&middot;&nbsp; ");
+
+    const link = item.link
+      ? '<a class="aqua-btn" href="' + esc(item.link) + '">' + esc(item.link_title || "Open") + "</a>"
+      : "";
+
+    return (
+      '<div class="entry' + (index % 2 ? " alt" : "") + '">' +
+        '<img class="entry-thumb" src="' + esc(item.image) + '" alt="' + esc(item.title) + '" loading="lazy" />' +
+        '<div class="entry-body">' +
+          "<h3>" + esc(item.title) + "</h3>" +
+          (meta ? '<p class="entry-meta">' + meta + "</p>" : "") +
+          '<p class="entry-desc">' + (item.description || "") + "</p>" +
+          link +
+        "</div>" +
+      "</div>"
+    );
+  }
+
+  // Stripes run continuously down the whole list, not per section.
+  function buildList(sections) {
+    let i = 0;
+    return (
+      '<div class="list">' +
+      sections
+        .map(function (s) {
+          const head = s.header ? groupHeader(s.header, s.note) : "";
+          const rows = (s.items || [])
+            .map(function (item) { return entryRow(item, i++); })
+            .join("");
+          return head + rows;
+        })
+        .join("") +
+      "</div>"
+    );
+  }
+
+  /* ==========================================================
+     Views
+     ========================================================== */
+
+  const PORTFOLIO_REPO_ID = 410241753;
+
+  function plural(n, word) {
+    return n + " " + word + (n === 1 ? "" : "s");
+  }
+
+  function fullDate(value) {
+    const d = new Date(value);
+    if (isNaN(d)) return "";
+    return d.toLocaleString([], {
+      year: "numeric", month: "long", day: "numeric",
+      hour: "numeric", minute: "2-digit"
+    });
+  }
+
+  function monthYear(d) {
+    return d.toLocaleString([], { year: "numeric", month: "long" });
+  }
+
+  // Blue bar + page wrapper shared by the wall and the single-post view.
+  function fbShell(right, inner) {
+    return (
+      '<div class="fb">' +
+        '<div class="fb-bar">' +
+          '<div class="fb-logo">skeltonbook</div>' +
+          '<div class="fb-bar-right">' + right + "</div>" +
+        "</div>" +
+        inner +
+      "</div>"
+    );
+  }
+
+  function formatDate(value, withTime) {
+    const opts = { month: "2-digit", day: "2-digit", year: "numeric" };
+    if (withTime) {
+      opts.hour = "2-digit";
+      opts.minute = "2-digit";
+      opts.second = "2-digit";
+      opts.hour12 = false;
+    }
+    return new Date(value).toLocaleDateString("en-US", opts);
+  }
+
+  const views = {
+    home: {
+      label: "About Me",
+      status: "",
+      render: function () {
+        return (
+          '<div class="page">' +
+            '<h1 class="sheet-title">Skeltonmod</h1>' +
+            '<p class="sheet-sub">Unorthodoxed developer with a lot of free time</p>' +
+            '<div class="avatar-container">' +
+              '<img src="/public/avatar.gif" class="avatar" alt="Cool skeleton gif from the 80s or something" />' +
+              '<div class="home-lines">' +
+                "<p>Hi, I'm Elijah. It's nice to meet yuh.</p>" +
+                "<p>You can also find my work related stuff here.</p>"+ "<p>Take a look at that sexy MacOS X look.</p>" +
+
+                '<span class="updated">Last updated <b id="last-updated">' +
+                  esc(formatDate(Date.now(), false)) +
+                "</b></span>" +
+              "</div>" +
+            "</div>" +
+          "</div>"
+        );
+      },
+      mount: async function () {
+        try {
+          const data = await fetchEvents();
+          const recent = data.filter(function (item) {
+            return item.repo && item.repo.id === PORTFOLIO_REPO_ID;
+          });
+          const el = document.getElementById("last-updated");
+          if (recent.length && el) el.textContent = formatDate(recent[0].created_at, true);
+        } catch (err) {
+          console.warn("Could not read GitHub activity:", err.message);
+        }
+      }
+    },
+
+    games: {
+      label: "Games",
+      status: plural(recent_games.length + experimental_games.length + old_games.length, "item"),
+      render: function () {
+        return buildList([
+          { header: game_headers[0], items: recent_games },
+          { header: game_headers[1], items: experimental_games },
+          { header: game_headers[2], items: old_games }
+        ]);
+      }
+    },
+
+    work: {
+      label: "Work",
+      status: plural(professional_projects.length + personal_projects.length, "item"),
+      render: function () {
+        return buildList([
+          { header: work_headers[0], items: professional_projects },
+          { header: work_headers[1], items: personal_projects },
+          { header: work_headers[2], items: [], note: true }
+        ]);
+      }
+    },
+
+    git: {
+      label: "Git Activity",
+      status: "",
+      render: function () {
+        return (
+          '<div class="page">' +
+            '<h1 class="sheet-title">Git logs</h1>' +
+            '<p class="sheet-sub">Recent public activity, straight from the GitHub API</p>' +
+            '<div class="avatar-container">' +
+              '<img src="/public/smoke.gif" class="avatar" alt="Cool skeleton gif from the 80s or something" />' +
+            "</div>" +
+            '<div class="home-lines">' +
+              '<p>If you would rather see the profile itself, <a href="https://github.com/skeltonmod">it is over here</a>.</p>' +
+            "</div>" +
+            '<div id="feed">' + LOADING + "</div>" +
+          "</div>"
+        );
+      },
+      mount: async function () {
+        const feed = document.getElementById("feed");
+        if (!feed) return;
+        try {
+          const events = await fetchEvents();
+          if (!events.length) {
+            feed.innerHTML = '<p class="sheet-sub">No recent activity to show.</p>';
+            return;
+          }
+          feed.innerHTML =
+            '<div class="feed">' +
+            events
+              .map(function (event) {
+                const commits = event.payload && event.payload.commits;
+                const message = commits && commits.length ? commits[0].message : "No commit message available";
+                const avatar = (event.actor && event.actor.avatar_url) || "";
+                const repo = (event.repo && event.repo.name) || "";
+                return (
+                  '<div class="event-card">' +
+                    '<img src="' + esc(avatar) + '" alt="" class="profile-picture" loading="lazy" />' +
+                    '<div class="event-details">' +
+                      '<p class="commit-message">' + esc(message) + "</p>" +
+                      '<p class="event-repo">' + esc(repo) + "</p>" +
+                      '<p class="event-time">' + esc(new Date(event.created_at).toLocaleString()) + "</p>" +
+                    "</div>" +
+                  "</div>"
+                );
+              })
+              .join("") +
+            "</div>";
+          statusItems.textContent = plural(events.length, "event");
+        } catch (err) {
+          feed.innerHTML =
+            '<p class="sheet-sub">GitHub is not answering right now. It rate-limits anonymous requests, so try again in a few minutes.</p>';
+        }
+      }
+    },
+
+    blog: {
+      label: "Blog",
+      status: "",
+      render: function () {
+        return fbShell(
+          '<input id="fb-q" type="search" placeholder="Search posts" disabled aria-label="Search posts" />',
+          '<div class="fb-tabs" id="fb-tabs"></div>' +
+          '<div class="fb-body">' +
+            '<div class="fb-side" id="fb-side"></div>' +
+            '<div class="fb-main" id="fb-main"><div class="fb-empty">Loading\u2026</div></div>' +
+          "</div>"
+        );
+      },
+      mount: async function () {
+        const main = document.getElementById("fb-main");
+        const side = document.getElementById("fb-side");
+        const tabs = document.getElementById("fb-tabs");
+        const search = document.getElementById("fb-q");
+
+        let posts;
+        try {
+          posts = await fetchPosts();
+        } catch (err) {
+          main.innerHTML = '<div class="fb-empty">Could not load the feed right now.</div>';
+          return;
+        }
+        if (!posts.length) {
+          main.innerHTML = '<div class="fb-empty">No posts yet.</div>';
+          return;
+        }
+
+        statusItems.textContent = plural(posts.length, "post");
+
+        const categories = [];
+        posts.forEach(function (p) {
+          if (categories.indexOf(p.category) < 0) categories.push(p.category);
         });
-    </script>
 
+        const stamps = posts
+          .map(function (p) { return new Date(p.published); })
+          .filter(function (d) { return !isNaN(d); })
+          .sort(function (a, b) { return a - b; });
+
+        const host = (function () {
+          try { return new URL(feedBase).hostname; } catch (e) { return feedBase; }
+        })();
+
+        side.innerHTML =
+          '<div class="fb-box"><div class="fb-pic">' +
+            '<img src="/public/avatar.gif" alt="" />' +
+            '<div class="who">Elijah Abgao</div>' +
+            '<div class="sub">Elijah\u2019s Crib</div>' +
+          "</div></div>" +
+          '<div class="fb-box">' +
+            '<div class="fb-box-head">Information</div>' +
+            '<div class="fb-box-row"><span class="k">Posts</span>' + posts.length + "</div>" +
+            (stamps.length
+              ? '<div class="fb-box-row"><span class="k">Writing since</span>' + monthYear(stamps[0]) + "</div>" +
+                '<div class="fb-box-row"><span class="k">Latest post</span>' + monthYear(stamps[stamps.length - 1]) + "</div>"
+              : "") +
+            '<div class="fb-box-row"><span class="k">Blog</span><a href="' + esc(feedBase) +
+              '" target="_blank" rel="noopener">' + esc(host) + "</a></div>" +
+          "</div>";
+
+        let activeCategory = "";
+        let query = "";
+
+        function drawTabs() {
+          tabs.innerHTML =
+            ['<button type="button" class="fb-tab" data-cat="" aria-selected="' +
+              (activeCategory === "") + '">Wall</button>']
+              .concat(
+                categories.map(function (c) {
+                  return '<button type="button" class="fb-tab" data-cat="' + esc(c) +
+                    '" aria-selected="' + (activeCategory === c) + '">' + esc(c) + "</button>";
+                })
+              )
+              .join("");
+        }
+
+        function drawWall() {
+          const q = query.trim().toLowerCase();
+          const shown = posts.filter(function (p) {
+            if (activeCategory && p.category !== activeCategory) return false;
+            if (!q) return true;
+            return (p.title + " " + p.summary).toLowerCase().indexOf(q) >= 0;
+          });
+
+          if (!shown.length) {
+            main.innerHTML = '<div class="fb-empty">Nothing here. Try another tab or search.</div>';
+            return;
+          }
+
+          main.innerHTML =
+            '<div class="fb-wall">' +
+            shown
+              .map(function (p) {
+                const href = "#/post/" + encodeURIComponent(p.id);
+                return (
+                  '<div class="fb-post">' +
+                    '<img class="fb-avatar" src="/public/avatar.gif" alt="" />' +
+                    '<div class="fb-post-body">' +
+                      '<div class="fb-post-head"><span class="name">Elijah Abgao</span> posted ' +
+                        '<a href="' + href + '">' + esc(p.title) + "</a></div>" +
+                      '<p class="fb-post-text">' + esc(p.summary || "") + "</p>" +
+                      '<div class="fb-post-meta">' + esc(fullDate(p.published)) +
+                        " &middot; " + esc(p.category) + "</div>" +
+                      '<div class="fb-actions">' +
+                        '<a href="' + href + '">Read more</a>' +
+                        (p.link ? ' &middot; <a href="' + esc(p.link) +
+                          '" target="_blank" rel="noopener">View original</a>' : "") +
+                      "</div>" +
+                    "</div>" +
+                  "</div>"
+                );
+              })
+              .join("") +
+            "</div>";
+        }
+
+        tabs.addEventListener("click", function (e) {
+          const tab = e.target.closest(".fb-tab");
+          if (!tab) return;
+          activeCategory = tab.getAttribute("data-cat");
+          drawTabs();
+          drawWall();
+        });
+
+        search.disabled = false;
+        search.addEventListener("input", function () {
+          query = search.value;
+          drawWall();
+        });
+
+        drawTabs();
+        drawWall();
+      }
+    },
+
+    post: {
+      label: "Post",
+      status: "",
+      render: function () {
+        return fbShell(
+          '<a class="fb-barlink" href="#/blog">Back to Wall</a>',
+          '<div class="fb-body"><div class="fb-main" id="fb-main">' +
+            '<div class="fb-empty">Loading\u2026</div></div></div>'
+        );
+      },
+      mount: async function (params) {
+        const main = document.getElementById("fb-main");
+        let posts;
+        try {
+          posts = await fetchPosts();
+        } catch (err) {
+          main.innerHTML = '<div class="fb-empty">Could not load that post right now.</div>';
+          return;
+        }
+
+        const post = posts.find(function (p) { return p.id === params.id; });
+        if (!post) {
+          main.innerHTML =
+            '<div class="fb-empty">That post does not exist. <a href="#/blog">Back to the wall</a></div>';
+          return;
+        }
+
+        titleBar.textContent = post.title;
+        document.title = post.title + " \u2014 Skelton's Lair";
+        statusItems.textContent = post.category;
+
+        main.innerHTML =
+          '<div class="fb-article">' +
+            "<h1>" + esc(post.title) + "</h1>" +
+            '<div class="byline">by Elijah Abgao &middot; ' + esc(fullDate(post.published)) +
+              " &middot; " + esc(post.category) + "</div>" +
+            '<div class="fb-content">' + post.content + "</div>" +
+            '<div class="fb-actions"><a href="#/blog">Back to Wall</a>' +
+              (post.link ? ' &middot; <a href="' + esc(post.link) +
+                '" target="_blank" rel="noopener">View original</a>' : "") +
+            "</div>" +
+          "</div>";
+      }
+    },
+
+    notFound: {
+      label: "Not Found",
+      status: "",
+      render: function () {
+        return (
+          '<div class="page">' +
+            '<div class="alert" role="alertdialog">' +
+              '<svg class="alert-icon" viewBox="0 0 56 56" aria-hidden="true">' +
+                '<defs><linearGradient id="warn" x1="0" y1="0" x2="0" y2="1">' +
+                  '<stop offset="0" stop-color="#ffe388"/><stop offset=".55" stop-color="#f0b21f"/><stop offset="1" stop-color="#b97c05"/>' +
+                "</linearGradient></defs>" +
+                '<path d="M28 4 54 50H2Z" fill="url(#warn)" stroke="#8c5c04" stroke-width="2" stroke-linejoin="round"/>' +
+                '<path d="M28 21v13" stroke="#fff" stroke-width="5" stroke-linecap="round"/>' +
+                '<circle cx="28" cy="42" r="3.2" fill="#fff"/>' +
+              "</svg>" +
+              "<div>" +
+                "<h2>That page is not here.</h2>" +
+                "<p>The address does not match anything on this site. It may have been part of the old version.</p>" +
+                '<div class="buttons"><a class="aqua-btn primary pulse" href="#/">Go Home</a></div>' +
+              "</div>" +
+            "</div>" +
+          "</div>"
+        );
+      }
+    }
+  };
+
+  // Game embeds. Sizes preserved from each src/routes/games/*.svelte.
+  function gameView(label, src, containerClass, frameClass) {
+    return {
+      label: label,
+      status: "Embedded game",
+      render: function () {
+        return (
+          '<div class="game-container ' + containerClass + '">' +
+            '<div class="game-stage">' +
+              '<iframe class="game-iframe ' + frameClass + '" src="' + src + '" title="' + esc(label) +
+              '" scrolling="no" allowfullscreen></iframe>' +
+            "</div>" +
+            '<a class="aqua-btn game-back" href="#/games">Back to Games</a>' +
+          "</div>"
+        );
+      }
+    };
+  }
+
+  /* ==========================================================
+     Router — hash paths, same as svelte-spa-router used
+     ========================================================== */
+
+  const routes = {
+    "/": views.home,
+    "/blog": views.blog,
+    "/games": views.games,
+    "/work": views.work,
+    "/git": views.git,
+    "/games/dtp": gameView("Destroy The Porn HTML5", "https://gamejolt.net/?token=4kNmGPEiorXD4vXEoHGzjJcpwezVMx", "is-narrow", "fixed-dtp"),
+    "/games/branncom": gameView("BrannCom", "/public/embeds/BrannCom/index.html", "is-narrow", ""),
+    "/games/apis": gameView("Appraise in Space", "https://gamejolt.net/?token=jmXHNQbaBFqBW9yyLCHX7ho6db7ieC", "is-narrow", ""),
+    "/games/shootyman": gameView("Shootyman 2k20", "/public/embeds/shootyman/index.html", "is-narrow", "h-544"),
+    "/games/scb": gameView("Super Crate Clone", "/public/embeds/shootycrate/index.html", "is-clipped", "fixed-scb"),
+    "/games/pitch": gameView("Princess Pitch HTML5", "/public/embeds/outa_ampuja/index.html", "is-clipped", "h-480"),
+    "/games/loe": gameView("Erika Sprite Game", "/public/embeds/loe/index.html", "is-clipped", "h-544")
+  };
+
+  function currentPath() {
+    const hash = window.location.hash.replace(/^#/, "");
+    return hash || "/";
+  }
+
+  function resolve(path) {
+    if (routes[path]) return { view: routes[path], params: {} };
+    const postMatch = path.match(/^\/post\/([^/]+)$/);
+    if (postMatch) return { view: views.post, params: { id: decodeURIComponent(postMatch[1]) } };
+    return { view: views.notFound, params: {} };
+  }
+
+  function render() {
+    const path = currentPath();
+    const match = resolve(path);
+
+    titleBar.textContent = match.view.label;
+    document.title = match.view.label + " \u2014 Skelton's Lair";
+    statusItems.innerHTML = match.view.status ? esc(match.view.status) : "&nbsp;";
+
+    outlet.innerHTML = match.view.render(match.params);
+    outlet.scrollTop = 0;
+
+    document.querySelectorAll("[data-nav]").forEach(function (el) {
+      if (el.getAttribute("data-nav") === path) el.setAttribute("aria-current", "page");
+      else el.removeAttribute("aria-current");
+    });
+
+    if (match.view.mount) {
+      Promise.resolve(match.view.mount(match.params)).catch(function (err) {
+        console.error(err);
+      });
+    }
+  }
+
+  window.addEventListener("hashchange", render);
+
+  /* ==========================================================
+     Menu bar
+     ========================================================== */
+
+  const menus = {
+    apple: [
+      { label: "About Skeltonmod", href: "#/" },
+      { sep: true },
+      { label: "System Preferences\u2026", disabled: true },
+      { label: "Sleep", disabled: true },
+      { label: "Log Out\u2026", disabled: true }
+    ],
+    app: [
+      { label: "About Skeltonmod", href: "#/" },
+      { sep: true },
+      { label: "View Source on GitHub", href: "https://github.com/skeltonmod/skeltonmod.github.io", external: true }
+    ],
+    file: [
+      { label: "Download R\u00e9sum\u00e9\u2026", href: "/public/resume.pdf", external: true },
+      { sep: true },
+      { label: "Open GitHub Profile\u2026", href: "https://github.com/skeltonmod", external: true }
+    ],
+    go: [
+      { label: "About Me", href: "#/", shortcut: "\u23181" },
+      { label: "Games", href: "#/games", shortcut: "\u23182" },
+      { label: "Work", href: "#/work", shortcut: "\u23183" },
+      { label: "Git Activity", href: "#/git", shortcut: "\u23184" },
+    //   { label: "Blog", href: "#/blog", shortcut: "\u23185" }
+    ],
+    help: [
+      { label: "Report an Issue\u2026", href: "https://github.com/skeltonmod/skeltonmod.github.io/issues", external: true }
+    ]
+  };
+
+  const goOrder = ["/", "/games", "/work", "/git", "/blog"];
+
+  const menubar = document.getElementById("menubar");
+  const panel = document.getElementById("menuPanel");
+  let openMenu = null;
+
+  function closeMenu() {
+    panel.classList.remove("open");
+    panel.innerHTML = "";
+    menubar.querySelectorAll(".menu-title").forEach(function (b) {
+      b.setAttribute("aria-expanded", "false");
+    });
+    openMenu = null;
+  }
+
+  function openMenuFor(button) {
+    const name = button.getAttribute("data-menu");
+    const items = menus[name] || [];
+    const here = "#" + currentPath();
+
+    panel.innerHTML = items
+      .map(function (item) {
+        if (item.sep) return '<div class="menu-sep"></div>';
+        const tick = item.href === here ? "\u2713" : "";
+        return (
+          '<button type="button" class="menu-item" role="menuitem"' +
+          (item.disabled ? " disabled" : ' data-href="' + esc(item.href) + '"') +
+          (item.external ? ' data-external="1"' : "") +
+          '><span><span class="tick">' + tick + "</span>" + esc(item.label) + "</span>" +
+          '<span class="shortcut">' + esc(item.shortcut || "") + "</span></button>"
+        );
+      })
+      .join("");
+
+    const rect = button.getBoundingClientRect();
+    panel.style.left = Math.max(4, Math.min(rect.left, window.innerWidth - 228)) + "px";
+    panel.classList.add("open");
+    button.setAttribute("aria-expanded", "true");
+    openMenu = name;
+  }
+
+  menubar.addEventListener("click", function (e) {
+    const button = e.target.closest(".menu-title");
+    if (!button) return;
+    if (openMenu === button.getAttribute("data-menu")) closeMenu();
+    else { closeMenu(); openMenuFor(button); }
+  });
+
+  // With a menu open, sliding across the bar switches menus, as it should.
+  menubar.addEventListener("mouseover", function (e) {
+    if (!openMenu) return;
+    const button = e.target.closest(".menu-title");
+    if (button && button.getAttribute("data-menu") !== openMenu) {
+      closeMenu();
+      openMenuFor(button);
+    }
+  });
+
+  panel.addEventListener("click", function (e) {
+    const item = e.target.closest(".menu-item");
+    if (!item || item.disabled) return;
+    const href = item.getAttribute("data-href");
+    closeMenu();
+    if (!href) return;
+    if (item.getAttribute("data-external")) window.open(href, "_blank", "noopener");
+    else window.location.hash = href.replace(/^#/, "");
+  });
+
+  document.addEventListener("click", function (e) {
+    if (!e.target.closest("#menubar") && !e.target.closest("#menuPanel")) closeMenu();
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") { closeMenu(); return; }
+    // The Go menu advertises Cmd-1 through Cmd-5, so they had better work.
+    if ((e.metaKey || e.ctrlKey) && !e.altKey && e.key >= "1" && e.key <= "4") {
+      const target = goOrder[Number(e.key) - 1];
+      if (target) { e.preventDefault(); window.location.hash = target; }
+    }
+  });
+
+  const clock = document.getElementById("clock");
+  function tickClock() {
+    clock.textContent = new Date().toLocaleString([], {
+      weekday: "short", hour: "numeric", minute: "2-digit"
+    });
+  }
+  tickClock();
+  setInterval(tickClock, 15000);
+
+  document.getElementById("status-copyright").textContent =
+    "Elijah Abgao \u00a9 " + new Date().getFullYear() + " \u00b7 Powered by Spite\u2122";
+
+  const cpuField = document.getElementById("status-cpu");
+  setInterval(function () {
+    cpuField.textContent = "CPU " + Math.floor(Math.random() * 100 + 1) + "%";
+  }, 1000);
+
+  if (!window.location.hash) window.location.replace("#/");
+
+  render();
+})();
+</script>
 </body>
 </html>
