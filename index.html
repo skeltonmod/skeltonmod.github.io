@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#5a86c4" />
 <title>Skelton's Lair</title>
 <style>
-  
+
 :root {
   --aqua:      #3f7fd0;
   --aqua-dk:   #2a62ad;
@@ -20,12 +20,6 @@
   --font-ui: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans",
              -apple-system, "Segoe UI", Tahoma, Verdana, sans-serif;
   --font-mono: Monaco, "Andale Mono", "Courier New", monospace;
-
-  --pinstripe: repeating-linear-gradient(
-    180deg,
-    rgba(255,255,255,.65) 0 1px,
-    rgba(0,0,0,.025) 1px 2px
-  );
 
   --menubar-h: 22px;
   --dock-h: 104px;
@@ -45,10 +39,8 @@ html, body {
   -webkit-text-size-adjust: 100%;
 }
 
-/* The Aqua Blue desktop: a lit dome of blue, pinstriped. */
 body {
   background:
-    var(--pinstripe),
     radial-gradient(120% 90% at 50% 8%, #b7d4f2 0%, #6d9bd4 42%, #3f6ea8 78%, #2b5083 100%);
   background-attachment: fixed;
 }
@@ -58,13 +50,11 @@ a:hover { text-decoration: underline; }
 
 :focus-visible { outline: 2px solid #7fb0e8; outline-offset: 1px; }
 
-/* --- Aqua gel scrollbars ------------------------------------------ */
-
 * { scrollbar-color: #6ba3e0 #e9e9e9; scrollbar-width: thin; }
 
 ::-webkit-scrollbar { width: 15px; height: 15px; }
 ::-webkit-scrollbar-track {
-  background: var(--pinstripe), linear-gradient(90deg, #dcdcdc, #ececec);
+  background: linear-gradient(90deg, #dcdcdc, #ececec);
   border-left: 1px solid #c2c2c2;
 }
 ::-webkit-scrollbar-thumb {
@@ -77,10 +67,6 @@ a:hover { text-decoration: underline; }
 ::-webkit-scrollbar-thumb:hover { filter: brightness(1.06); }
 ::-webkit-scrollbar-corner { background: #e4e4e4; }
 
-/* ===================================================================
-   Menu bar
-   =================================================================== */
-
 .menubar {
   position: fixed;
   inset: 0 0 auto 0;
@@ -91,7 +77,7 @@ a:hover { text-decoration: underline; }
   padding: 0 8px;
   border-radius: 6px 6px 0 0;
   border-bottom: 1px solid #9d9d9d;
-  background: var(--pinstripe), linear-gradient(#ffffff, #e6e6e6);
+  background: linear-gradient(#ffffff, #e6e6e6);
   box-shadow: 0 1px 3px rgba(0,0,0,.25);
   font-size: 13px;
   user-select: none;
@@ -165,10 +151,6 @@ a:hover { text-decoration: underline; }
 
 .menu-sep { height: 1px; margin: 4px 12px; background: #d5d5d5; }
 
-/* ===================================================================
-   Desktop + window
-   =================================================================== */
-
 .desktop {
   position: fixed;
   inset: var(--menubar-h) 0 0 0;
@@ -200,12 +182,11 @@ a:hover { text-decoration: underline; }
   align-items: center;
   padding: 0 10px;
   border-bottom: 1px solid #8e8e8e;
-  background: var(--pinstripe), linear-gradient(#efefef, #c9c9c9);
+  background: linear-gradient(#efefef, #c9c9c9);
   cursor: default;
   user-select: none;
 }
 
-/* Deliberately decoration: this is a picture of a window, not controls. */
 .traffic { display: flex; gap: 8px; pointer-events: none; }
 .traffic i {
   width: 12px; height: 12px;
@@ -255,7 +236,7 @@ a:hover { text-decoration: underline; }
   height: 22px;
   padding: 0 4px;
   border-top: 1px solid #b9b9b9;
-  background: var(--pinstripe), linear-gradient(#f2f2f2, #dcdcdc);
+  background: linear-gradient(#f2f2f2, #dcdcdc);
   color: #5e5e5e;
   font-size: 11px;
   user-select: none;
@@ -277,10 +258,6 @@ a:hover { text-decoration: underline; }
     linear-gradient(135deg, transparent 64%, #a9a9a9 64% 70%, transparent 70%),
     linear-gradient(135deg, transparent 82%, #a9a9a9 82% 88%, transparent 88%);
 }
-
-/* ===================================================================
-   Aqua controls
-   =================================================================== */
 
 .aqua-btn {
   display: inline-block;
@@ -310,14 +287,12 @@ a:hover { text-decoration: underline; }
 }
 .aqua-btn.primary:active { background: linear-gradient(#2f6cbe, #4a8bd8); }
 
-/* The default button pulsed. It is the single most Aqua thing there is. */
 .aqua-btn.pulse { animation: pulse 1.9s ease-in-out infinite; }
 @keyframes pulse {
   0%, 100% { box-shadow: 0 1px 2px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.6), 0 0 0 0 rgba(90,150,225,.55); }
   50%      { box-shadow: 0 1px 2px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.6), 0 0 0 5px rgba(90,150,225,0); }
 }
 
-/* Barber-pole indeterminate progress, for every loading state. */
 .aqua-progress {
   height: 12px;
   border-radius: 7px;
@@ -332,10 +307,6 @@ a:hover { text-decoration: underline; }
 
 .loading { display: flex; flex-direction: column; gap: 8px; align-items: center; padding: 26px 20px; color: var(--ink-soft); }
 .loading .aqua-progress { width: 190px; }
-
-/* ===================================================================
-   Pages
-   =================================================================== */
 
 .page { padding: 20px 22px 26px; }
 
@@ -372,8 +343,6 @@ a:hover { text-decoration: underline; }
   font-size: 12px;
 }
 
-/* --- Finder / iTunes list, used by Games and Work --- */
-
 .list { padding: 0; }
 
 .group-header {
@@ -383,7 +352,7 @@ a:hover { text-decoration: underline; }
   padding: 8px 16px 9px;
   border-top: 1px solid #fff;
   border-bottom: 1px solid #a9b6c6;
-  background: var(--pinstripe), linear-gradient(#f4f7fb, #dae2ec);
+  background: linear-gradient(#f4f7fb, #dae2ec);
   box-shadow: 0 1px 3px rgba(0,0,0,.07);
 }
 .group-header h2 {
@@ -422,8 +391,6 @@ a:hover { text-decoration: underline; }
 .entry-meta b { font-weight: normal; color: var(--ink-soft); }
 .entry-desc { margin: 0 0 10px; color: #4a4a4a; }
 .entry-desc strong { color: #2c2c2c; }
-
-/* --- git --- */
 
 .feed {
   margin: 16px 0 0;
@@ -576,8 +543,6 @@ a:hover { text-decoration: underline; }
 .fb-content pre { padding: 8px; overflow: auto; background: #f5f5f5; }
 .fb-content code { background: #f0f0f0; padding: 1px 3px; }
 
-/* --- 404 rendered as an Aqua alert --- */
-
 .alert {
   max-width: 440px;
   margin: 26px auto;
@@ -593,8 +558,6 @@ a:hover { text-decoration: underline; }
 .alert h2 { margin: 0 0 5px; font-size: 14px; font-weight: bold; color: #2c2c2c; }
 .alert p { margin: 0 0 14px; font-size: 12px; color: var(--ink-soft); }
 .alert .buttons { display: flex; justify-content: flex-end; gap: 9px; }
-
-/* --- game embeds; sizes preserved from the Svelte routes --- */
 
 .game-container { margin: 0 auto; padding: 16px; }
 .game-container.is-narrow { max-width: 632px; }
@@ -613,10 +576,6 @@ a:hover { text-decoration: underline; }
 .game-iframe.fixed-dtp { width: 640px; height: 544px; }
 .game-iframe.fixed-scb { width: 900px; height: 640px; }
 .game-back { display: block; margin: 12px auto 0; width: max-content; }
-
-/* ===================================================================
-   The Dock
-   =================================================================== */
 
 .dock-wrap {
   position: fixed;
@@ -657,7 +616,6 @@ a:hover { text-decoration: underline; }
 .dock a:hover { text-decoration: none; }
 .dock svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 2px 3px rgba(0,0,0,.3)); }
 
-/* Neighbour magnification, the cheap honest version. */
 .dock li:hover a { transform: scale(1.55) translateY(-9px); }
 .dock li:hover + li a,
 .dock li:has(+ li:hover) a { transform: scale(1.22) translateY(-3px); }
@@ -672,9 +630,6 @@ a:hover { text-decoration: underline; }
 }
 .dock a[aria-current="page"] + .pip { opacity: 1; }
 
-/* The magnified icon is transformed, so it makes its own stacking context and
-   paints over anything earlier in the DOM. The label needs both a z-index and
-   enough clearance to sit above a 1.55x icon growing from its bottom edge. */
 .dock .tip {
   position: absolute;
   bottom: 100%;
@@ -705,10 +660,6 @@ a:hover { text-decoration: underline; }
 }
 .dock li:hover .tip, .dock li:focus-within .tip { opacity: 1; }
 
-/* ===================================================================
-   Narrow screens: the window stops floating and fills the screen.
-   =================================================================== */
-
 @media (max-width: 760px) {
   :root { --dock-h: 84px; }
 
@@ -734,7 +685,6 @@ a:hover { text-decoration: underline; }
 
   .dock { gap: 3px; padding: 6px 8px 4px; border-radius: 12px; }
   .dock a { width: 44px; height: 44px; }
-  /* Magnification is a pointer idea; on touch it only makes things jump. */
   .dock li:hover a,
   .dock li:hover + li a,
   .dock li:has(+ li:hover) a { transform: none; }
@@ -758,7 +708,6 @@ a:hover { text-decoration: underline; }
 </head>
 <body>
 
-<!-- ============================ menu bar ============================ -->
 <div class="menubar" id="menubar">
   <button type="button" class="menu-title apple" data-menu="apple" aria-expanded="false" aria-haspopup="true" aria-label="Apple menu">&#63743;</button>
   <button type="button" class="menu-title app" data-menu="app" aria-expanded="false" aria-haspopup="true">Skelton's Lair</button>
@@ -770,7 +719,6 @@ a:hover { text-decoration: underline; }
 </div>
 <div class="menu-panel" id="menuPanel" role="menu"></div>
 
-<!-- ============================= desktop ============================ -->
 <div class="desktop">
   <div class="window">
     <div class="title-bar">
@@ -787,7 +735,6 @@ a:hover { text-decoration: underline; }
   </div>
 </div>
 
-<!-- ============================== dock ============================== -->
 <div class="dock-wrap">
   <ol class="dock" id="dock">
     <li>
@@ -868,35 +815,12 @@ a:hover { text-decoration: underline; }
       </a>
       <span class="pip"></span>
     </li>
-    <!-- <li>
-      <span class="tip">Blog</span>
-      <a href="#/blog" data-nav="/blog" aria-label="Blog">
-        <svg viewBox="0 0 48 48" aria-hidden="true">
-          <defs>
-            <linearGradient id="gE" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#e9e9ef"/><stop offset=".5" stop-color="#b6bbc7"/><stop offset="1" stop-color="#6f7684"/>
-            </linearGradient>
-          </defs>
-          <rect x="3" y="3" width="42" height="42" rx="10" fill="url(#gE)" stroke="#5b6270"/>
-          <rect x="12.5" y="12" width="23" height="28" rx="2.5" fill="#fff" stroke="#8d94a1"/>
-          <rect x="16.5" y="18" width="15" height="2.4" fill="#828b99"/>
-          <rect x="16.5" y="24" width="15" height="2.4" fill="#828b99"/>
-          <rect x="16.5" y="30" width="9" height="2.4" fill="#828b99"/>
-          <path d="M6 14a10 10 0 0 1 36 0c0 6-8 9-18 9S6 20 6 14z" fill="url(#gloss)"/>
-        </svg>
-      </a>
-      <span class="pip"></span>
-    </li> -->
   </ol>
 </div>
 
 <script>
 (function () {
   "use strict";
-
-  /* ==========================================================
-     Data — unchanged from src/lib/data.js
-     ========================================================== */
 
   const recent_games = [
     {
@@ -1115,12 +1039,6 @@ a:hover { text-decoration: underline; }
     }
   ];
 
-  /* ==========================================================
-     Helpers
-     ========================================================== */
-
-  // Titles and metadata were escaped by Svelte; descriptions used {@html}
-  // and stay raw on purpose.
   function esc(value) {
     return String(value == null ? "" : value).replace(/[&<>"']/g, function (c) {
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
@@ -1144,8 +1062,6 @@ a:hover { text-decoration: underline; }
   let postsCache = null;
   let feedBase = "https://sckickar.github.io/";
 
-  // Post bodies contain paths like /uploads/x.png. Left alone they resolve
-  // against this site and 404, so rewrite them against the blog's own origin.
   function absolutize(html, base) {
     if (!html) return "";
     const doc = new DOMParser().parseFromString(html, "text/html");
@@ -1168,7 +1084,6 @@ a:hover { text-decoration: underline; }
     const xml = new DOMParser().parseFromString(text, "application/xml");
     const entries = xml.getElementsByTagName("entry");
 
-    // The feed names its own canonical origin; trust that over the fetch URL.
     const alt = Array.from(xml.documentElement.children).find(function (n) {
       return n.tagName === "link" && n.getAttribute("rel") === "alternate";
     });
@@ -1194,10 +1109,6 @@ a:hover { text-decoration: underline; }
     });
     return postsCache;
   }
-
-  /* ==========================================================
-     List rendering — Finder rows with alternating stripes
-     ========================================================== */
 
   function groupHeader(header, isNote) {
     return (
@@ -1230,7 +1141,6 @@ a:hover { text-decoration: underline; }
     );
   }
 
-  // Stripes run continuously down the whole list, not per section.
   function buildList(sections) {
     let i = 0;
     return (
@@ -1247,10 +1157,6 @@ a:hover { text-decoration: underline; }
       "</div>"
     );
   }
-
-  /* ==========================================================
-     Views
-     ========================================================== */
 
   const PORTFOLIO_REPO_ID = 410241753;
 
@@ -1271,7 +1177,6 @@ a:hover { text-decoration: underline; }
     return d.toLocaleString([], { year: "numeric", month: "long" });
   }
 
-  // Blue bar + page wrapper shared by the wall and the single-post view.
   function fbShell(right, inner) {
     return (
       '<div class="fb">' +
@@ -1623,7 +1528,6 @@ a:hover { text-decoration: underline; }
     }
   };
 
-  // Game embeds. Sizes preserved from each src/routes/games/*.svelte.
   function gameView(label, src, containerClass, frameClass) {
     return {
       label: label,
@@ -1641,10 +1545,6 @@ a:hover { text-decoration: underline; }
       }
     };
   }
-
-  /* ==========================================================
-     Router — hash paths, same as svelte-spa-router used
-     ========================================================== */
 
   const routes = {
     "/": views.home,
@@ -1698,10 +1598,6 @@ a:hover { text-decoration: underline; }
 
   window.addEventListener("hashchange", render);
 
-  /* ==========================================================
-     Menu bar
-     ========================================================== */
-
   const menus = {
     apple: [
       { label: "About Skeltonmod", href: "#/" },
@@ -1724,8 +1620,7 @@ a:hover { text-decoration: underline; }
       { label: "About Me", href: "#/", shortcut: "\u23181" },
       { label: "Games", href: "#/games", shortcut: "\u23182" },
       { label: "Work", href: "#/work", shortcut: "\u23183" },
-      { label: "Git Activity", href: "#/git", shortcut: "\u23184" },
-    //   { label: "Blog", href: "#/blog", shortcut: "\u23185" }
+      { label: "Git Activity", href: "#/git", shortcut: "\u23184" }
     ],
     help: [
       { label: "Report an Issue\u2026", href: "https://github.com/skeltonmod/skeltonmod.github.io/issues", external: true }
@@ -1780,7 +1675,6 @@ a:hover { text-decoration: underline; }
     else { closeMenu(); openMenuFor(button); }
   });
 
-  // With a menu open, sliding across the bar switches menus, as it should.
   menubar.addEventListener("mouseover", function (e) {
     if (!openMenu) return;
     const button = e.target.closest(".menu-title");
@@ -1806,7 +1700,6 @@ a:hover { text-decoration: underline; }
 
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") { closeMenu(); return; }
-    // The Go menu advertises Cmd-1 through Cmd-5, so they had better work.
     if ((e.metaKey || e.ctrlKey) && !e.altKey && e.key >= "1" && e.key <= "4") {
       const target = goOrder[Number(e.key) - 1];
       if (target) { e.preventDefault(); window.location.hash = target; }
