@@ -1,821 +1,490 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<link rel="icon" type="image/png" href="/public/icon.png" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<meta name="theme-color" content="#5a86c4" />
+<meta charset="utf-8"/>
+<link rel="icon" type="image/png" href="/public/icon.png"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="theme-color" content="#3B5998"/>
 <title>Skelton's Lair</title>
 <style>
 
-:root {
-  --aqua:      #3f7fd0;
-  --aqua-dk:   #2a62ad;
-  --aqua-pale: #edf3fe;
-
-  --ink:       #2c2c2c;
-  --ink-soft:  #6a6a6a;
-  --ink-faint: #9a9a9a;
-
-  --font-ui: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans",
-             -apple-system, "Segoe UI", Tahoma, Verdana, sans-serif;
-  --font-mono: Monaco, "Andale Mono", "Courier New", monospace;
-
-  --menubar-h: 22px;
-  --dock-h: 104px;
-}
-
 *, *::before, *::after { box-sizing: border-box; }
 
-html, body {
-  margin: 0;
-  height: 100dvh;
-  overflow: hidden;
-  font-family: var(--font-ui);
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--ink);
-  -webkit-font-smoothing: antialiased;
+html, body { margin: 0; padding: 0; }
+
+body {
+  background: linear-gradient(#5a5a63, #3d3d45);
+  background-attachment: fixed;
+  font-family: "Lucida Grande", Tahoma, Verdana, Arial, sans-serif;
+  font-size: 11px;
+  color: #333;
+  min-height: 100vh;
+  padding: 24px 12px 40px;
   -webkit-text-size-adjust: 100%;
 }
 
-body {
-  background:
-    radial-gradient(120% 90% at 50% 8%, #b7d4f2 0%, #6d9bd4 42%, #3f6ea8 78%, #2b5083 100%);
-  background-attachment: fixed;
-}
-
-a { color: var(--aqua-dk); text-decoration: none; }
+a { color: #3B5998; text-decoration: none; }
 a:hover { text-decoration: underline; }
 
-:focus-visible { outline: 2px solid #7fb0e8; outline-offset: 1px; }
+.wrapper { max-width: 880px; margin: 0 auto; }
 
-* { scrollbar-color: #6ba3e0 #e9e9e9; scrollbar-width: thin; }
-
-::-webkit-scrollbar { width: 15px; height: 15px; }
-::-webkit-scrollbar-track {
-  background: linear-gradient(90deg, #dcdcdc, #ececec);
-  border-left: 1px solid #c2c2c2;
-}
-::-webkit-scrollbar-thumb {
-  border-radius: 8px;
-  border: 1px solid #3f74ac;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.85) 0%, rgba(255,255,255,.15) 48%, rgba(255,255,255,0) 52%),
-    linear-gradient(180deg, #9fc8ef, #4a8bd8 55%, #3874bd);
-}
-::-webkit-scrollbar-thumb:hover { filter: brightness(1.06); }
-::-webkit-scrollbar-corner { background: #e4e4e4; }
-
-.menubar {
-  position: fixed;
-  inset: 0 0 auto 0;
-  height: var(--menubar-h);
-  z-index: 200;
-  display: flex;
-  align-items: stretch;
-  padding: 0 8px;
-  border-radius: 6px 6px 0 0;
-  border-bottom: 1px solid #9d9d9d;
-  background: linear-gradient(#ffffff, #e6e6e6);
-  box-shadow: 0 1px 3px rgba(0,0,0,.25);
-  font-size: 13px;
-  user-select: none;
-}
-
-.menubar .spacer { flex: 1 1 auto; }
-
-.menu-title {
-  appearance: none;
-  border: 0;
-  background: transparent;
-  font: inherit;
-  color: #1c1c1c;
-  padding: 0 9px;
-  cursor: default;
-  border-radius: 3px;
-  white-space: nowrap;
-}
-.menu-title.app { font-weight: bold; }
-.menu-title.apple { font-size: 15px; padding: 0 10px; }
-.menu-title:hover,
-.menu-title[aria-expanded="true"] {
-  background: linear-gradient(#5c92dd, #2f6cbe);
-  color: #fff;
-}
-
-.clock {
-  display: flex;
-  align-items: center;
-  padding: 0 6px 0 10px;
-  color: #1c1c1c;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-.menu-panel {
-  position: fixed;
-  top: var(--menubar-h);
-  z-index: 210;
-  min-width: 216px;
-  padding: 4px 0;
-  display: none;
-  background: rgba(255,255,255,.97);
-  border: 1px solid #8f8f8f;
-  border-top: 0;
-  border-radius: 0 0 6px 6px;
-  box-shadow: 0 6px 18px rgba(0,0,0,.35);
-}
-.menu-panel.open { display: block; }
-
-.menu-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  width: 100%;
-  padding: 3px 14px 3px 8px;
-  border: 0;
-  background: transparent;
-  font: inherit;
-  color: #1c1c1c;
-  text-align: left;
-  cursor: default;
-  white-space: nowrap;
-}
-.menu-item:hover:not([disabled]) { background: var(--aqua); color: #fff; }
-.menu-item[disabled] { color: #b0b0b0; }
-.menu-item .shortcut { color: #8b8b8b; font-size: 12px; }
-.menu-item:hover:not([disabled]) .shortcut { color: #dbe8f8; }
-.menu-item .tick { display: inline-block; width: 14px; }
-
-.menu-sep { height: 1px; margin: 4px 12px; background: #d5d5d5; }
-
-.desktop {
-  position: fixed;
-  inset: var(--menubar-h) 0 0 0;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 26px 18px var(--dock-h);
-}
-
-.window {
-  width: 100%;
-  max-width: 860px;
-  max-height: 100%;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  border: 1px solid #6f6f6f;
-  border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 22px 48px rgba(0,0,0,.42), 0 3px 10px rgba(0,0,0,.24);
+.windowborder {
+  background: #dcdcdc;
+  border: 1px solid #262626;
+  border-radius: 6px 6px 3px 3px;
+  box-shadow: 0 8px 26px rgba(0,0,0,.45);
   overflow: hidden;
 }
 
-.title-bar {
-  flex: 0 0 auto;
-  position: relative;
-  height: 23px;
-  display: flex;
-  align-items: center;
-  padding: 0 10px;
-  border-bottom: 1px solid #8e8e8e;
-  background: linear-gradient(#efefef, #c9c9c9);
-  cursor: default;
-  user-select: none;
-}
-
-.traffic { display: flex; gap: 8px; pointer-events: none; }
-.traffic i {
-  width: 12px; height: 12px;
-  border-radius: 50%;
-  position: relative;
-  border: 1px solid rgba(0,0,0,.35);
-  box-shadow: inset 0 -3px 4px rgba(0,0,0,.18);
-}
-.traffic i::after {
-  content: "";
-  position: absolute;
-  inset: 1px 2.5px 6px;
-  border-radius: 50%;
-  background: linear-gradient(rgba(255,255,255,.95), rgba(255,255,255,.05));
-}
-.traffic .red    { background: radial-gradient(circle at 40% 35%, #ffa49b, #e8564b 55%, #b3322a); }
-.traffic .yellow { background: radial-gradient(circle at 40% 35%, #ffe08a, #f5b32d 55%, #bf8410); }
-.traffic .green  { background: radial-gradient(circle at 40% 35%, #b9f39a, #61c247 55%, #3d8f2b); }
-
-.title-bar-text {
-  position: absolute;
-  left: 0; right: 0;
-  text-align: center;
-  font-size: 13px;
-  font-weight: bold;
-  color: #4a4a4a;
-  text-shadow: 0 1px 0 rgba(255,255,255,.85);
-  pointer-events: none;
-  padding: 0 90px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.window-body {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow: auto;
-  background: #fff;
-  position: relative;
-}
-
-.status-bar {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  height: 22px;
-  padding: 0 4px;
-  border-top: 1px solid #b9b9b9;
-  background: linear-gradient(#f2f2f2, #dcdcdc);
-  color: #5e5e5e;
-  font-size: 11px;
-  user-select: none;
-}
-.status-bar .field {
-  margin: 0;
-  padding: 0 9px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.status-bar .field + .field { border-left: 1px solid #c6c6c6; }
-.status-bar .field:first-child { flex: 1 1 auto; min-width: 0; }
-.status-bar .grip {
-  margin-left: 6px;
-  width: 14px; height: 14px;
-  background:
-    linear-gradient(135deg, transparent 46%, #a9a9a9 46% 52%, transparent 52%),
-    linear-gradient(135deg, transparent 64%, #a9a9a9 64% 70%, transparent 70%),
-    linear-gradient(135deg, transparent 82%, #a9a9a9 82% 88%, transparent 88%);
-}
-
-.aqua-btn {
-  display: inline-block;
-  appearance: none;
-  font: 13px/1 var(--font-ui);
-  color: #1f1f1f;
-  text-decoration: none;
-  padding: 5px 15px 6px;
-  border: 1px solid #9a9a9a;
-  border-radius: 11px;
-  cursor: pointer;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.95) 0 46%, rgba(255,255,255,0) 46%),
-    linear-gradient(180deg, #fdfdfd, #ededed 46%, #d6d6d6 50%, #f3f3f3);
-  box-shadow: 0 1px 2px rgba(0,0,0,.16), inset 0 1px 0 #fff;
-}
-.aqua-btn:hover { text-decoration: none; filter: brightness(1.03); }
-.aqua-btn:active { background: linear-gradient(#cfcfcf, #e8e8e8); box-shadow: inset 0 1px 3px rgba(0,0,0,.2); }
-
-.aqua-btn.primary {
-  color: #fff;
-  border-color: #2b5f9e;
-  text-shadow: 0 -1px 0 rgba(0,0,0,.3);
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.75) 0 46%, rgba(255,255,255,0) 46%),
-    linear-gradient(180deg, #8fbdf0, #4a8bd8 46%, #2f6cbe 50%, #79aee9);
-}
-.aqua-btn.primary:active { background: linear-gradient(#2f6cbe, #4a8bd8); }
-
-.aqua-btn.pulse { animation: pulse 1.9s ease-in-out infinite; }
-@keyframes pulse {
-  0%, 100% { box-shadow: 0 1px 2px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.6), 0 0 0 0 rgba(90,150,225,.55); }
-  50%      { box-shadow: 0 1px 2px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.6), 0 0 0 5px rgba(90,150,225,0); }
-}
-
-.aqua-progress {
-  height: 12px;
-  border-radius: 7px;
-  border: 1px solid #6f9bc9;
-  overflow: hidden;
-  background: repeating-linear-gradient(-45deg, #4a8bd8 0 8px, #a8ccf0 8px 16px);
-  background-size: 22.63px 22.63px;
-  animation: barber .9s linear infinite;
-  box-shadow: inset 0 1px 2px rgba(0,0,0,.2);
-}
-@keyframes barber { to { background-position: 22.63px 0; } }
-
-.loading { display: flex; flex-direction: column; gap: 8px; align-items: center; padding: 26px 20px; color: var(--ink-soft); }
-.loading .aqua-progress { width: 190px; }
-
-.page { padding: 20px 22px 26px; }
-
-.sheet-title {
-  margin: 0 0 4px;
-  font-size: 21px;
-  font-weight: bold;
-  letter-spacing: -.2px;
-  color: #303030;
-  text-align: center;
-}
-.sheet-sub { margin: 0 0 18px; text-align: center; color: var(--ink-soft); }
-
-.avatar-container { text-align: center; }
-.avatar {
-  max-width: 100%;
-  border-radius: 10px;
-  background: #fff;
-  padding: 5px;
-  border: 1px solid #cfcfcf;
-  box-shadow: 0 4px 12px rgba(0,0,0,.16);
-}
-.home-lines { margin: 14px auto 0; max-width: 440px; text-align: center; }
-.home-lines p { margin: 6px 0; }
-
-.updated {
-  display: inline-block;
-  margin-top: 12px;
-  padding: 4px 12px;
-  border-radius: 10px;
-  border: 1px solid #c8d6e6;
-  background: var(--aqua-pale);
-  color: #40566f;
-  font-size: 12px;
-}
-
-.list { padding: 0; }
-
-.group-header {
-  position: sticky;
-  top: 0;
-  z-index: 3;
-  padding: 8px 16px 9px;
-  border-top: 1px solid #fff;
-  border-bottom: 1px solid #a9b6c6;
-  background: linear-gradient(#f4f7fb, #dae2ec);
-  box-shadow: 0 1px 3px rgba(0,0,0,.07);
-}
-.group-header h2 {
-  margin: 0;
-  font-size: 14px;
-  font-weight: bold;
-  color: #35485f;
-  text-shadow: 0 1px 0 rgba(255,255,255,.8);
-}
-.group-header p { margin: 3px 0 0; font-size: 12px; color: #62717f; }
-.group-header.note { position: static; background: #f7f9fb; border-bottom: 0; }
-.group-header.note p { color: #55606b; }
-
-.entry {
-  display: flex;
-  gap: 14px;
-  padding: 13px 16px;
-  border-bottom: 1px solid #e4e4e4;
-}
-.entry.alt { background: var(--aqua-pale); }
-
-.entry-thumb {
-  flex: 0 0 108px;
-  width: 108px;
-  height: auto;
-  align-self: flex-start;
-  border-radius: 4px;
-  border: 1px solid #b9b9b9;
-  background: #fff;
-  box-shadow: 0 1px 3px rgba(0,0,0,.14);
-}
-
-.entry-body { flex: 1 1 auto; min-width: 0; }
-.entry-body h3 { margin: 0 0 2px; font-size: 14px; font-weight: bold; color: #26364a; }
-.entry-meta { margin: 0 0 6px; font-size: 11px; color: var(--ink-faint); }
-.entry-meta b { font-weight: normal; color: var(--ink-soft); }
-.entry-desc { margin: 0 0 10px; color: #4a4a4a; }
-.entry-desc strong { color: #2c2c2c; }
-
-.feed {
-  margin: 16px 0 0;
-  border: 1px solid #c6ced8;
-  border-radius: 6px;
-  overflow: hidden;
-  background: #fff;
-  text-align: left;
-}
-.event-card { display: flex; gap: 10px; align-items: flex-start; padding: 9px 11px; border-bottom: 1px solid #ebebeb; }
-.event-card:last-child { border-bottom: 0; }
-.event-card:nth-child(even) { background: var(--aqua-pale); }
-.profile-picture {
-  flex: 0 0 32px; width: 32px; height: 32px;
-  border-radius: 5px; border: 1px solid #c2c2c2; background: #e4e4e4;
-}
-.event-details { min-width: 0; }
-.commit-message { margin: 0; font-family: var(--font-mono); font-size: 12px; color: #22436e; overflow-wrap: anywhere; }
-.event-repo { margin: 2px 0 0; font-size: 11px; color: var(--ink-soft); }
-.event-time { margin: 1px 0 0; font-size: 11px; color: var(--ink-faint); }
-
-.fb {
-  --fb-blue: #3B5998;
-  --fb-dark: #133783;
-  --fb-pale: #EDEFF4;
-  --fb-line: #C3CBD8;
-  --fb-rule: #E9EBEE;
-
-  min-height: 100%;
-  background: #D8DFEA;
-  font-family: "lucida grande", "Lucida Grande", tahoma, verdana, arial, sans-serif;
-  font-size: 11px;
-  line-height: 1.45;
-  color: #333;
-}
-.fb a { color: var(--fb-blue); text-decoration: none; }
-.fb a:hover { text-decoration: underline; }
-
-.fb-bar {
+.window_top {
+  background: linear-gradient(#efefef, #d2d2d2);
+  border-bottom: 1px solid #a9a9a9;
+  padding: 7px 10px;
   display: flex;
   align-items: center;
   gap: 10px;
-  height: 42px;
-  padding: 0 10px;
-  background: var(--fb-blue);
-  border-bottom: 1px solid var(--fb-dark);
 }
-.fb-logo {
-  color: #fff;
-  font-family: tahoma, verdana, sans-serif;
-  font-size: 20px;
-  font-weight: bold;
-  letter-spacing: -.6px;
+
+.nav_buttons { display: flex; gap: 6px; flex: 0 0 auto; }
+.nav_buttons i {
+  display: block; width: 11px; height: 11px; border-radius: 50%;
+  border: 1px solid rgba(0,0,0,.28);
 }
-.fb-bar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
-.fb-bar-right input {
-  width: 180px;
-  padding: 3px 6px;
-  border: 1px solid #1d3a6e;
-  border-radius: 2px;
+.nav_buttons i:nth-child(1) { background: #ff5f57; }
+.nav_buttons i:nth-child(2) { background: #febc2e; }
+.nav_buttons i:nth-child(3) { background: #28c840; }
+
+.nav_bar {
+  flex: 1 1 auto;
+  min-width: 0;
   background: #fff;
-  font: inherit;
-  color: #333;
-}
-.fb-bar-right input:disabled { background: #dfe3ec; color: #8b93a4; }
-.fb-barlink { color: #dfe4ef !important; font-weight: bold; }
-.fb-barlink:hover { color: #fff !important; }
-
-.fb-tabs {
-  display: flex;
-  padding: 0 8px;
-  background: #fff;
-  border-bottom: 1px solid var(--fb-line);
-  overflow-x: auto;
-}
-.fb-tab {
-  appearance: none;
-  border: 0;
-  border-bottom: 3px solid transparent;
-  background: transparent;
-  font: inherit;
-  color: var(--fb-blue);
-  padding: 8px 12px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-.fb-tab:hover { background: var(--fb-pale); }
-.fb-tab[aria-selected="true"] { font-weight: bold; border-bottom-color: var(--fb-blue); background: #fff; }
-
-.fb-body { display: flex; align-items: flex-start; gap: 10px; padding: 10px; }
-.fb-side { flex: 0 0 186px; }
-.fb-main { flex: 1 1 auto; min-width: 0; }
-
-.fb-box { background: #fff; border: 1px solid var(--fb-line); margin-bottom: 10px; }
-.fb-box:last-child { margin-bottom: 0; }
-.fb-box-head {
-  padding: 4px 8px;
-  background: var(--fb-pale);
-  border-bottom: 1px solid var(--fb-line);
-  color: var(--fb-blue);
-  font-weight: bold;
-}
-.fb-box-row { padding: 5px 8px; border-bottom: 1px solid #f2f2f2; }
-.fb-box-row:last-child { border-bottom: 0; }
-.fb-box-row .k { display: block; color: #999; }
-
-.fb-pic { padding: 8px; text-align: center; }
-.fb-pic img { width: 100%; max-width: 160px; padding: 2px; border: 1px solid #bbb; background: #fff; }
-.fb-pic .who { margin-top: 6px; font-size: 13px; font-weight: bold; color: var(--fb-blue); }
-.fb-pic .sub { color: #777; }
-
-.fb-wall { background: #fff; border: 1px solid var(--fb-line); }
-.fb-post { display: flex; gap: 9px; padding: 10px; border-bottom: 1px solid var(--fb-rule); }
-.fb-post:last-child { border-bottom: 0; }
-.fb-avatar {
-  flex: 0 0 50px;
-  width: 50px; height: 50px;
-  object-fit: cover;
-  padding: 1px;
-  border: 1px solid #ccc;
-  background: #fff;
-}
-.fb-post-body { flex: 1 1 auto; min-width: 0; }
-.fb-post-head { margin-bottom: 3px; }
-.fb-post-head .name { font-weight: bold; color: var(--fb-blue); }
-.fb-post-text { margin: 0 0 4px; }
-.fb-post-meta, .fb-actions { color: #999; }
-.fb-actions { margin-top: 4px; }
-
-.fb-empty { padding: 22px; text-align: center; color: #777; background: #fff; border: 1px solid var(--fb-line); }
-
-.fb-article { padding: 12px 15px 14px; background: #fff; border: 1px solid var(--fb-line); }
-.fb-article h1 { margin: 0 0 3px; font-size: 17px; color: #333; }
-.fb-article .byline {
-  margin-bottom: 11px;
-  padding-bottom: 9px;
-  border-bottom: 1px solid var(--fb-rule);
-  color: #999;
-}
-.fb-content { font-size: 13px; line-height: 1.62; overflow-wrap: break-word; }
-.fb-content img { max-width: 100%; height: auto; }
-.fb-content h4 { margin: 15px 0 4px; font-size: 13px; }
-.fb-content blockquote {
-  margin: 11px 0;
-  padding: 7px 11px;
-  background: var(--fb-pale);
-  border-left: 3px solid #B7BFCC;
-  color: #555;
-}
-.fb-content pre { padding: 8px; overflow: auto; background: #f5f5f5; }
-.fb-content code { background: #f0f0f0; padding: 1px 3px; }
-
-.alert {
-  max-width: 440px;
-  margin: 26px auto;
-  padding: 20px 22px 18px;
-  display: flex;
-  gap: 16px;
-  border: 1px solid #b6b6b6;
+  border: 1px solid #b4b4b4;
   border-radius: 9px;
-  background: linear-gradient(#fdfdfd, #eef0f2);
-  box-shadow: 0 8px 22px rgba(0,0,0,.16);
+  padding: 3px 9px;
 }
-.alert-icon { flex: 0 0 56px; width: 56px; height: 56px; }
-.alert h2 { margin: 0 0 5px; font-size: 14px; font-weight: bold; color: #2c2c2c; }
-.alert p { margin: 0 0 14px; font-size: 12px; color: var(--ink-soft); }
-.alert .buttons { display: flex; justify-content: flex-end; gap: 9px; }
-
-.game-container { margin: 0 auto; padding: 16px; }
-.game-container.is-narrow { max-width: 632px; }
-.game-container.is-clipped { overflow: hidden; }
-.game-stage {
-  border: 1px solid #8d8d8d;
-  border-radius: 6px;
-  overflow: hidden;
-  background: #000;
-  box-shadow: 0 6px 18px rgba(0,0,0,.28);
-  line-height: 0;
-}
-.game-iframe { display: block; width: 100%; height: 600px; border: 0; }
-.game-iframe.h-544 { height: 544px; }
-.game-iframe.h-480 { height: 480px; }
-.game-iframe.fixed-dtp { width: 640px; height: 544px; }
-.game-iframe.fixed-scb { width: 900px; height: 640px; }
-.game-back { display: block; margin: 12px auto 0; width: max-content; }
-
-.dock-wrap {
-  position: fixed;
-  left: 50%;
-  bottom: 10px;
-  transform: translateX(-50%);
-  z-index: 150;
-  display: flex;
-  justify-content: center;
-  pointer-events: none;
-}
-
-.dock {
-  display: flex;
-  align-items: flex-end;
-  gap: 6px;
-  margin: 0;
-  padding: 7px 10px 5px;
-  list-style: none;
-  pointer-events: auto;
-  border: 1px solid rgba(255,255,255,.55);
-  border-radius: 14px;
-  background: linear-gradient(rgba(255,255,255,.42), rgba(255,255,255,.2));
-  backdrop-filter: blur(9px) saturate(1.3);
-  -webkit-backdrop-filter: blur(9px) saturate(1.3);
-  box-shadow: 0 6px 20px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.65);
-  user-select: none;
-}
-
-.dock li { position: relative; display: flex; flex-direction: column; align-items: center; }
-
-.dock a {
-  display: block;
-  width: 52px; height: 52px;
-  transform-origin: 50% 100%;
-  transition: transform .16s ease-out;
-}
-.dock a:hover { text-decoration: none; }
-.dock svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 2px 3px rgba(0,0,0,.3)); }
-
-.dock li:hover a { transform: scale(1.55) translateY(-9px); }
-.dock li:hover + li a,
-.dock li:has(+ li:hover) a { transform: scale(1.22) translateY(-3px); }
-
-.dock .pip {
-  width: 5px; height: 5px;
-  margin-top: 3px;
-  border-radius: 50%;
-  background: rgba(20,20,20,.72);
-  box-shadow: 0 0 3px rgba(255,255,255,.75);
-  opacity: 0;
-}
-.dock a[aria-current="page"] + .pip { opacity: 1; }
-
-.dock .tip {
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  z-index: 30;
-  transform: translateX(-50%);
-  margin-bottom: 52px;
-  padding: 3px 10px 4px;
-  border-radius: 5px;
-  border: 1px solid rgba(0,0,0,.25);
-  background: linear-gradient(#fdfdf4, #f0efdf);
-  color: #2b2b2b;
-  font-size: 12px;
+.nav_text {
+  color: #777;
   white-space: nowrap;
-  box-shadow: 0 3px 9px rgba(0,0,0,.3);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .12s;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.dock .tip::after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 6px solid transparent;
-  border-top-color: #f0efdf;
+.nav_text b { color: #333; font-weight: normal; }
+
+.content { background: #fff; }
+
+.fb_header {
+  background: #3B5998;
+  border-bottom: 1px solid #133783;
+  padding: 0 12px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
-.dock li:hover .tip, .dock li:focus-within .tip { opacity: 1; }
+
+.fb_logo {
+  color: #fff;
+  font-size: 19px;
+  font-weight: bold;
+  letter-spacing: -.5px;
+  font-family: Tahoma, Verdana, sans-serif;
+}
+.fb_logo span { color: #9db0d6; }
+
+.fb_nav { display: flex; gap: 14px; }
+.fb_nav a { color: #dfe4ef; }
+.fb_nav a:hover { color: #fff; }
+.fb_nav a[aria-current="page"] { color: #fff; font-weight: bold; }
+
+.fb_subbar {
+  background: #EDEFF4;
+  border-bottom: 1px solid #D8DFEA;
+  padding: 5px 12px;
+  color: #666;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.fb_subbar b { color: #3B5998; }
+.fb_tagline { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.statusstrip, .tabs { display: none; }
+
+.content_main {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  background: #fff;
+}
+.col_main { flex: 1 1 auto; min-width: 0; }
+.col_side { flex: 0 0 208px; }
+
+.fb_sub_text {
+  color: #3B5998;
+  font-size: 13px;
+  font-weight: bold;
+  padding-bottom: 2px;
+}
+.fb_sub_bar { border-bottom: 2px solid #3B5998; margin-bottom: 8px; }
+
+.btn {
+  display: inline-block;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: bold;
+  color: #333;
+  background: linear-gradient(#fff, #e4e4e4);
+  border: 1px solid #999;
+  padding: 3px 12px;
+  cursor: pointer;
+  text-decoration: none;
+}
+.btn:hover { background: linear-gradient(#fff, #d4d4d4); text-decoration: none; }
+.btn:active { background: #d0d0d0; }
+.btn:focus-visible { outline: 2px solid #3B5998; outline-offset: 1px; }
+
+.btn.primary {
+  color: #fff;
+  background: linear-gradient(#6D84B4, #3B5998);
+  border-color: #29447E;
+}
+.btn.primary:hover { background: linear-gradient(#5d76ab, #31497f); }
+
+.panel { border: 1px solid #D8DFEA; background: #fff; }
+.panel + .panel { margin-top: 10px; }
+
+.group_head {
+  background: #EDEFF4;
+  border-bottom: 1px solid #D8DFEA;
+  padding: 6px 8px;
+}
+.group_head b { display: block; color: #3B5998; font-size: 12px; margin-bottom: 2px; }
+.group_head span { display: block; color: #777; line-height: 1.55; }
+.group_head.note { border-bottom: 0; background: #F7F7F7; }
+.group_head.note span { color: #666; }
+
+.entry { display: flex; gap: 9px; padding: 9px 8px; border-bottom: 1px solid #F0F0F0; }
+.entry:last-child { border-bottom: 0; }
+.entry_thumb {
+  flex: 0 0 96px; width: 96px; height: auto;
+  align-self: flex-start;
+  padding: 1px;
+  border: 1px solid #D8DFEA;
+  background: #fff;
+}
+.entry_body { flex: 1 1 auto; min-width: 0; }
+.entry_body h3 { margin: 0 0 2px; font-size: 12px; color: #3B5998; }
+.entry_meta { margin: 0 0 4px; color: #999; }
+.entry_desc { margin: 0 0 7px; color: #555; line-height: 1.55; }
+.entry_desc strong { color: #333; }
+
+.about { padding: 14px 10px 18px; text-align: center; }
+.about img {
+  max-width: 100%;
+  padding: 2px;
+  border: 1px solid #D8DFEA;
+  background: #fff;
+}
+.about h2 { margin: 10px 0 3px; font-size: 15px; color: #3B5998; }
+.about p { margin: 0 0 5px; color: #666; line-height: 1.6; }
+.about .lines { max-width: 380px; margin: 8px auto 0; }
+
+.fb_post { display: flex; gap: 7px; padding: 7px; border-bottom: 1px solid #F0F0F0; }
+.fb_post:last-child { border-bottom: 0; }
+.fb_post_avatar {
+  flex: 0 0 42px; width: 42px; height: 42px;
+  display: block;
+  background: #6D84B4;
+  border: 1px solid #29447E;
+}
+.fb_post_body { min-width: 0; }
+.fb_post_name { margin-bottom: 2px; }
+.fb_post_name .l { color: #3B5998; font-weight: bold; }
+.fb_post_name .g { color: #999; }
+.fb_post_text { color: #555; line-height: 1.5; overflow-wrap: anywhere; }
+.fb_post_text.mono { font-family: Monaco, "Andale Mono", "Courier New", monospace; color: #29447E; }
+
+.loadingline { padding: 12px 8px; color: #888; font-style: italic; }
+.emptyline { padding: 16px 8px; color: #888; text-align: center; line-height: 1.6; }
+
+.spinner {
+  display: inline-block; width: 11px; height: 11px;
+  border: 2px solid #cbd4e4; border-top-color: #3B5998;
+  border-radius: 50%;
+  vertical-align: -2px; margin-right: 5px;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.notfound { padding: 26px 20px; text-align: center; }
+.notfound h2 { margin: 0 0 6px; font-size: 15px; color: #3B5998; }
+.notfound p { margin: 0 0 16px; color: #666; line-height: 1.6; }
+
+.gamebox { border: 1px solid #D8DFEA; background: #000; overflow: auto; }
+.gamebox iframe { display: block; width: 100%; height: 600px; border: 0; }
+.gamebox iframe.h-544 { height: 544px; }
+.gamebox iframe.h-480 { height: 480px; }
+.gamebox iframe.fixed-dtp { width: 640px; height: 544px; }
+.gamebox iframe.fixed-scb { width: 900px; height: 640px; }
+.gameback { margin-top: 9px; }
+
+.fb_infobox {
+  border: 1px solid #D8DFEA;
+  background: #fff;
+  margin-bottom: 10px;
+}
+.fb_infobox:last-child { margin-bottom: 0; }
+.fb_info_head {
+  background: #F7F7F7;
+  border-bottom: 1px solid #D8DFEA;
+  color: #3B5998;
+  font-weight: bold;
+  padding: 4px 7px;
+}
+.fb_infobox_text { padding: 6px 7px; border-bottom: 1px solid #F0F0F0; }
+.fb_infobox_text:last-child { border-bottom: none; }
+.fb_infobox_text .g { color: #999; }
+
+.stat_val { color: #333; font-weight: bold; }
+
+.dot {
+  display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  background: #bbb; margin-right: 5px; vertical-align: 1px;
+}
+.dot.on   { background: #3B7A2E; }
+.dot.wait { background: #e8a33d; }
+.dot.off  { background: #b33; }
+
+.sidepic { padding: 7px; text-align: center; }
+.sidepic img {
+  width: 100%; max-width: 150px;
+  padding: 2px; border: 1px solid #D8DFEA; background: #fff;
+}
+.sidepic .who { margin-top: 5px; color: #3B5998; font-size: 12px; font-weight: bold; }
+.sidepic .sub { color: #999; }
+
+.rules { margin: 0; padding: 7px 7px 7px 22px; color: #666; line-height: 1.7; }
+
+.fb_footer {
+  border-top: 1px solid #D8DFEA;
+  background: #F7F7F7;
+  padding: 8px 12px;
+  color: #999;
+  text-align: center;
+}
 
 @media (max-width: 760px) {
-  :root { --dock-h: 84px; }
 
-  .menubar { border-radius: 0; padding: 0 4px; }
-  .menu-title { padding: 0 7px; }
-  .menu-title.hide-sm { display: none; }
+  body {
+    padding: 0;
+    background: #3d3d45;
+    overflow: hidden;
+  }
 
-  .desktop { padding: 0 0 var(--dock-h); }
-
-  .window {
+  .wrapper {
     max-width: none;
-    height: 100%;
+    height: var(--app-h, 100dvh);
+    display: flex;
+  }
+
+  .windowborder {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
     border: 0;
     border-radius: 0;
     box-shadow: none;
   }
 
-  .page { padding: 16px 14px 22px; }
-  .entry { flex-direction: column; gap: 10px; }
-  .entry-thumb { flex: 0 0 auto; width: 100%; max-width: 260px; }
-  .group-header { padding: 8px 14px; }
-  .status-bar .field:nth-child(2) { display: none; }
+  .window_top { flex: 0 0 auto; padding: 6px 9px; gap: 8px; }
+  .nav_buttons i { width: 10px; height: 10px; }
+  .nav_bar { padding: 2px 8px; }
 
-  .dock { gap: 3px; padding: 6px 8px 4px; border-radius: 12px; }
-  .dock a { width: 44px; height: 44px; }
-  .dock li:hover a,
-  .dock li:hover + li a,
-  .dock li:has(+ li:hover) a { transform: none; }
-  .dock .tip { display: none; }
+  .content {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
 
-  .game-container { padding: 10px; }
-  .game-iframe.fixed-dtp, .game-iframe.fixed-scb { width: 100%; }
+  .fb_header { height: 42px; flex: 0 0 auto; }
+  .fb_nav { display: none; }
+  .fb_subbar { flex: 0 0 auto; justify-content: flex-end; }
+  .fb_tagline { display: none; }
 
-  .fb-body { flex-direction: column; }
-  .fb-side { flex: 0 0 auto; width: 100%; }
-  .fb-pic img { max-width: 120px; }
-  .fb-bar-right input { width: 130px; }
-  .fb-content { font-size: 15px; }
+  .statusstrip {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    flex: 0 0 auto;
+    padding: 5px 12px;
+    background: #fff;
+    border-bottom: 1px solid #D8DFEA;
+    color: #666;
+  }
+  .statusstrip .right { color: #999; }
+
+  .tabs {
+    display: flex;
+    flex: 0 0 auto;
+    background: #EDEFF4;
+    border-bottom: 1px solid #D8DFEA;
+  }
+  .tabs button {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 38px;
+    padding: 0 4px;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: bold;
+    color: #3B5998;
+    background: #EDEFF4;
+    border: 0;
+    border-right: 1px solid #D8DFEA;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+  }
+  .tabs button:last-child { border-right: 0; }
+  .tabs button[aria-selected="true"] {
+    background: #fff;
+    border-bottom-color: #3B5998;
+  }
+
+  .content_main {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 0;
+    gap: 0;
+  }
+
+  .col_main, .col_side {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    padding: 10px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tab-hidden { display: none; }
+
+  .fb_sub_text, .fb_sub_bar, .fb_footer { display: none; }
+
+  .entry { flex-direction: column; gap: 8px; }
+  .entry_thumb { flex: 0 0 auto; width: 100%; max-width: 240px; }
+  .entry_body h3 { font-size: 14px; }
+  .entry_meta, .entry_desc { font-size: 12px; }
+  .group_head b { font-size: 13px; }
+  .group_head span { font-size: 12px; }
+  .btn { padding: 8px 14px; font-size: 12px; }
+
+  .about p, .fb_post_text, .fb_infobox_text, .rules { font-size: 12px; }
+  .gamebox iframe.fixed-dtp, .gamebox iframe.fixed-scb { width: 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
-  .aqua-progress { background: linear-gradient(#4a8bd8, #a8ccf0); }
+  .spinner { border-top-color: #cbd4e4; }
 }
 </style>
 </head>
 <body>
 
-<div class="menubar" id="menubar">
-  <button type="button" class="menu-title apple" data-menu="apple" aria-expanded="false" aria-haspopup="true" aria-label="Apple menu">&#63743;</button>
-  <button type="button" class="menu-title app" data-menu="app" aria-expanded="false" aria-haspopup="true">Skelton's Lair</button>
-  <button type="button" class="menu-title hide-sm" data-menu="file" aria-expanded="false" aria-haspopup="true">File</button>
-  <button type="button" class="menu-title" data-menu="go" aria-expanded="false" aria-haspopup="true">Go</button>
-  <button type="button" class="menu-title hide-sm" data-menu="help" aria-expanded="false" aria-haspopup="true">Help</button>
-  <div class="spacer"></div>
-  <div class="clock" id="clock"></div>
-</div>
-<div class="menu-panel" id="menuPanel" role="menu"></div>
+<div class="wrapper">
+  <div class="windowborder">
 
-<div class="desktop">
-  <div class="window">
-    <div class="title-bar">
-      <div class="traffic" aria-hidden="true"><i class="red"></i><i class="yellow"></i><i class="green"></i></div>
-      <div class="title-bar-text" id="title-bar-text">Skelton's Lair</div>
+    <div class="window_top">
+      <div class="nav_buttons"><i></i><i></i><i></i></div>
+      <div class="nav_bar">
+        <div class="nav_text">https://www.<b>skeltonmod.com</b><span id="navPath">/</span></div>
+      </div>
     </div>
-    <div class="window-body" id="outlet"></div>
-    <div class="status-bar">
-      <p class="field" id="status-copyright"></p>
-      <p class="field" id="status-items">&nbsp;</p>
-      <p class="field" id="status-cpu">CPU 0%</p>
-      <div class="grip" aria-hidden="true"></div>
+
+    <div class="content">
+
+      <div class="fb_header">
+        <div class="fb_logo">skeltonmod<span>.com</span></div>
+        <div class="fb_nav">
+          <a href="#/" data-nav="/">about</a>
+          <a href="#/games" data-nav="/games">games</a>
+          <a href="#/work" data-nav="/work">work</a>
+          <a href="#/git" data-nav="/git">git</a>
+        </div>
+      </div>
+
+      <div class="fb_subbar">
+        <div class="fb_tagline">unorthodoxed developer with a lot of free time.</div>
+        <div><b id="subCount">&nbsp;</b></div>
+      </div>
+
+      <div class="statusstrip">
+        <div><span class="dot on"></span><span id="mStatusText">About Me</span></div>
+        <div class="right"><span id="mStatRight"></span></div>
+      </div>
+
+      <div class="tabs" id="tabs"></div>
+
+      <div class="content_main">
+
+        <div class="col_main" id="tab-main" role="tabpanel">
+          <div class="fb_sub_text" id="pageTitle">About Me</div>
+          <div class="fb_sub_bar"></div>
+          <div id="outlet"></div>
+        </div>
+
+        <div class="col_side tab-hidden" id="tab-side" role="tabpanel">
+
+          <div class="fb_infobox">
+            <div class="sidepic">
+              <img src="/public/avatar.gif" alt="Cool skeleton gif from the 80s or something"/>
+              <div class="who">Elijah Abgao</div>
+              <div class="sub">skeltonmod</div>
+            </div>
+          </div>
+
+          <div class="fb_infobox">
+            <div class="fb_info_head">Information</div>
+            <div class="fb_infobox_text"><span class="g">Games</span><br/>
+              <span class="stat_val" id="statGames">0</span></div>
+            <div class="fb_infobox_text"><span class="g">Projects</span><br/>
+              <span class="stat_val" id="statProjects">0</span></div>
+            <div class="fb_infobox_text"><span class="g">Last updated</span><br/>
+              <span class="stat_val" id="statUpdated">&mdash;</span></div>
+          </div>
+
+          <div class="fb_infobox">
+            <div class="fb_info_head">Elsewhere</div>
+            <div class="fb_infobox_text"><a href="https://github.com/skeltonmod" target="_blank" rel="noopener">GitHub profile</a></div>
+            <div class="fb_infobox_text"><a href="/public/resume.pdf" target="_blank" rel="noopener">Download r&eacute;sum&eacute;</a></div>
+            <div class="fb_infobox_text"><a href="https://github.com/skeltonmod/skeltonmod.github.io" target="_blank" rel="noopener">Source of this site</a></div>
+            <div class="fb_infobox_text"><a href="https://github.com/skeltonmod/skeltonmod.github.io/issues" target="_blank" rel="noopener">Report an issue</a></div>
+          </div>
+
+          <div class="fb_infobox">
+            <div class="fb_info_head">About this list</div>
+            <ul class="rules">
+              <li>Some games are unpolished on purpose.</li>
+              <li>Old links point at GameJolt downloads.</li>
+              <li>Not everything I've built is here.</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="fb_footer">
+        Elijah Abgao &copy; <span id="year"></span> &middot; Powered by Spite&trade; &middot;
+        <a href="https://github.com/skeltonmod/skeltonmod.github.io" target="_blank" rel="noopener">view source</a>
+      </div>
+
     </div>
   </div>
-</div>
-
-<div class="dock-wrap">
-  <ol class="dock" id="dock">
-    <li>
-      <span class="tip">About Me</span>
-      <a href="#/" data-nav="/" aria-label="About Me">
-        <svg viewBox="0 0 48 48" aria-hidden="true">
-          <defs>
-            <linearGradient id="gA" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#8fc4f5"/><stop offset=".5" stop-color="#3f7fd0"/><stop offset="1" stop-color="#1f4e93"/>
-            </linearGradient>
-            <linearGradient id="gloss" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#fff" stop-opacity=".8"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
-            </linearGradient>
-          </defs>
-          <rect x="3" y="3" width="42" height="42" rx="10" fill="url(#gA)" stroke="#17427f"/>
-          <circle cx="24" cy="20" r="6.5" fill="#fff"/>
-          <path d="M12 39c0-6.6 5.4-11 12-11s12 4.4 12 11z" fill="#fff"/>
-          <path d="M6 14a10 10 0 0 1 36 0c0 6-8 9-18 9S6 20 6 14z" fill="url(#gloss)"/>
-        </svg>
-      </a>
-      <span class="pip"></span>
-    </li>
-    <li>
-      <span class="tip">Games</span>
-      <a href="#/games" data-nav="/games" aria-label="Games">
-        <svg viewBox="0 0 48 48" aria-hidden="true">
-          <defs>
-            <linearGradient id="gB" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#a9ee8d"/><stop offset=".5" stop-color="#49b23a"/><stop offset="1" stop-color="#20701c"/>
-            </linearGradient>
-          </defs>
-          <rect x="3" y="3" width="42" height="42" rx="10" fill="url(#gB)" stroke="#1c5c19"/>
-          <rect x="9" y="18" width="30" height="17" rx="8" fill="#fff"/>
-          <rect x="14" y="24.9" width="8" height="2.6" rx="1.3" fill="#3a8a2f"/>
-          <rect x="16.7" y="22.2" width="2.6" height="8" rx="1.3" fill="#3a8a2f"/>
-          <circle cx="30.5" cy="24" r="2.2" fill="#3a8a2f"/>
-          <circle cx="34.2" cy="28.4" r="2.2" fill="#3a8a2f"/>
-          <path d="M6 14a10 10 0 0 1 36 0c0 6-8 9-18 9S6 20 6 14z" fill="url(#gloss)"/>
-        </svg>
-      </a>
-      <span class="pip"></span>
-    </li>
-    <li>
-      <span class="tip">Work</span>
-      <a href="#/work" data-nav="/work" aria-label="Work">
-        <svg viewBox="0 0 48 48" aria-hidden="true">
-          <defs>
-            <linearGradient id="gC" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#ffd98a"/><stop offset=".5" stop-color="#e0952a"/><stop offset="1" stop-color="#96590c"/>
-            </linearGradient>
-          </defs>
-          <rect x="3" y="3" width="42" height="42" rx="10" fill="url(#gC)" stroke="#7d4a09"/>
-          <path d="M18.5 17.5h11v4.2h-3v-1.6h-5v1.6h-3z" fill="#fff"/>
-          <rect x="9" y="20.5" width="30" height="16" rx="3" fill="#fff"/>
-          <rect x="9" y="26.4" width="30" height="2.4" fill="#c68222"/>
-          <rect x="21" y="24.6" width="6" height="5.6" rx="1.4" fill="#c68222"/>
-          <path d="M6 14a10 10 0 0 1 36 0c0 6-8 9-18 9S6 20 6 14z" fill="url(#gloss)"/>
-        </svg>
-      </a>
-      <span class="pip"></span>
-    </li>
-    <li>
-      <span class="tip">Git Activity</span>
-      <a href="#/git" data-nav="/git" aria-label="Git Activity">
-        <svg viewBox="0 0 48 48" aria-hidden="true">
-          <defs>
-            <linearGradient id="gD" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#ffb18a"/><stop offset=".5" stop-color="#e8622c"/><stop offset="1" stop-color="#9c3410"/>
-            </linearGradient>
-          </defs>
-          <rect x="3" y="3" width="42" height="42" rx="10" fill="url(#gD)" stroke="#832c0d"/>
-          <path d="M17 19v16M17 27h9a5 5 0 0 0 5-5v-3" stroke="#fff" stroke-width="3.2" fill="none" stroke-linecap="round"/>
-          <circle cx="17" cy="16.6" r="3.6" fill="#fff"/>
-          <circle cx="17" cy="36.4" r="3.6" fill="#fff"/>
-          <circle cx="31" cy="16.6" r="3.6" fill="#fff"/>
-          <path d="M6 14a10 10 0 0 1 36 0c0 6-8 9-18 9S6 20 6 14z" fill="url(#gloss)"/>
-        </svg>
-      </a>
-      <span class="pip"></span>
-    </li>
-  </ol>
 </div>
 
 <script>
@@ -1046,11 +715,34 @@ a:hover { text-decoration: underline; }
   }
 
   const outlet = document.getElementById("outlet");
-  const titleBar = document.getElementById("title-bar-text");
-  const statusItems = document.getElementById("status-items");
+  const mainCol = document.getElementById("tab-main");
+  const sideCol = document.getElementById("tab-side");
+  const pageTitle = document.getElementById("pageTitle");
+  const navPath = document.getElementById("navPath");
+  const subCount = document.getElementById("subCount");
+  const mStatusText = document.getElementById("mStatusText");
+  const mStatRight = document.getElementById("mStatRight");
+  const tabs = document.getElementById("tabs");
 
-  const LOADING =
-    '<div class="loading"><div class="aqua-progress"></div><span>Loading\u2026</span></div>';
+  const totalGames = recent_games.length + experimental_games.length + old_games.length;
+  const totalProjects = professional_projects.length + personal_projects.length;
+
+  const LOADING = '<div class="loadingline"><span class="spinner"></span>Loading&hellip;</div>';
+  const PORTFOLIO_REPO_ID = 410241753;
+
+  function plural(n, word) {
+    return n + " " + word + (n === 1 ? "" : "s");
+  }
+
+  function formatDate(value, withTime) {
+    const opts = { month: "2-digit", day: "2-digit", year: "numeric" };
+    if (withTime) {
+      opts.hour = "2-digit";
+      opts.minute = "2-digit";
+      opts.hour12 = false;
+    }
+    return new Date(value).toLocaleDateString("en-US", opts);
+  }
 
   async function fetchEvents() {
     const response = await fetch("https://api.github.com/users/skeltonmod/events");
@@ -1059,82 +751,31 @@ a:hover { text-decoration: underline; }
     return Array.isArray(data) ? data : [];
   }
 
-  let postsCache = null;
-  let feedBase = "https://sckickar.github.io/";
-
-  function absolutize(html, base) {
-    if (!html) return "";
-    const doc = new DOMParser().parseFromString(html, "text/html");
-    doc.querySelectorAll("[src]").forEach(function (el) {
-      try { el.setAttribute("src", new URL(el.getAttribute("src"), base).href); } catch (e) {}
-    });
-    doc.querySelectorAll("a[href]").forEach(function (el) {
-      try { el.setAttribute("href", new URL(el.getAttribute("href"), base).href); } catch (e) {}
-      el.setAttribute("target", "_blank");
-      el.setAttribute("rel", "noopener");
-    });
-    return doc.body.innerHTML;
-  }
-
-  async function fetchPosts() {
-    if (postsCache) return postsCache;
-    const response = await fetch("https://sckickar.github.io/feed.xml");
-    if (!response.ok) throw new Error("Feed returned " + response.status);
-    const text = await response.text();
-    const xml = new DOMParser().parseFromString(text, "application/xml");
-    const entries = xml.getElementsByTagName("entry");
-
-    const alt = Array.from(xml.documentElement.children).find(function (n) {
-      return n.tagName === "link" && n.getAttribute("rel") === "alternate";
-    });
-    if (alt && alt.getAttribute("href")) feedBase = alt.getAttribute("href");
-
-    postsCache = Array.from(entries).map(function (entry) {
-      const pick = function (tag) {
-        const node = entry.getElementsByTagName(tag)[0];
-        return node ? node.textContent : "";
-      };
-      const linkNode = entry.getElementsByTagName("link")[0];
-      const categoryNode = entry.getElementsByTagName("category")[0];
-      return {
-        id: pick("id").split("/").pop().toLowerCase(),
-        title: pick("title"),
-        link: linkNode ? linkNode.getAttribute("href") : "",
-        content: absolutize(pick("content"), feedBase),
-        summary: pick("summary"),
-        published: pick("published"),
-        updated: pick("updated"),
-        category: categoryNode ? categoryNode.getAttribute("term") : "Uncategorized"
-      };
-    });
-    return postsCache;
-  }
-
-  function groupHeader(header, isNote) {
+  function groupHead(header, isNote) {
     return (
-      '<div class="group-header' + (isNote ? " note" : "") + '">' +
-        (header.title ? "<h2>" + esc(header.title) + "</h2>" : "") +
-        (header.description ? "<p>" + header.description + "</p>" : "") +
+      '<div class="group_head' + (isNote ? " note" : "") + '">' +
+        (header.title ? "<b>" + esc(header.title) + "</b>" : "") +
+        (header.description ? "<span>" + header.description + "</span>" : "") +
       "</div>"
     );
   }
 
-  function entryRow(item, index) {
+  function entryRow(item) {
     const meta = (item.metadata || [])
-      .map(function (m) { return "<b>" + esc(m.name) + ":</b> " + esc(m.value); })
-      .join(" &nbsp;&middot;&nbsp; ");
+      .map(function (m) { return esc(m.name) + ": " + esc(m.value); })
+      .join(" &middot; ");
 
     const link = item.link
-      ? '<a class="aqua-btn" href="' + esc(item.link) + '">' + esc(item.link_title || "Open") + "</a>"
+      ? '<a class="btn" href="' + esc(item.link) + '">' + esc(item.link_title || "Open") + "</a>"
       : "";
 
     return (
-      '<div class="entry' + (index % 2 ? " alt" : "") + '">' +
-        '<img class="entry-thumb" src="' + esc(item.image) + '" alt="' + esc(item.title) + '" loading="lazy" />' +
-        '<div class="entry-body">' +
+      '<div class="entry">' +
+        '<img class="entry_thumb" src="' + esc(item.image) + '" alt="' + esc(item.title) + '" loading="lazy"/>' +
+        '<div class="entry_body">' +
           "<h3>" + esc(item.title) + "</h3>" +
-          (meta ? '<p class="entry-meta">' + meta + "</p>" : "") +
-          '<p class="entry-desc">' + (item.description || "") + "</p>" +
+          (meta ? '<p class="entry_meta">' + meta + "</p>" : "") +
+          '<p class="entry_desc">' + (item.description || "") + "</p>" +
           link +
         "</div>" +
       "</div>"
@@ -1142,104 +783,42 @@ a:hover { text-decoration: underline; }
   }
 
   function buildList(sections) {
-    let i = 0;
-    return (
-      '<div class="list">' +
-      sections
-        .map(function (s) {
-          const head = s.header ? groupHeader(s.header, s.note) : "";
-          const rows = (s.items || [])
-            .map(function (item) { return entryRow(item, i++); })
-            .join("");
-          return head + rows;
-        })
-        .join("") +
-      "</div>"
-    );
-  }
-
-  const PORTFOLIO_REPO_ID = 410241753;
-
-  function plural(n, word) {
-    return n + " " + word + (n === 1 ? "" : "s");
-  }
-
-  function fullDate(value) {
-    const d = new Date(value);
-    if (isNaN(d)) return "";
-    return d.toLocaleString([], {
-      year: "numeric", month: "long", day: "numeric",
-      hour: "numeric", minute: "2-digit"
-    });
-  }
-
-  function monthYear(d) {
-    return d.toLocaleString([], { year: "numeric", month: "long" });
-  }
-
-  function fbShell(right, inner) {
-    return (
-      '<div class="fb">' +
-        '<div class="fb-bar">' +
-          '<div class="fb-logo">skeltonbook</div>' +
-          '<div class="fb-bar-right">' + right + "</div>" +
-        "</div>" +
-        inner +
-      "</div>"
-    );
-  }
-
-  function formatDate(value, withTime) {
-    const opts = { month: "2-digit", day: "2-digit", year: "numeric" };
-    if (withTime) {
-      opts.hour = "2-digit";
-      opts.minute = "2-digit";
-      opts.second = "2-digit";
-      opts.hour12 = false;
-    }
-    return new Date(value).toLocaleDateString("en-US", opts);
+    return sections
+      .map(function (s) {
+        return (
+          '<div class="panel">' +
+            (s.header ? groupHead(s.header, s.note) : "") +
+            (s.items || []).map(entryRow).join("") +
+          "</div>"
+        );
+      })
+      .join("");
   }
 
   const views = {
     home: {
       label: "About Me",
-      status: "",
+      count: "",
       render: function () {
         return (
-          '<div class="page">' +
-            '<h1 class="sheet-title">Skeltonmod</h1>' +
-            '<p class="sheet-sub">Unorthodoxed developer with a lot of free time</p>' +
-            '<div class="avatar-container">' +
-              '<img src="/public/avatar.gif" class="avatar" alt="Cool skeleton gif from the 80s or something" />' +
-              '<div class="home-lines">' +
+          '<div class="panel">' +
+            '<div class="about">' +
+              '<img src="/public/avatar.gif" alt="Cool skeleton gif from the 80s or something"/>' +
+              "<h2>Skeltonmod</h2>" +
+              '<div class="lines">' +
                 "<p>Hi, I'm Elijah. It's nice to meet yuh.</p>" +
-                "<p>You can also find my work related stuff here.</p>"+ "<p>Take a look at that sexy MacOS X look.</p>" +
-
-                '<span class="updated">Last updated <b id="last-updated">' +
-                  esc(formatDate(Date.now(), false)) +
-                "</b></span>" +
+                "<p>You can also find my work related stuff here.</p>" +
+                "<p>Take a look at that sexy 2008 look.</p>" +
               "</div>" +
             "</div>" +
           "</div>"
         );
-      },
-      mount: async function () {
-        try {
-          const data = await fetchEvents();
-          const recent = data.filter(function (item) {
-            return item.repo && item.repo.id === PORTFOLIO_REPO_ID;
-          });
-          const el = document.getElementById("last-updated");
-          if (recent.length && el) el.textContent = formatDate(recent[0].created_at, true);
-        } catch (err) {
-          console.warn("Could not read GitHub activity:", err.message);
-        }
       }
     },
 
     games: {
       label: "Games",
-      status: plural(recent_games.length + experimental_games.length + old_games.length, "item"),
+      count: plural(totalGames, "game"),
       render: function () {
         return buildList([
           { header: game_headers[0], items: recent_games },
@@ -1251,7 +830,7 @@ a:hover { text-decoration: underline; }
 
     work: {
       label: "Work",
-      status: plural(professional_projects.length + personal_projects.length, "item"),
+      count: plural(totalProjects, "project"),
       render: function () {
         return buildList([
           { header: work_headers[0], items: professional_projects },
@@ -1263,17 +842,14 @@ a:hover { text-decoration: underline; }
 
     git: {
       label: "Git Activity",
-      status: "",
+      count: "",
       render: function () {
         return (
-          '<div class="page">' +
-            '<h1 class="sheet-title">Git logs</h1>' +
-            '<p class="sheet-sub">Recent public activity, straight from the GitHub API</p>' +
-            '<div class="avatar-container">' +
-              '<img src="/public/smoke.gif" class="avatar" alt="Cool skeleton gif from the 80s or something" />' +
-            "</div>" +
-            '<div class="home-lines">' +
-              '<p>If you would rather see the profile itself, <a href="https://github.com/skeltonmod">it is over here</a>.</p>' +
+          '<div class="panel">' +
+            '<div class="group_head">' +
+              "<b>Recent public activity</b>" +
+              '<span>Straight from the GitHub API. The profile itself is ' +
+              '<a href="https://github.com/skeltonmod" target="_blank" rel="noopener">over here</a>.</span>' +
             "</div>" +
             '<div id="feed">' + LOADING + "</div>" +
           "</div>"
@@ -1285,262 +861,61 @@ a:hover { text-decoration: underline; }
         try {
           const events = await fetchEvents();
           if (!events.length) {
-            feed.innerHTML = '<p class="sheet-sub">No recent activity to show.</p>';
+            feed.innerHTML = '<div class="emptyline">No recent activity to show.</div>';
             return;
           }
-          feed.innerHTML =
-            '<div class="feed">' +
-            events
-              .map(function (event) {
-                const commits = event.payload && event.payload.commits;
-                const message = commits && commits.length ? commits[0].message : "No commit message available";
-                const avatar = (event.actor && event.actor.avatar_url) || "";
-                const repo = (event.repo && event.repo.name) || "";
-                return (
-                  '<div class="event-card">' +
-                    '<img src="' + esc(avatar) + '" alt="" class="profile-picture" loading="lazy" />' +
-                    '<div class="event-details">' +
-                      '<p class="commit-message">' + esc(message) + "</p>" +
-                      '<p class="event-repo">' + esc(repo) + "</p>" +
-                      '<p class="event-time">' + esc(new Date(event.created_at).toLocaleString()) + "</p>" +
-                    "</div>" +
-                  "</div>"
-                );
-              })
-              .join("") +
-            "</div>";
-          statusItems.textContent = plural(events.length, "event");
+          feed.innerHTML = events
+            .map(function (event) {
+              const commits = event.payload && event.payload.commits;
+              const message = commits && commits.length ? commits[0].message : "No commit message available";
+              const avatar = (event.actor && event.actor.avatar_url) || "";
+              const repo = (event.repo && event.repo.name) || "";
+              return (
+                '<div class="fb_post">' +
+                  '<img class="fb_post_avatar" src="' + esc(avatar) + '" alt="" loading="lazy"/>' +
+                  '<div class="fb_post_body">' +
+                    '<div class="fb_post_name"><span class="l">' + esc(repo) + "</span> " +
+                      '<span class="g">' + esc(new Date(event.created_at).toLocaleString()) + "</span></div>" +
+                    '<div class="fb_post_text mono">' + esc(message) + "</div>" +
+                  "</div>" +
+                "</div>"
+              );
+            })
+            .join("");
+          setCount(plural(events.length, "event"));
         } catch (err) {
           feed.innerHTML =
-            '<p class="sheet-sub">GitHub is not answering right now. It rate-limits anonymous requests, so try again in a few minutes.</p>';
+            '<div class="emptyline">GitHub is not answering right now. It rate-limits anonymous requests, so try again in a few minutes.</div>';
         }
-      }
-    },
-
-    blog: {
-      label: "Blog",
-      status: "",
-      render: function () {
-        return fbShell(
-          '<input id="fb-q" type="search" placeholder="Search posts" disabled aria-label="Search posts" />',
-          '<div class="fb-tabs" id="fb-tabs"></div>' +
-          '<div class="fb-body">' +
-            '<div class="fb-side" id="fb-side"></div>' +
-            '<div class="fb-main" id="fb-main"><div class="fb-empty">Loading\u2026</div></div>' +
-          "</div>"
-        );
-      },
-      mount: async function () {
-        const main = document.getElementById("fb-main");
-        const side = document.getElementById("fb-side");
-        const tabs = document.getElementById("fb-tabs");
-        const search = document.getElementById("fb-q");
-
-        let posts;
-        try {
-          posts = await fetchPosts();
-        } catch (err) {
-          main.innerHTML = '<div class="fb-empty">Could not load the feed right now.</div>';
-          return;
-        }
-        if (!posts.length) {
-          main.innerHTML = '<div class="fb-empty">No posts yet.</div>';
-          return;
-        }
-
-        statusItems.textContent = plural(posts.length, "post");
-
-        const categories = [];
-        posts.forEach(function (p) {
-          if (categories.indexOf(p.category) < 0) categories.push(p.category);
-        });
-
-        const stamps = posts
-          .map(function (p) { return new Date(p.published); })
-          .filter(function (d) { return !isNaN(d); })
-          .sort(function (a, b) { return a - b; });
-
-        const host = (function () {
-          try { return new URL(feedBase).hostname; } catch (e) { return feedBase; }
-        })();
-
-        side.innerHTML =
-          '<div class="fb-box"><div class="fb-pic">' +
-            '<img src="/public/avatar.gif" alt="" />' +
-            '<div class="who">Elijah Abgao</div>' +
-            '<div class="sub">Elijah\u2019s Crib</div>' +
-          "</div></div>" +
-          '<div class="fb-box">' +
-            '<div class="fb-box-head">Information</div>' +
-            '<div class="fb-box-row"><span class="k">Posts</span>' + posts.length + "</div>" +
-            (stamps.length
-              ? '<div class="fb-box-row"><span class="k">Writing since</span>' + monthYear(stamps[0]) + "</div>" +
-                '<div class="fb-box-row"><span class="k">Latest post</span>' + monthYear(stamps[stamps.length - 1]) + "</div>"
-              : "") +
-            '<div class="fb-box-row"><span class="k">Blog</span><a href="' + esc(feedBase) +
-              '" target="_blank" rel="noopener">' + esc(host) + "</a></div>" +
-          "</div>";
-
-        let activeCategory = "";
-        let query = "";
-
-        function drawTabs() {
-          tabs.innerHTML =
-            ['<button type="button" class="fb-tab" data-cat="" aria-selected="' +
-              (activeCategory === "") + '">Wall</button>']
-              .concat(
-                categories.map(function (c) {
-                  return '<button type="button" class="fb-tab" data-cat="' + esc(c) +
-                    '" aria-selected="' + (activeCategory === c) + '">' + esc(c) + "</button>";
-                })
-              )
-              .join("");
-        }
-
-        function drawWall() {
-          const q = query.trim().toLowerCase();
-          const shown = posts.filter(function (p) {
-            if (activeCategory && p.category !== activeCategory) return false;
-            if (!q) return true;
-            return (p.title + " " + p.summary).toLowerCase().indexOf(q) >= 0;
-          });
-
-          if (!shown.length) {
-            main.innerHTML = '<div class="fb-empty">Nothing here. Try another tab or search.</div>';
-            return;
-          }
-
-          main.innerHTML =
-            '<div class="fb-wall">' +
-            shown
-              .map(function (p) {
-                const href = "#/post/" + encodeURIComponent(p.id);
-                return (
-                  '<div class="fb-post">' +
-                    '<img class="fb-avatar" src="/public/avatar.gif" alt="" />' +
-                    '<div class="fb-post-body">' +
-                      '<div class="fb-post-head"><span class="name">Elijah Abgao</span> posted ' +
-                        '<a href="' + href + '">' + esc(p.title) + "</a></div>" +
-                      '<p class="fb-post-text">' + esc(p.summary || "") + "</p>" +
-                      '<div class="fb-post-meta">' + esc(fullDate(p.published)) +
-                        " &middot; " + esc(p.category) + "</div>" +
-                      '<div class="fb-actions">' +
-                        '<a href="' + href + '">Read more</a>' +
-                        (p.link ? ' &middot; <a href="' + esc(p.link) +
-                          '" target="_blank" rel="noopener">View original</a>' : "") +
-                      "</div>" +
-                    "</div>" +
-                  "</div>"
-                );
-              })
-              .join("") +
-            "</div>";
-        }
-
-        tabs.addEventListener("click", function (e) {
-          const tab = e.target.closest(".fb-tab");
-          if (!tab) return;
-          activeCategory = tab.getAttribute("data-cat");
-          drawTabs();
-          drawWall();
-        });
-
-        search.disabled = false;
-        search.addEventListener("input", function () {
-          query = search.value;
-          drawWall();
-        });
-
-        drawTabs();
-        drawWall();
-      }
-    },
-
-    post: {
-      label: "Post",
-      status: "",
-      render: function () {
-        return fbShell(
-          '<a class="fb-barlink" href="#/blog">Back to Wall</a>',
-          '<div class="fb-body"><div class="fb-main" id="fb-main">' +
-            '<div class="fb-empty">Loading\u2026</div></div></div>'
-        );
-      },
-      mount: async function (params) {
-        const main = document.getElementById("fb-main");
-        let posts;
-        try {
-          posts = await fetchPosts();
-        } catch (err) {
-          main.innerHTML = '<div class="fb-empty">Could not load that post right now.</div>';
-          return;
-        }
-
-        const post = posts.find(function (p) { return p.id === params.id; });
-        if (!post) {
-          main.innerHTML =
-            '<div class="fb-empty">That post does not exist. <a href="#/blog">Back to the wall</a></div>';
-          return;
-        }
-
-        titleBar.textContent = post.title;
-        document.title = post.title + " \u2014 Skelton's Lair";
-        statusItems.textContent = post.category;
-
-        main.innerHTML =
-          '<div class="fb-article">' +
-            "<h1>" + esc(post.title) + "</h1>" +
-            '<div class="byline">by Elijah Abgao &middot; ' + esc(fullDate(post.published)) +
-              " &middot; " + esc(post.category) + "</div>" +
-            '<div class="fb-content">' + post.content + "</div>" +
-            '<div class="fb-actions"><a href="#/blog">Back to Wall</a>' +
-              (post.link ? ' &middot; <a href="' + esc(post.link) +
-                '" target="_blank" rel="noopener">View original</a>' : "") +
-            "</div>" +
-          "</div>";
       }
     },
 
     notFound: {
       label: "Not Found",
-      status: "",
+      count: "",
       render: function () {
         return (
-          '<div class="page">' +
-            '<div class="alert" role="alertdialog">' +
-              '<svg class="alert-icon" viewBox="0 0 56 56" aria-hidden="true">' +
-                '<defs><linearGradient id="warn" x1="0" y1="0" x2="0" y2="1">' +
-                  '<stop offset="0" stop-color="#ffe388"/><stop offset=".55" stop-color="#f0b21f"/><stop offset="1" stop-color="#b97c05"/>' +
-                "</linearGradient></defs>" +
-                '<path d="M28 4 54 50H2Z" fill="url(#warn)" stroke="#8c5c04" stroke-width="2" stroke-linejoin="round"/>' +
-                '<path d="M28 21v13" stroke="#fff" stroke-width="5" stroke-linecap="round"/>' +
-                '<circle cx="28" cy="42" r="3.2" fill="#fff"/>' +
-              "</svg>" +
-              "<div>" +
-                "<h2>That page is not here.</h2>" +
-                "<p>The address does not match anything on this site. It may have been part of the old version.</p>" +
-                '<div class="buttons"><a class="aqua-btn primary pulse" href="#/">Go Home</a></div>' +
-              "</div>" +
-            "</div>" +
-          "</div>"
+          '<div class="panel"><div class="notfound">' +
+            "<h2>That page is not here.</h2>" +
+            "<p>The address does not match anything on this site. It may have been part of the old version.</p>" +
+            '<a class="btn primary" href="#/">Go home</a>' +
+          "</div></div>"
         );
       }
     }
   };
 
-  function gameView(label, src, containerClass, frameClass) {
+  function gameView(label, src, frameClass) {
     return {
       label: label,
-      status: "Embedded game",
+      count: "embedded game",
       render: function () {
         return (
-          '<div class="game-container ' + containerClass + '">' +
-            '<div class="game-stage">' +
-              '<iframe class="game-iframe ' + frameClass + '" src="' + src + '" title="' + esc(label) +
-              '" scrolling="no" allowfullscreen></iframe>' +
-            "</div>" +
-            '<a class="aqua-btn game-back" href="#/games">Back to Games</a>' +
-          "</div>"
+          '<div class="gamebox">' +
+            '<iframe class="' + frameClass + '" src="' + src + '" title="' + esc(label) +
+            '" scrolling="no" allowfullscreen></iframe>' +
+          "</div>" +
+          '<div class="gameback"><a class="btn" href="#/games">Back to games</a></div>'
         );
       }
     };
@@ -1548,180 +923,129 @@ a:hover { text-decoration: underline; }
 
   const routes = {
     "/": views.home,
-    "/blog": views.blog,
     "/games": views.games,
     "/work": views.work,
     "/git": views.git,
-    "/games/dtp": gameView("Destroy The Porn HTML5", "https://gamejolt.net/?token=4kNmGPEiorXD4vXEoHGzjJcpwezVMx", "is-narrow", "fixed-dtp"),
-    "/games/branncom": gameView("BrannCom", "/public/embeds/BrannCom/index.html", "is-narrow", ""),
-    "/games/apis": gameView("Appraise in Space", "https://gamejolt.net/?token=jmXHNQbaBFqBW9yyLCHX7ho6db7ieC", "is-narrow", ""),
-    "/games/shootyman": gameView("Shootyman 2k20", "/public/embeds/shootyman/index.html", "is-narrow", "h-544"),
-    "/games/scb": gameView("Super Crate Clone", "/public/embeds/shootycrate/index.html", "is-clipped", "fixed-scb"),
-    "/games/pitch": gameView("Princess Pitch HTML5", "/public/embeds/outa_ampuja/index.html", "is-clipped", "h-480"),
-    "/games/loe": gameView("Erika Sprite Game", "/public/embeds/loe/index.html", "is-clipped", "h-544")
+    "/games/dtp": gameView("Destroy The Porn HTML5", "https://gamejolt.net/?token=4kNmGPEiorXD4vXEoHGzjJcpwezVMx", "fixed-dtp"),
+    "/games/branncom": gameView("BrannCom", "/public/embeds/BrannCom/index.html", ""),
+    "/games/apis": gameView("Appraise in Space", "https://gamejolt.net/?token=jmXHNQbaBFqBW9yyLCHX7ho6db7ieC", ""),
+    "/games/shootyman": gameView("Shootyman 2k20", "/public/embeds/shootyman/index.html", "h-544"),
+    "/games/scb": gameView("Super Crate Clone", "/public/embeds/shootycrate/index.html", "fixed-scb"),
+    "/games/pitch": gameView("Princess Pitch HTML5", "/public/embeds/outa_ampuja/index.html", "h-480"),
+    "/games/loe": gameView("Erika Sprite Game", "/public/embeds/loe/index.html", "h-544")
   };
+
+  const tabList = [
+    { path: "/", label: "About" },
+    { path: "/games", label: "Games" },
+    { path: "/work", label: "Work" },
+    { path: "/git", label: "Git" }
+  ];
+
+  let showSide = false;
+
+  function setCount(text) {
+    subCount.innerHTML = text ? esc(text) : "&nbsp;";
+    mStatRight.textContent = text || "";
+  }
 
   function currentPath() {
     const hash = window.location.hash.replace(/^#/, "");
     return hash || "/";
   }
 
-  function resolve(path) {
-    if (routes[path]) return { view: routes[path], params: {} };
-    const postMatch = path.match(/^\/post\/([^/]+)$/);
-    if (postMatch) return { view: views.post, params: { id: decodeURIComponent(postMatch[1]) } };
-    return { view: views.notFound, params: {} };
+  function drawTabs(path) {
+    tabs.innerHTML = tabList
+      .map(function (t) {
+        const on = !showSide && t.path === path;
+        return '<button type="button" data-go="' + esc(t.path) + '" aria-selected="' + on + '">' +
+          esc(t.label) + "</button>";
+      })
+      .concat('<button type="button" data-side="1" aria-selected="' + showSide + '">Info</button>')
+      .join("");
+  }
+
+  function applyPanels() {
+    mainCol.classList.toggle("tab-hidden", showSide);
+    sideCol.classList.toggle("tab-hidden", !showSide);
   }
 
   function render() {
     const path = currentPath();
-    const match = resolve(path);
+    const view = routes[path] || views.notFound;
 
-    titleBar.textContent = match.view.label;
-    document.title = match.view.label + " \u2014 Skelton's Lair";
-    statusItems.innerHTML = match.view.status ? esc(match.view.status) : "&nbsp;";
+    pageTitle.textContent = view.label;
+    mStatusText.textContent = view.label;
+    document.title = view.label + " \u2014 Skelton's Lair";
+    navPath.textContent = path === "/" ? "/" : path;
+    setCount(view.count);
 
-    outlet.innerHTML = match.view.render(match.params);
-    outlet.scrollTop = 0;
+    outlet.innerHTML = view.render();
+    mainCol.scrollTop = 0;
 
     document.querySelectorAll("[data-nav]").forEach(function (el) {
       if (el.getAttribute("data-nav") === path) el.setAttribute("aria-current", "page");
       else el.removeAttribute("aria-current");
     });
 
-    if (match.view.mount) {
-      Promise.resolve(match.view.mount(match.params)).catch(function (err) {
-        console.error(err);
-      });
+    drawTabs(path);
+    applyPanels();
+
+    if (view.mount) {
+      Promise.resolve(view.mount()).catch(function (err) { console.error(err); });
     }
   }
 
-  window.addEventListener("hashchange", render);
-
-  const menus = {
-    apple: [
-      { label: "About Skeltonmod", href: "#/" },
-      { sep: true },
-      { label: "System Preferences\u2026", disabled: true },
-      { label: "Sleep", disabled: true },
-      { label: "Log Out\u2026", disabled: true }
-    ],
-    app: [
-      { label: "About Skeltonmod", href: "#/" },
-      { sep: true },
-      { label: "View Source on GitHub", href: "https://github.com/skeltonmod/skeltonmod.github.io", external: true }
-    ],
-    file: [
-      { label: "Download R\u00e9sum\u00e9\u2026", href: "/public/resume.pdf", external: true },
-      { sep: true },
-      { label: "Open GitHub Profile\u2026", href: "https://github.com/skeltonmod", external: true }
-    ],
-    go: [
-      { label: "About Me", href: "#/", shortcut: "\u23181" },
-      { label: "Games", href: "#/games", shortcut: "\u23182" },
-      { label: "Work", href: "#/work", shortcut: "\u23183" },
-      { label: "Git Activity", href: "#/git", shortcut: "\u23184" }
-    ],
-    help: [
-      { label: "Report an Issue\u2026", href: "https://github.com/skeltonmod/skeltonmod.github.io/issues", external: true }
-    ]
-  };
-
-  const goOrder = ["/", "/games", "/work", "/git", "/blog"];
-
-  const menubar = document.getElementById("menubar");
-  const panel = document.getElementById("menuPanel");
-  let openMenu = null;
-
-  function closeMenu() {
-    panel.classList.remove("open");
-    panel.innerHTML = "";
-    menubar.querySelectorAll(".menu-title").forEach(function (b) {
-      b.setAttribute("aria-expanded", "false");
-    });
-    openMenu = null;
-  }
-
-  function openMenuFor(button) {
-    const name = button.getAttribute("data-menu");
-    const items = menus[name] || [];
-    const here = "#" + currentPath();
-
-    panel.innerHTML = items
-      .map(function (item) {
-        if (item.sep) return '<div class="menu-sep"></div>';
-        const tick = item.href === here ? "\u2713" : "";
-        return (
-          '<button type="button" class="menu-item" role="menuitem"' +
-          (item.disabled ? " disabled" : ' data-href="' + esc(item.href) + '"') +
-          (item.external ? ' data-external="1"' : "") +
-          '><span><span class="tick">' + tick + "</span>" + esc(item.label) + "</span>" +
-          '<span class="shortcut">' + esc(item.shortcut || "") + "</span></button>"
-        );
-      })
-      .join("");
-
-    const rect = button.getBoundingClientRect();
-    panel.style.left = Math.max(4, Math.min(rect.left, window.innerWidth - 228)) + "px";
-    panel.classList.add("open");
-    button.setAttribute("aria-expanded", "true");
-    openMenu = name;
-  }
-
-  menubar.addEventListener("click", function (e) {
-    const button = e.target.closest(".menu-title");
+  tabs.addEventListener("click", function (e) {
+    const button = e.target.closest("button");
     if (!button) return;
-    if (openMenu === button.getAttribute("data-menu")) closeMenu();
-    else { closeMenu(); openMenuFor(button); }
-  });
 
-  menubar.addEventListener("mouseover", function (e) {
-    if (!openMenu) return;
-    const button = e.target.closest(".menu-title");
-    if (button && button.getAttribute("data-menu") !== openMenu) {
-      closeMenu();
-      openMenuFor(button);
+    if (button.getAttribute("data-side")) {
+      showSide = true;
+      drawTabs(currentPath());
+      applyPanels();
+      return;
+    }
+
+    const target = button.getAttribute("data-go");
+    showSide = false;
+    if (target === currentPath()) {
+      drawTabs(target);
+      applyPanels();
+    } else {
+      window.location.hash = target;
     }
   });
 
-  panel.addEventListener("click", function (e) {
-    const item = e.target.closest(".menu-item");
-    if (!item || item.disabled) return;
-    const href = item.getAttribute("data-href");
-    closeMenu();
-    if (!href) return;
-    if (item.getAttribute("data-external")) window.open(href, "_blank", "noopener");
-    else window.location.hash = href.replace(/^#/, "");
+  window.addEventListener("hashchange", function () {
+    showSide = false;
+    render();
   });
 
-  document.addEventListener("click", function (e) {
-    if (!e.target.closest("#menubar") && !e.target.closest("#menuPanel")) closeMenu();
-  });
-
-  document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape") { closeMenu(); return; }
-    if ((e.metaKey || e.ctrlKey) && !e.altKey && e.key >= "1" && e.key <= "4") {
-      const target = goOrder[Number(e.key) - 1];
-      if (target) { e.preventDefault(); window.location.hash = target; }
-    }
-  });
-
-  const clock = document.getElementById("clock");
-  function tickClock() {
-    clock.textContent = new Date().toLocaleString([], {
-      weekday: "short", hour: "numeric", minute: "2-digit"
-    });
+  function fitViewport() {
+    document.documentElement.style.setProperty("--app-h", window.innerHeight + "px");
   }
-  tickClock();
-  setInterval(tickClock, 15000);
+  fitViewport();
+  window.addEventListener("resize", fitViewport);
+  window.addEventListener("orientationchange", fitViewport);
 
-  document.getElementById("status-copyright").textContent =
-    "Elijah Abgao \u00a9 " + new Date().getFullYear() + " \u00b7 Powered by Spite\u2122";
+  document.getElementById("year").textContent = new Date().getFullYear();
+  document.getElementById("statGames").textContent = totalGames;
+  document.getElementById("statProjects").textContent = totalProjects;
+  document.getElementById("statUpdated").textContent = formatDate(Date.now(), false);
 
-  const cpuField = document.getElementById("status-cpu");
-  setInterval(function () {
-    cpuField.textContent = "CPU " + Math.floor(Math.random() * 100 + 1) + "%";
-  }, 1000);
+  fetchEvents()
+    .then(function (data) {
+      const recent = data.filter(function (item) {
+        return item.repo && item.repo.id === PORTFOLIO_REPO_ID;
+      });
+      if (recent.length) {
+        document.getElementById("statUpdated").textContent = formatDate(recent[0].created_at, true);
+      }
+    })
+    .catch(function (err) {
+      console.warn("Could not read GitHub activity:", err.message);
+    });
 
   if (!window.location.hash) window.location.replace("#/");
 
