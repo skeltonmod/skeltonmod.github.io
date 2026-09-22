@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
+
+    <title>the luminous corridor</title>
+    <style>
+      :root {
+        box-sizing: border-box;
+        padding-top: env(safe-area-inset-top, 0px);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+        --bg: #000000;
+        --ink: #ff2bff;
+        --ink-dim: #7a2277;
+        --rule: #2a0a2a;
+      }
+      :root:not([data-theme="light"]) {
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --bg: #000000;
+          --ink: #ff2bff;
+          --ink-dim: #7a2277;
+        }
+      }
+      :root[data-theme="dark"] {
+        --bg: #000000;
+        --ink: #ff2bff;
+        --ink-dim: #7a2277;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: inherit;
+      }
+      html {
+        scroll-padding-top: env(safe-area-inset-top, 0px);
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        overscroll-behavior: none;
+        touch-action: none;
+        background: var(--bg);
+        color: var(--ink-dim);
+      }
+      body {
+        position: fixed;
+        inset: 0;
+      }
+      #game-root canvas {
+        display: block;
+        image-rendering: pixelated;
+        touch-action: none;
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+      }
+
+      #legend {
+        margin: 0;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        line-height: 1.7;
+        text-align: center;
+        max-width: 46ch;
+        padding: 0 16px;
+      }
+      #legend b {
+        color: var(--ink);
+        font-weight: 400;
+      }
+      #legend span {
+        display: block;
+        margin-top: 4px;
+        color: var(--rule);
+      }
+      @media (max-height: 620px) {
+        #legend {
+          display: none;
+        }
+      }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser-ce/2.20.0/phaser.min.js"></script>
+  </head>
+  <body>
+    <div id="game-root"></div>
+    <script>
+      var SPRITES_URI = "base.png";
+      var CUTSCENES_URI = "cutscenes.png";
+      var FONT_URI = "font.png";
+
+      var SPRITE_SIZE = 8;
+      var SPRITE_HALF = SPRITE_SIZE >> 1;
+      var EXPLOSION_SIZE = SPRITE_SIZE * 2;
+      var EXPLOSION_FRAME0 = 12;
+
+      var FONT_SIZE = 8;
+      var FONT_ADVANCE = 7;
+      var FONT_LINE = 8;
+      var FONT_FIRST = 33;
+      var FONT_LAST = 126;
+
+      var isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+      var TOUCH_DEADZONE = 4;
+      var TOUCH_RANGE = 24;
+      var TOUCH_FIRE_AT = 0.55;
+
+      var touch = { id: -1, active: false, x: 0, y: 0, fire: false };
+      var touchOriginX = 0,
+        touchOriginY = 0,
+        touchX = 0,
+        touchY = 0;
+      function touchDown(pointer) {
+        if (touch.id !== -1) return;
+        touch.id = pointer.id;
+        touch.active = true;
+        touchOriginX = touchX = pointer.x;
+        touchOriginY = touchY = pointer.y;
+        touch.x = 0;
+        touch.y = 0;
+        touch.fire = false;
+      }
+
+      function touchMove(pointer) {
+        if (!touch.active || pointer.id !== touch.id) return;
+        touchX = pointer.x;
+        touchY = pointer.y;
+
+        var dx = touchX - touchOriginX,
+          dy = touchY - touchOriginY;
+        var len = Math.sqrt(dx * dx + dy * dy);
+
+        if (len > TOUCH_RANGE) {
+          var pull = (len - TOUCH_RANGE) / len;
+          touchOriginX += dx * pull;
+          touchOriginY += dy * pull;
+          dx -= dx * pull;
+          dy -= dy * pull;
+          len = TOUCH_RANGE;
+        }
+        if (len <= TOUCH_DEADZONE) {
+          touch.x = 0;
+          touch.y = 0;
+          touch.fire = false;
+          return;
+        }
+
+        var mag = (len - TOUCH_DEADZONE) / (TOUCH_RANGE - TOUCH_DEADZONE);
+        touch.x = (dx / len) * mag;
+        touch.y = (dy / len) * mag;
+        touch.fire = mag >= TOUCH_FIRE_AT;
+      }
+
+      function touchRelease() {
+        touch.id = -1;
+        touch.active = false;
+        touch.x = 0;
+        touch.y = 0;
+        touch.fire = false;
+      }
+
+      function touchUp(pointer) {
+        if (pointer.id === touch.id) touchRelease();
+      }
+
+      
+    </script>
+    <script src="./game.js"></script>
+    <script src="./scores.js"></script>
+  </body>
+</html>
