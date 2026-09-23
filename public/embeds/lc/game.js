@@ -24,6 +24,13 @@ var MUSIC_DEFS = { intro: 'intro.mp3', level1: 'level1.mp3', level2: 'level2.mp3
 var sfx = {}, music = {}, sfxLast = {};
 var currentMusic = null, wantedMusic = null;
 
+
+var MAX_VOICES = 8;
+var audioCtx = null, sfxGain = null, activeVoices = 0;
+var sfxBuffers = {};     
+var sfxVolume = {};      
+var sfxFallback = {};    
+
 function markBroken(e) {
   var a = (e && e.target) ? e.target : this;
   if (a) a.broken = true;
@@ -37,36 +44,119 @@ function safePlay(a) {
   } catch (err) {}
 }
 
+function initAudioContext() {
+  if (audioCtx !== null) return audioCtx || null;
+  var AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) { audioCtx = false; return null; }
+  try {
+    audioCtx = new AC();
+    sfxGain = audioCtx.createGain();
+    sfxGain.gain.value = 1;
+    sfxGain.connect(audioCtx.destination);
+  } catch (e) { audioCtx = false; return null; }
+  return audioCtx;
+}
+
+function decodeSfx(name, index, url) {
+  window.fetch(url)
+    .then(function (r) { if (!r.ok) throw new Error('http'); return r.arrayBuffer(); })
+    .then(function (raw) {
+      return new Promise(function (resolve, reject) {
+        
+        var p = audioCtx.decodeAudioData(raw, resolve, reject);
+        if (p && p.then) p.then(resolve, reject);
+      });
+    })
+    .then(function (buffer) { sfxBuffers[name][index] = buffer; })
+    .catch(function () { sfxBuffers[name][index] = null; });
+}
+
+
+
+function makeFallbackVoices(url, volume) {
+  var voices = [], i, a;
+  for (i = 0; i < 3; i++) {
+    a = new Audio(url);
+    a.preload = 'auto';
+    a.onerror = markBroken;
+    a.volume = volume;
+    voices.push(a);
+  }
+  return { voices: voices, next: 0 };
+}
+
 function loadSounds() {
-  var name, d, n, i, a;
+  var name, d, n, i, url, a;
+  var ctx = initAudioContext();
+  var useWebAudio = !!ctx && typeof window.fetch === 'function';
+
   for (name in SFX_DEFS) {
-    d = SFX_DEFS[name]; n = d.count || 1; sfx[name] = [];
+    d = SFX_DEFS[name]; n = d.count || 1;
+    sfxVolume[name] = d.volume || 1;
+    sfxBuffers[name] = new Array(n);
+    if (!useWebAudio) sfxFallback[name] = [];
     for (i = 0; i < n; i++) {
-      a = new Audio(SOUND_DIR + d.file + (d.count ? i : '') + '.wav');
-      a.preload = 'auto';
-      a.onerror = markBroken;
-      a.baseVolume = d.volume || 1;
-      sfx[name].push(a);
+      url = SOUND_DIR + d.file + (d.count ? i : '') + '.wav';
+      if (useWebAudio) { sfxBuffers[name][i] = undefined; decodeSfx(name, i, url); }
+      else sfxFallback[name].push(makeFallbackVoices(url, sfxVolume[name]));
     }
   }
+
   for (name in MUSIC_DEFS) {
-    a = new Audio(SOUND_DIR + MUSIC_DEFS[name]);
-    a.loop = true; a.preload = 'auto'; a.onerror = markBroken;
+    a = new Audio();
+    a.loop = true;
+    a.preload = 'none';            
+    a.onerror = markBroken;
+    a.trackSrc = SOUND_DIR + MUSIC_DEFS[name];
     music[name] = a;
   }
 }
 
 function playSfx(name) {
   if (!soundEnabled || attractMode) return;
-  var list = sfx[name];
-  if (!list) return;
   if (sfxLast[name] !== undefined && clock - sfxLast[name] < 3) return;
+
+  var list = sfxBuffers[name];
+  if (!list) return;
   sfxLast[name] = clock;
-  var base = list[randomInt(list.length)];
-  if (base.broken) return;
-  var s = base.cloneNode();                          
-  s.volume = base.baseVolume;
-  safePlay(s);
+
+  var fb = sfxFallback[name];
+  if (fb) {
+    var ring = fb[randomInt(fb.length)];
+    var voice = ring.voices[ring.next];
+    ring.next = (ring.next + 1) % ring.voices.length;
+    if (voice.broken) return;
+    try { voice.currentTime = 0; } catch (e) {}
+    safePlay(voice);
+    return;
+  }
+
+  if (!audioCtx || activeVoices >= MAX_VOICES) return;
+  if (audioCtx.state === 'suspended') return;
+
+  
+  var n = list.length, start = randomInt(n), buffer = null, i;
+  for (i = 0; i < n; i++) {
+    buffer = list[(start + i) % n];
+    if (buffer) break;
+    buffer = null;
+  }
+  if (!buffer) return;
+
+  try {
+    var src = audioCtx.createBufferSource();
+    src.buffer = buffer;
+    var g = audioCtx.createGain();
+    g.gain.value = sfxVolume[name];
+    src.connect(g);
+    g.connect(sfxGain);
+    activeVoices++;
+    src.onended = function () {
+      activeVoices--;
+      try { src.disconnect(); g.disconnect(); } catch (e) {}
+    };
+    src.start(0);
+  } catch (e) { activeVoices--; }
 }
 
 function playMusic(name) {
@@ -77,7 +167,8 @@ function playMusic(name) {
   if (currentMusic && currentMusic !== track) currentMusic.pause();
   currentMusic = track;
   if (!track || track.broken) return;
-  track.currentTime = 0;
+  if (!track.src) { track.src = track.trackSrc; track.load(); }
+  try { track.currentTime = 0; } catch (e) {}
   safePlay(track);
 }
 
@@ -95,7 +186,9 @@ function toggleSound() {
 }
 
 function resumeAudio() {
-  if (soundEnabled && currentMusic && currentMusic.paused && !currentMusic.broken) safePlay(currentMusic);
+  if (!soundEnabled) return;
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(function () {});
+  if (currentMusic && currentMusic.paused && !currentMusic.broken) safePlay(currentMusic);
 }
 window.addEventListener('keydown', resumeAudio);
 window.addEventListener('pointerdown', resumeAudio);
@@ -549,11 +642,16 @@ WarningRectangle.prototype.draw = function () {
 function addEffect(e) { effects.push(e); return e; }
 
 var explosionGroup = null;
+
+function setFrame(s, f) {
+  if (s.frame !== f) s.frame = f;
+}
+
 function spawnExplosion(x, y, delay) {
   var s = explosionGroup.getFirstDead(true, Math.floor(x), Math.floor(y), 'explosions', 12);
   s.anchor.set(0.5);
   s.reset(Math.floor(x), Math.floor(y));
-  s.exTimer = 16; s.exDelay = delay || 0; s.frame = EXPLOSION_FRAME0;
+  s.exTimer = 16; s.exDelay = delay || 0; setFrame(s, EXPLOSION_FRAME0);
   return s;
 }
 function stepExplosions() {
@@ -561,7 +659,7 @@ function stepExplosions() {
     if (s.exDelay > 0) { s.exDelay--; s.visible = false; return; }
     s.visible = true;
     s.exTimer--;
-    s.frame = EXPLOSION_FRAME0 + clamp(Math.floor((16 - s.exTimer) / 4), 0, 3);
+    setFrame(s, EXPLOSION_FRAME0 + clamp(Math.floor((16 - s.exTimer) / 4), 0, 3));
     if (s.exTimer <= 0) s.kill();
   });
 }
@@ -609,7 +707,7 @@ Ent.prototype.sync = function () {
   if (this.jiggly) { jx = randomIntIn(-1, 1); jy = randomIntIn(-1, 1); }
   this.x = Math.floor(this.px) + jx;
   this.y = Math.floor(this.py) + jy;
-  this.frame = this.spriteBase + (this.animated ? (Math.floor(clock / 7) % 2) : 0);
+  setFrame(this, this.spriteBase + (this.animated ? (Math.floor(clock / 7) % 2) : 0));
   this.tint = this.damageTimer > 0 ? 0xff00ff : 0xffffff;
 };
 Ent.prototype.damage = function () { };
@@ -1374,10 +1472,11 @@ function glyph(code, x, y, tint, angle) {
   else { s = game.make.sprite(0, 0, 'font', 0); s.anchor.set(0.5); textGroup.add(s); textPool.push(s); }
   textUsed++;
   s.visible = true;
-  s.frame = code - FONT_FIRST;
+  setFrame(s, code - FONT_FIRST);
   s.x = Math.floor(x); s.y = Math.floor(y);
   s.tint = tint === undefined ? textColorNow() : tint;
-  s.angle = angle || 0;
+  angle = angle || 0;
+  if (s.angle !== angle) s.angle = angle;
 }
 function drawString(str, x, y, tint) {
   for (var i = 0; i < str.length; i++) glyph(str.charCodeAt(i), x + i * FONT_ADVANCE, y, tint);
@@ -1868,7 +1967,7 @@ function hudSprite(frame, x, y) {
   if (hudUsed < hudPool.length) s = hudPool[hudUsed];
   else { s = game.make.sprite(0, 0, 'sprites', 0); s.anchor.set(0.5); hudGroup.add(s); hudPool.push(s); }
   hudUsed++;
-  s.visible = true; s.frame = frame; s.x = x; s.y = y;
+  s.visible = true; setFrame(s, frame); s.x = x; s.y = y;
 }
 function hudSpritesEnd() { for (var i = hudUsed; i < hudPool.length; i++) hudPool[i].visible = false; }
 
@@ -1908,7 +2007,7 @@ function drawCutscene() {
   var boxTop = Math.floor(H / 2) - 40;
   drawRectangleOutline(8, boxTop, W - 9, boxTop + 80, 255, 0, 255);
   cutsceneSprite.visible = true;
-  cutsceneSprite.frame = currentCutsceneImage * 2 + (Math.floor(clock / 7) % 2);
+  setFrame(cutsceneSprite, currentCutsceneImage * 2 + (Math.floor(clock / 7) % 2));
   cutsceneSprite.x = W / 2;
   cutsceneSprite.y = boxTop + 22;
   drawStringWrappedCentered(cutSceneText, W / 2, boxTop + 48, 24);
@@ -2201,11 +2300,11 @@ var BootState = {
     if (window.visualViewport) window.visualViewport.addEventListener('resize', resize);
 
     Phaser.Canvas.setImageRenderingCrisp(game.canvas);
-    game.time.desiredFps = 60;
-    game.forceSingleUpdate = true;
+    game.time.desiredFps = 65;
+    game.time.desiredMinFps = 30;
+    game.forceSingleUpdate = false;
+
     resize();
-    window.addEventListener('resize', resize);
-    window.addEventListener('orientationchange', resize);
     setTimeout(resize, 0);
     setTimeout(resize, 250);
   },
@@ -2222,9 +2321,21 @@ function resize() {
   game.scale.setUserScale(z, z, 0, 0);
 }
 
-window.addEventListener('load', function () {
-  game = new Phaser.Game(CW, CH, Phaser.CANVAS, 'game-root', null, false, false);
-  
+window.addEventListener('load', function () {  
+  if (window.PIXI && PIXI.scaleModes) PIXI.scaleModes.DEFAULT = PIXI.scaleModes.NEAREST;
+
+  var RENDERER = Phaser.AUTO;
+
+  game = new Phaser.Game({
+    width: CW,
+    height: CH,
+    renderer: RENDERER,
+    parent: 'game-root',
+    transparent: false,
+    antialias: false,
+    enableDebug: false
+  });
+
   game.state.add('Boot', BootState);
   game.state.add('Preload', PreloadState);
   game.state.add('Play', PlayState);
