@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Time & Maintenance System 2008</title>
+    <script src="./html5-qrcode.min.js"></script>
+    <script src="./qrcode.min.js"></script>
+
+    <style>
+        body {
+            font-family: Tahoma, Verdana, Arial, sans-serif;
+            background-color: #e3effb;
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAIklEQVQIW2NkQAKrVq36zwjjgzhhYWGMYAEYB8RmROaABADeOQ8CXl/xfgAAAABJRU5ErkJggg==');
+            margin: 0;
+            padding: 20px;
+            color: #333333;
+            font-size: 13px;
+        }
+
+        #wrapper {
+            width: 100%;
+            max-width: 850px;
+            box-sizing: border-box;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border: 1px solid #8cb1d1;
+            -moz-border-radius: 8px;
+            -webkit-border-radius: 8px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        #header {
+            background: #4790d0;
+            background: -moz-linear-gradient(top, #76b2e6 0%, #4790d0 100%);
+            background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#76b2e6), color-stop(100%,#4790d0));
+            background: linear-gradient(to bottom, #76b2e6 0%,#4790d0 100%);
+            padding: 15px 20px;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+            border-bottom: 2px solid #2a6192;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: normal;
+        }
+
+        #nav {
+            background-color: #f0f6fa;
+            border-bottom: 1px solid #c4d7e6;
+            padding: 8px 20px;
+        }
+
+        .tab-btn {
+            background: #ffffff;
+            background: linear-gradient(to bottom, #ffffff 0%,#e5e5e5 100%);
+            border: 1px solid #b5b5b5;
+            padding: 5px 15px;
+            font-size: 13px;
+            font-family: Tahoma, sans-serif;
+            color: #333;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .tab-btn:hover, .tab-btn:focus {
+            background: #f4faff;
+            background: linear-gradient(to bottom, #f4faff 0%,#d9edf9 100%);
+            border-color: #79a6d2;
+            outline: none;
+        }
+
+        .tab-btn.active {
+            background: #dfecf7;
+            border-color: #5b8bb8;
+            box-shadow: inset 0px 2px 4px rgba(0,0,0,0.1);
+            color: #1a4a75;
+        }
+
+        #content {
+            padding: 20px;
+        }
+
+        .view-section {
+            display: none;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        fieldset {
+            border: 1px solid #c4d7e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #fbfdff;
+        }
+
+        legend {
+            font-weight: bold;
+            color: #4790d0;
+            padding: 0 5px;
+            background: #fff;
+            border: 1px solid #c4d7e6;
+            border-radius: 3px;
+        }
+
+        label {
+            font-weight: bold;
+            display: inline-block;
+            width: 120px;
+        }
+
+        input[type="text"] {
+            padding: 4px;
+            border: 1px solid #a9c6c9;
+            border-radius: 3px;
+            font-family: Tahoma, sans-serif;
+            width: 100%;
+            max-width: 250px;
+            box-sizing: border-box;
+        }
+
+        .action-btn {
+            background: #ffb84d;
+            background: linear-gradient(to bottom, #ffcc80 0%,#ff9900 100%);
+            border: 1px solid #cc7a00;
+            padding: 5px 12px;
+            color: #fff;
+            font-weight: bold;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: Tahoma, sans-serif;
+            box-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .action-btn:hover, .action-btn:focus {
+            background: linear-gradient(to bottom, #ffd699 0%,#e68a00 100%);
+            outline: 2px solid #fff;
+        }
+
+        .action-btn:active {
+            box-shadow: inset 1px 1px 3px rgba(0,0,0,0.4);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th {
+            background: #e3effb;
+            background: linear-gradient(to bottom, #f0f6fa 0%,#d9edf9 100%);
+            border: 1px solid #a9c6c9;
+            padding: 8px;
+            text-align: left;
+            font-weight: bold;
+            color: #2a6192;
+        }
+
+        td {
+            border: 1px solid #a9c6c9;
+            padding: 8px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f4f8fb;
+        }
+
+        tr:hover {
+            background-color: #ffffe0;
+        }
+
+        .status-badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
+            display: inline-block;
+            text-align: center;
+            width: 40px;
+        }
+
+        .status-in {
+            background-color: #5bb75b;
+            border: 1px solid #3d8b3d;
+        }
+
+        .status-out {
+            background-color: #da4f49;
+            border: 1px solid #a83632;
+        }
+
+        #qr-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            z-index: 1000;
+        }
+
+        #qr-modal-content {
+            background: #fff;
+            width: 90%;
+            max-width: 400px;
+            box-sizing: border-box;
+            margin: 50px auto;
+            border: 3px solid #4790d0;
+            border-radius: 8px;
+            box-shadow: 0px 0px 20px rgba(0,0,0,0.5);
+            text-align: center;
+            padding: 20px;
+        }
+
+        #qr-code-display {
+            margin: 20px auto;
+            width: 200px;
+            height: 200px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background: #f9f9f9;
+        }
+
+        #reader {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            border: 4px solid #a9c6c9;
+            border-radius: 8px;
+            background-color: #000;
+            box-shadow: inset 0px 0px 10px rgba(0,0,0,0.8);
+        }
+
+        #scan-result-msg {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            display: none;
+            border: 2px solid transparent;
+        }
+
+        .msg-success {
+            background-color: #dff0d8;
+            border-color: #d6e9c6;
+            color: #3c763d;
+        }
+
+        .msg-error {
+            background-color: #f2dede;
+            border-color: #ebccd1;
+            color: #a94442;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            #nav {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+            }
+            .tab-btn {
+                margin-right: 0;
+                margin-bottom: 5px;
+                width: 100%;
+                padding: 10px;
+            }
+            label {
+                display: block;
+                margin-bottom: 5px;
+            }
+            input[type="text"] {
+                max-width: 100%;
+                margin-bottom: 10px;
+            }
+            .action-btn {
+                width: 100%;
+                padding: 10px;
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main id="wrapper">
+        <header id="header">
+            <h1>Student Time & Maintenance System</h1>
+        </header>
+
+        <nav id="nav" aria-label="Main Navigation">
+            <button class="tab-btn active" id="tab-admin" onclick="switchTab('admin')" aria-pressed="true">Admin Control Panel</button>
+            <button class="tab-btn" id="tab-scanner" onclick="switchTab('scanner')" aria-pressed="false">Kiosk Scanner</button>
+            <button class="tab-btn" id="tab-logs" onclick="switchTab('logs')" aria-pressed="false">System Logs</button>
+        </nav>
+
+        <section id="content">
+            <div id="view-admin" class="view-section active" role="region" aria-label="Admin Control Panel">
+                <fieldset>
+                    <legend>Add New Student Registration</legend>
+                    <form id="add-student-form" onsubmit="handleNewStudent(event)">
+                        <label for="student-id">Student ID:</label>
+                        <input type="text" id="student-id" required placeholder="e.g. 2026-001" aria-required="true">
+                        <label for="student-name">Student Name:</label>
+                        <input type="text" id="student-name" required placeholder="e.g. Juan Dela Cruz" aria-required="true">
+                        <button type="submit" class="action-btn">Register Student</button>
+                        <span id="form-error" style="color: #da4f49; font-weight: bold; margin-left: 10px; display: none;"></span>
+                    </form>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Student Directory & Account Balances</legend>
+                    <div class="table-responsive">
+                        <table aria-label="Student Directory">
+                            <thead>
+                                <tr>
+                                    <th scope="col">System ID</th>
+                                    <th scope="col">Student Name</th>
+                                    <th scope="col">Current Status</th>
+                                    <th scope="col">Maintenance Fees</th>
+                                    <th scope="col">Administration</th>
+                                </tr>
+                            </thead>
+                            <tbody id="student-table-body">
+                            </tbody>
+                        </table>
+                    </div>
+                </fieldset>
+            </div>
+
+            <div id="view-scanner" class="view-section" role="region" aria-label="Kiosk Scanner">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h2 style="color: #4790d0; margin-top: 0;">Automated Check-in / Check-out Kiosk</h2>
+                    <p>Present your assigned QR code to the webcam to log your attendance.</p>
+                </div>
+                
+                <div id="reader"></div>
+                
+                <div id="scan-result-msg" role="alert" aria-live="assertive"></div>
+            </div>
+
+            <div id="view-logs" class="view-section" role="region" aria-label="System Logs">
+                <fieldset>
+                    <legend>Recent Activity Logs</legend>
+                    <div class="table-responsive">
+                        <table aria-label="Activity Logs">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Timestamp</th>
+                                    <th scope="col">System ID</th>
+                                    <th scope="col">Student Name</th>
+                                    <th scope="col">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logs-table-body">
+                            </tbody>
+                        </table>
+                    </div>
+                </fieldset>
+            </div>
+        </section>
+    </main>
+
+    <div id="qr-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div id="qr-modal-content">
+            <h2 id="modal-title" style="color: #2a6192; border-bottom: 1px solid #ccc; padding-bottom: 10px;">Assigned QR Identity Tag</h2>
+            <p id="qr-student-name" style="font-weight: bold; font-size: 16px;"></p>
+            <div id="qr-code-display"></div>
+            <p style="font-size: 11px; color: #666;">Please print this tag and distribute it to the student. Do not fold the graphic area.</p>
+            <button class="action-btn" onclick="closeQrModal()" style="margin-top: 15px;">Close Window</button>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'school_attendance_system_db';
+        const MAINTENANCE_FEE_AMOUNT = 0.50;
+        let db = {
+            students: {},
+            logs: []
+        };
+        let html5QrcodeScanner = null;
+        let isProcessingScan = false;
+        let currentQRCode = null;
+
+        function initApp() {
+            const storedDb = localStorage.getItem(STORAGE_KEY);
+            if (storedDb) {
+                db = JSON.parse(storedDb);
+                if (!db.logs) db.logs = [];
+            }
+            renderStudentTable();
+        }
+
+        function saveDb() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+        }
+
+        function switchTab(tabId) {
+            document.getElementById('view-admin').classList.remove('active');
+            document.getElementById('view-scanner').classList.remove('active');
+            document.getElementById('view-logs').classList.remove('active');
+            
+            document.getElementById('tab-admin').classList.remove('active');
+            document.getElementById('tab-scanner').classList.remove('active');
+            document.getElementById('tab-logs').classList.remove('active');
+            
+            document.getElementById('tab-admin').setAttribute('aria-pressed', 'false');
+            document.getElementById('tab-scanner').setAttribute('aria-pressed', 'false');
+            document.getElementById('tab-logs').setAttribute('aria-pressed', 'false');
+
+            document.getElementById('view-' + tabId).classList.add('active');
+            document.getElementById('tab-' + tabId).classList.add('active');
+            document.getElementById('tab-' + tabId).setAttribute('aria-pressed', 'true');
+
+            if (tabId === 'scanner') {
+                startScanner();
+            } else {
+                stopScanner();
+                if (tabId === 'admin') renderStudentTable();
+                if (tabId === 'logs') renderLogsTable();
+            }
+        }
+
+        function handleNewStudent(event) {
+            event.preventDefault();
+            const idInput = document.getElementById('student-id');
+            const nameInput = document.getElementById('student-name');
+            const errorSpan = document.getElementById('form-error');
+            const id = idInput.value.trim();
+            const name = nameInput.value.trim();
+            
+            errorSpan.style.display = 'none';
+
+            if (id && name) {
+                if (db.students[id]) {
+                    errorSpan.textContent = 'Error: ID already exists.';
+                    errorSpan.style.display = 'inline-block';
+                    return;
+                }
+                
+                db.students[id] = {
+                    name: name,
+                    status: 'OUT',
+                    feeBalance: 0.00
+                };
+                
+                saveDb();
+                idInput.value = '';
+                nameInput.value = '';
+                renderStudentTable();
+            }
+        }
+
+        function renderStudentTable() {
+            const tbody = document.getElementById('student-table-body');
+            tbody.innerHTML = '';
+            
+            const studentIds = Object.keys(db.students);
+            
+            if (studentIds.length === 0) {
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 5;
+                td.style.textAlign = 'center';
+                td.style.fontStyle = 'italic';
+                td.textContent = 'No records found. Please add a student above.';
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+                return;
+            }
+            
+            for (const id of studentIds) {
+                const student = db.students[id];
+                const tr = document.createElement('tr');
+                
+                const tdId = document.createElement('td');
+                tdId.textContent = id;
+                
+                const tdName = document.createElement('td');
+                tdName.textContent = student.name;
+                
+                const tdStatus = document.createElement('td');
+                const badge = document.createElement('span');
+                badge.className = 'status-badge ' + (student.status === 'IN' ? 'status-in' : 'status-out');
+                badge.textContent = student.status;
+                tdStatus.appendChild(badge);
+                
+                const tdFee = document.createElement('td');
+                tdFee.textContent = '₱' + student.feeBalance.toFixed(2);
+                
+                const tdAction = document.createElement('td');
+                const btn = document.createElement('button');
+                btn.className = 'action-btn';
+                btn.textContent = 'Generate QR';
+                btn.onclick = () => showQrModal(id, student.name);
+                tdAction.appendChild(btn);
+                
+                tr.appendChild(tdId);
+                tr.appendChild(tdName);
+                tr.appendChild(tdStatus);
+                tr.appendChild(tdFee);
+                tr.appendChild(tdAction);
+                
+                tbody.appendChild(tr);
+            }
+        }
+
+        function showQrModal(id, name) {
+            document.getElementById('qr-student-name').textContent = name + ' (' + id + ')';
+            
+            const qrDisplay = document.getElementById('qr-code-display');
+            qrDisplay.innerHTML = '';
+            
+            currentQRCode = new QRCode(qrDisplay, {
+                text: id,
+                width: 200,
+                height: 200,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+            
+            document.getElementById('qr-modal').style.display = 'block';
+        }
+
+        function closeQrModal() {
+            document.getElementById('qr-modal').style.display = 'none';
+            if (currentQRCode) {
+                currentQRCode.clear();
+            }
+        }
+
+        function renderLogsTable() {
+            const tbody = document.getElementById('logs-table-body');
+            tbody.innerHTML = '';
+            
+            if (!db.logs || db.logs.length === 0) {
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 4;
+                td.style.textAlign = 'center';
+                td.style.fontStyle = 'italic';
+                td.textContent = 'No activity logs found.';
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+                return;
+            }
+            
+            for (const log of db.logs) {
+                const tr = document.createElement('tr');
+                
+                const tdTime = document.createElement('td');
+                tdTime.textContent = log.time;
+                
+                const tdId = document.createElement('td');
+                tdId.textContent = log.id;
+                
+                const tdName = document.createElement('td');
+                tdName.textContent = log.name;
+                
+                const tdAction = document.createElement('td');
+                const badge = document.createElement('span');
+                badge.className = 'status-badge ' + (log.action === 'IN' ? 'status-in' : 'status-out');
+                badge.textContent = log.action;
+                tdAction.appendChild(badge);
+                
+                tr.appendChild(tdTime);
+                tr.appendChild(tdId);
+                tr.appendChild(tdName);
+                tr.appendChild(tdAction);
+                
+                tbody.appendChild(tr);
+            }
+        }
+
+        function startScanner() {
+            if (!html5QrcodeScanner) {
+                html5QrcodeScanner = new Html5QrcodeScanner(
+                    "reader",
+                    { fps: 10, qrbox: {width: 250, height: 250} },
+                    false
+                );
+                
+                html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+            }
+        }
+
+        function stopScanner() {
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.clear().then(() => {
+                    html5QrcodeScanner = null;
+                }).catch(error => {
+                    console.error("Failed to clear scanner", error);
+                });
+            }
+        }
+
+        function onScanSuccess(decodedText, decodedResult) {
+            if (isProcessingScan) return;
+            
+            isProcessingScan = true;
+            processAttendance(decodedText);
+            
+            setTimeout(() => {
+                isProcessingScan = false;
+            }, 3000);
+        }
+
+        function onScanFailure(error) {
+        }
+
+        function processAttendance(studentId) {
+            const msgBox = document.getElementById('scan-result-msg');
+            msgBox.style.display = 'block';
+            msgBox.className = '';
+            
+            if (!db.students[studentId]) {
+                msgBox.classList.add('msg-error');
+                msgBox.textContent = 'Error: QR Code Unrecognized.';
+                hideMessageLater(msgBox);
+                return;
+            }
+            
+            const student = db.students[studentId];
+            const newStatus = student.status === 'IN' ? 'OUT' : 'IN';
+            
+            student.status = newStatus;
+            student.feeBalance += MAINTENANCE_FEE_AMOUNT;
+            
+            if (!db.logs) db.logs = [];
+            db.logs.unshift({
+                time: new Date().toLocaleString(),
+                id: studentId,
+                name: student.name,
+                action: newStatus
+            });
+            
+            saveDb();
+            
+            msgBox.classList.add('msg-success');
+            msgBox.textContent = `Success: ${student.name} timed ${newStatus}. Maintenance fee of ₱${MAINTENANCE_FEE_AMOUNT.toFixed(2)} applied.`;
+            
+            hideMessageLater(msgBox);
+        }
+
+        function hideMessageLater(element) {
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 4000);
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
