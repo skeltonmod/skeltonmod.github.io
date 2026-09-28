@@ -1,0 +1,270 @@
+{
+  "tops": {
+    "grass": [
+      [
+        0,
+        0
+      ],
+      [
+        16,
+        0
+      ],
+      [
+        32,
+        0
+      ],
+      [
+        48,
+        0
+      ]
+    ],
+    "grassFlower": [
+      [
+        64,
+        0
+      ],
+      [
+        80,
+        0
+      ]
+    ],
+    "high": [
+      [
+        96,
+        0
+      ],
+      [
+        112,
+        0
+      ]
+    ],
+    "sand": [
+      [
+        128,
+        0
+      ],
+      [
+        144,
+        0
+      ]
+    ],
+    "farmDry": [
+      [
+        160,
+        0
+      ]
+    ],
+    "farmWet": [
+      [
+        176,
+        0
+      ]
+    ],
+    "farmMark": [
+      [
+        192,
+        0
+      ]
+    ],
+    "water": [
+      [
+        208,
+        0
+      ],
+      [
+        224,
+        0
+      ],
+      [
+        240,
+        0
+      ],
+      [
+        256,
+        0
+      ],
+      [
+        272,
+        0
+      ],
+      [
+        288,
+        0
+      ],
+      [
+        304,
+        0
+      ],
+      [
+        320,
+        0
+      ]
+    ]
+  },
+  "faces": {
+    "grassEdge": {
+      "L": [
+        0,
+        10
+      ],
+      "R": [
+        9,
+        10
+      ]
+    },
+    "highEdge": {
+      "L": [
+        18,
+        10
+      ],
+      "R": [
+        27,
+        10
+      ]
+    },
+    "sandEdge": {
+      "L": [
+        36,
+        10
+      ],
+      "R": [
+        45,
+        10
+      ]
+    },
+    "farmEdge": {
+      "L": [
+        54,
+        10
+      ],
+      "R": [
+        63,
+        10
+      ]
+    },
+    "stone": {
+      "L": [
+        72,
+        10
+      ],
+      "R": [
+        81,
+        10
+      ]
+    },
+    "dirt": {
+      "L": [
+        90,
+        10
+      ],
+      "R": [
+        99,
+        10
+      ]
+    },
+    "rock": {
+      "L": [
+        108,
+        10
+      ],
+      "R": [
+        117,
+        10
+      ]
+    },
+    "deep": {
+      "L": [
+        126,
+        10
+      ],
+      "R": [
+        135,
+        10
+      ]
+    }
+  },
+  "waterfall": {
+    "L": [
+      0,
+      18
+    ],
+    "R": [
+      9,
+      18
+    ]
+  },
+  "materials": {
+    "wallLit": [
+      0,
+      34
+    ],
+    "wallShade": [
+      5,
+      34
+    ],
+    "door": [
+      10,
+      34
+    ],
+    "window": [
+      15,
+      34
+    ],
+    "windowLit": [
+      20,
+      34
+    ],
+    "roofLit": [
+      25,
+      34
+    ],
+    "roofShade": [
+      30,
+      34
+    ],
+    "ridge": [
+      35,
+      34
+    ],
+    "scaffold": [
+      40,
+      34
+    ],
+    "floor": [
+      45,
+      34
+    ]
+  },
+  "topSize": [
+    16,
+    8
+  ],
+  "faceSize": [
+    8,
+    6
+  ],
+  "waterfallSize": [
+    8,
+    14
+  ],
+  "edgePx": 2,
+  "bands": [
+    {
+      "face": "stone",
+      "fromPx": 18
+    },
+    {
+      "face": "dirt",
+      "fromPx": 0
+    },
+    {
+      "face": "rock",
+      "fromPx": -10
+    },
+    {
+      "face": "deep",
+      "fromPx": -99999
+    }
+  ],
+  "note": "tops: 16x8 diamonds (variants are picked per tile; water frames animate). faces: 8x6 unskewed side textures, L = lit face, R = shaded face, row 0 = the line at each whole block. bands: which face texture is used by height in pixels above sea level; the *Edge textures cover the top edgePx pixels. materials: single-colour swatches used by houses."
+}

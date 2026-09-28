@@ -1,0 +1,254 @@
+{
+  "cell": [
+    12,
+    12
+  ],
+  "frames": [
+    "stand",
+    "walk",
+    "work",
+    "workw",
+    "flail",
+    "ko"
+  ],
+  "keys": {
+    "#ff0000": "hat",
+    "#b00000": "hatDark",
+    "#ff7f00": "brim",
+    "#00ff00": "hair",
+    "#ff00ff": "accent",
+    "#0000ff": "shirt",
+    "#0000a0": "shirtDark",
+    "#00ffff": "pants",
+    "#ffff00": "skin",
+    "#7f00ff": "eyes"
+  },
+  "bodies": {
+    "man": {
+      "swimRows": 5,
+      "stand": {
+        "rect": [
+          2,
+          2,
+          7,
+          10
+        ],
+        "anchor": [
+          3,
+          10
+        ]
+      },
+      "walk": {
+        "rect": [
+          14,
+          2,
+          7,
+          10
+        ],
+        "anchor": [
+          3,
+          10
+        ]
+      },
+      "work": {
+        "rect": [
+          26,
+          2,
+          7,
+          10
+        ],
+        "anchor": [
+          3,
+          10
+        ]
+      },
+      "workw": {
+        "rect": [
+          38,
+          2,
+          7,
+          10
+        ],
+        "anchor": [
+          3,
+          10
+        ]
+      },
+      "flail": {
+        "rect": [
+          50,
+          2,
+          7,
+          10
+        ],
+        "anchor": [
+          3,
+          10
+        ]
+      },
+      "ko": {
+        "rect": [
+          61,
+          5,
+          10,
+          7
+        ],
+        "anchor": [
+          5,
+          6
+        ]
+      }
+    },
+    "woman": {
+      "swimRows": 5,
+      "stand": {
+        "rect": [
+          2,
+          14,
+          7,
+          10
+        ],
+        "anchor": [
+          3,
+          10
+        ]
+      },
+      "walk": {
+        "rect": [
+          14,
+          14,
+          7,
+          10
+        ],
+        "anchor": [
+          3,
+          10
+        ]
+      },
+      "work": {
+        "rect": [
+          26,
+          14,
+          7,
+          10
+        ],
+        "anchor": [
+          3,
+          10
+        ]
+      },
+      "workw": {
+        "rect": [
+          38,
+          14,
+          7,
+          10
+        ],
+        "anchor": [
+          3,
+          10
+        ]
+      },
+      "flail": {
+        "rect": [
+          50,
+          14,
+          7,
+          10
+        ],
+        "anchor": [
+          3,
+          10
+        ]
+      },
+      "ko": {
+        "rect": [
+          61,
+          17,
+          10,
+          7
+        ],
+        "anchor": [
+          5,
+          6
+        ]
+      }
+    },
+    "child": {
+      "swimRows": 3,
+      "stand": {
+        "rect": [
+          3,
+          29,
+          5,
+          7
+        ],
+        "anchor": [
+          2,
+          7
+        ]
+      },
+      "walk": {
+        "rect": [
+          15,
+          29,
+          5,
+          7
+        ],
+        "anchor": [
+          2,
+          7
+        ]
+      },
+      "work": {
+        "rect": [
+          27,
+          29,
+          5,
+          7
+        ],
+        "anchor": [
+          2,
+          7
+        ]
+      },
+      "workw": {
+        "rect": [
+          39,
+          29,
+          5,
+          7
+        ],
+        "anchor": [
+          2,
+          7
+        ]
+      },
+      "flail": {
+        "rect": [
+          51,
+          29,
+          5,
+          7
+        ],
+        "anchor": [
+          2,
+          7
+        ]
+      },
+      "ko": {
+        "rect": [
+          62,
+          31,
+          7,
+          5
+        ],
+        "anchor": [
+          3,
+          4
+        ]
+      }
+    }
+  },
+  "note": "Paint with the key colours to mark recolourable parts (see keys). Other colours are drawn as-is. rect = [x, y, w, h] in the PNG; anchor = the pixel inside rect that sits on the villager's feet."
+}

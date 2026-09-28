@@ -1,0 +1,7 @@
+{
+  "chars": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!?.:-+/'_, ",
+  "glyphW": 3,
+  "glyphH": 5,
+  "stride": 4,
+  "note": "Any opaque pixel is drawn in the text colour. Add glyphs by widening the image and appending the character to \"chars\"."
+}
