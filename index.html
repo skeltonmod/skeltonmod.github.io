@@ -568,6 +568,14 @@
         cursor: default;
         transition: transform 0.2s ease;
       }
+      .nw a {
+        display: flex;
+        gap: 10px;
+        align-items: baseline;
+      }
+      .nw:has(a) {
+        cursor: pointer;
+      }
       .nw:hover {
         transform: translateX(4px);
       }
@@ -1646,6 +1654,10 @@
         news: [
           ["2026", "Site rewrite is up... for the nth time", "char"],
         ],
+        // Hacker News RSS has no CORS headers, so it goes through rss2json
+        newsFeed:
+          "https://api.rss2json.com/v1/api.json?rss_url=" +
+          encodeURIComponent("https://news.ycombinator.com/rss"),
         work: {
           groups: [
             {
@@ -4563,7 +4575,7 @@
             win(
               "headlines",
               "w.02",
-              `<ul class="news">${CONFIG.news.map(([d, t, c]) => `<li class="nw c-${c} an"><span class="px">${d}</span>${t}</li>`).join("")}</ul>`,
+              `<ul class="news" id="news">${newsHTML(newsCache || CONFIG.news)}</ul>`,
             ) +
             win(
               "git.activity",
@@ -4785,6 +4797,53 @@
             ease: "back.out(2.5)",
             delay: d + 0.05,
           },
+        );
+      }
+
+      /* ---------- Headlines (Hacker News RSS; falls back to CONFIG.news) ---------- */
+      const NEWS_COLS = ["char", "sage", "cyan", "orange", "lime", "mag", "pale"];
+      const escHTML = (s) =>
+        String(s).replace(
+          /[&<>"]/g,
+          (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[m],
+        );
+      const newsHTML = (items) =>
+        items
+          .map(([d, t, c, href]) => {
+            const body = `<span class="px">${d}</span>${href ? escHTML(t) : t}`;
+            return href
+              ? `<li class="nw c-${c} an"><a href="${escHTML(href)}" target="_blank" rel="noopener">${body}</a></li>`
+              : `<li class="nw c-${c} an">${body}</li>`;
+          })
+          .join("");
+      let newsCache = null;
+      async function loadNews() {
+        if (!$("#news") || newsCache) return;
+        try {
+          const r = await fetch(CONFIG.newsFeed);
+          if (!r.ok) throw 0;
+          const j = await r.json();
+          if (j.status !== "ok" || !Array.isArray(j.items) || !j.items.length)
+            throw 0;
+          newsCache = j.items.slice(0, 7).map((it, i) => [
+            new Date(it.pubDate.replace(" ", "T") + "Z").toLocaleDateString(
+              "en-US",
+              { month: "2-digit", day: "2-digit" },
+            ),
+            it.title,
+            NEWS_COLS[i % NEWS_COLS.length],
+            it.link,
+          ]);
+        } catch (e) {
+          return; // keep the static headline
+        }
+        const box = $("#news");
+        if (!box) return;
+        box.innerHTML = newsHTML(newsCache);
+        gsap.fromTo(
+          "#news .nw",
+          { x: -40, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.4, stagger: 0.05, ease: "back.out(3)" },
         );
       }
 
@@ -5617,7 +5676,10 @@
         else setViewportChrome(S.title(), i + 1, id, i);
         const ws = $$("#side .win");
         if (!booting) ENTER[id](ws);
-        if (id === "home") loadFeed();
+        if (id === "home") {
+          loadFeed();
+          loadNews();
+        }
         if (id === "contact" && CONFIG.lastUpdated)
           $("#lastUpd").textContent = CONFIG.lastUpdated.toLocaleString(
             "en-US",
