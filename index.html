@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>skeltonmod — Elijah Abgao</title>
+    <title>skeltonmod</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -4437,7 +4437,7 @@
       const PRELOAD = [
         { url: "/public/models/prototype.obj", label: "model prototype.obj", w: 3 },
         { url: "/public/models/frigate.obj", label: "model frigate.obj", w: 1 },
-        { url: CONFIG.tracks[0][1], label: `audio ${CONFIG.tracks[0][0]}.mp3`, w: 4 },
+        // audio is not preloaded: the tracks are 4-21MB and the player streams them fine
       ];
       const ASSETS = {};
       const asset = (url) => ASSETS[url] || url;
@@ -5970,8 +5970,11 @@
 
         async function fetchAsset(t) {
           t.state = "load";
+          // a stalled download must not hold the splash forever
+          const ac = new AbortController(),
+            timer = setTimeout(() => ac.abort(), 20000);
           try {
-            const r = await fetch(t.url);
+            const r = await fetch(t.url, { signal: ac.signal });
             if (!r.ok) throw 0;
             const total = +r.headers.get("content-length") || 0,
               reader = r.body.getReader(),
@@ -5989,6 +5992,7 @@
           } catch (e) {
             t.state = "skip"; // falls back to streaming from the network later
           }
+          clearTimeout(timer);
           t.f = 1;
         }
         PRELOAD.forEach((_, i) => fetchAsset(tasks[i]));
