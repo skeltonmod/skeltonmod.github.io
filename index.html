@@ -1617,8 +1617,8 @@
           {
             id: "home",
             label: "home",
-            mode: "net.relay",
-            vert: ["0001 server.core", "0002 relay.mesh", "0003 node.link"],
+            mode: "station.orbit",
+            vert: ["0001 crew.station", "0002 escort.patrol", "0003 hull.wire"],
           },
           {
             id: "work",
@@ -1647,7 +1647,7 @@
           {
             id: "contact",
             label: "contact",
-            mode: "frigate.wire",
+            mode: "station.wire",
             vert: ["0016 signal.out", "0017 git.uplink", "0018 comms.open"],
           },
         ],
@@ -2549,7 +2549,7 @@
       /* =========================================================
    ENGINE — PixiJS isometric scenes: single-colour city blocks, two-tone dart ships with trails
    ========================================================= */
-      const THREE_TABS = ["profile", "contact"];
+      const THREE_TABS = ["home", "profile", "contact"];
       function makeEngine() {
         const NOOP = {
           setMode() {},
@@ -2758,109 +2758,11 @@
             });
         }
 
-        /* ---------- network (home): server → relays → nodes, packets on the wires ---------- */
-        function netLayout() {
-          const box = (x, z, w, h, kind) => ({ x, z, w, h, kind, k: 0, ping: 0 });
-          const server = box(0, 0, 2, 2.6, "server"),
-            relays = [],
-            nodes = [],
-            links = [];
-          for (let r = 0; r < 4; r++) {
-            const a = Math.PI / 4 + (r * Math.PI) / 2,
-              relay = box(Math.cos(a) * 4.6, Math.sin(a) * 4.6, 1.1, 1.3, "relay");
-            relays.push(relay);
-            links.push({ a: server, b: relay, main: true });
-            for (let n = -1; n <= 1; n++) {
-              const b = a + n * 0.42,
-                node = box(Math.cos(b) * 8, Math.sin(b) * 8, 0.9, 0.5, "node");
-              node.relay = relay;
-              nodes.push(node);
-              links.push({ a: relay, b: node });
-            }
-          }
-          // relays also talk to each other around the ring
-          relays.forEach((r, i) => links.push({ a: r, b: relays[(i + 1) % 4], ring: true }));
-          server.name = "srv.core";
-          relays.forEach((r, i) => (r.name = "relay." + pad(i + 1)));
-          nodes.forEach((n, i) => (n.name = "node." + pad(i + 1)));
-          return { server, relays, nodes, links, all: [server, ...relays, ...nodes], packets: [], spawnT: 0 };
-        }
-        const at = (n, y = 0.04) => [n.x, y, n.z];
         const NET_HOT = [C.char, C.sageD, C.sage2]; // active cube: dark side, light side, top — palette only
         function mix(a, b, t) {
           const ch = (c, s) => (c >> s) & 255,
             m = (s) => Math.round(ch(a, s) + (ch(b, s) - ch(a, s)) * t);
           return (m(16) << 16) | (m(8) << 8) | m(0);
-        }
-        function sendPacket(N) {
-          const node = N.nodes[Math.floor(Math.random() * N.nodes.length)],
-            out = Math.random() < 0.6,
-            path = out ? [N.server, node.relay, node] : [node, node.relay, N.server];
-          const pk = { path, seg: 0, t: 0, out, speed: rand(5, 8), id: (N.seq = (N.seq || 0) + 1) };
-          N.packets.push(pk);
-          if (Math.random() < 0.35) NETLOG.packet(pk);
-        }
-        function drawNet(N, dt) {
-          // wires
-          N.links.forEach((l) => {
-            const k = Math.min(l.a.k, l.b.k);
-            if (k < 0.05) return;
-            const a = proj(at(l.a)),
-              b = proj(at(l.b)),
-              e = [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k];
-            gG.lineStyle(l.main ? 2 : 1, l.ring ? C.sageD : C.char, l.ring ? 0.35 : 0.6);
-            gG.moveTo(a[0], a[1]);
-            gG.lineTo(e[0], e[1]);
-          });
-          // machines: plain boxes, back to front
-          N.all
-            .map((n) => ({ n, d: proj(at(n))[2] }))
-            .sort((a, b) => a.d - b.d)
-            .forEach(({ n }) => {
-              const h = n.h * n.k;
-              if (h < 0.02) return;
-              boxShadow(n.x - n.w / 2, n.z - n.w / 2, n.w, n.w, 0.1);
-              // the cube darkens a step when a packet lands, then eases back
-              n.ping = Math.max(0, n.ping - dt * 2.5);
-              const g = n.ping;
-              drawBox(n.x - n.w / 2, n.z - n.w / 2, n.w, n.w, h, 0, n.kind === "server" ? 0.65 : 0, [
-                mix(C.sageD, NET_HOT[0], g),
-                mix(C.sage, NET_HOT[1], g),
-                mix(C.paper, NET_HOT[2], g),
-              ]);
-            });
-          // traffic
-          if (N.server.k > 0.9) {
-            N.spawnT -= dt * S.boost;
-            const every = S.trailLen ? 0.12 : 0.35;
-            while (N.spawnT <= 0) {
-              N.spawnT += every;
-              sendPacket(N);
-            }
-          }
-          N.packets = N.packets.filter((pk) => {
-            const a = pk.path[pk.seg],
-              b = pk.path[pk.seg + 1],
-              L = Math.hypot(b.x - a.x, b.z - a.z) || 1;
-            pk.t += (dt * pk.speed * S.boost) / L;
-            if (pk.t >= 1) {
-              b.ping = 1;
-              pk.seg++;
-              pk.t = 0;
-              if (pk.seg >= pk.path.length - 1) {
-                if (pk.logged) NETLOG.ack(pk);
-                return false;
-              }
-              return true;
-            }
-            const p = proj([a.x + (b.x - a.x) * pk.t, 0.12, a.z + (b.z - a.z) * pk.t]);
-            // outbound: solid charcoal; inbound: paper with a charcoal edge
-            gS.lineStyle(pk.out ? 0 : 1, C.char, 1);
-            gS.beginFill(pk.out ? C.char : C.paper, 1);
-            gS.drawRect(p[0] - 2.5, p[1] - 2.5, 5, 5);
-            gS.endFill();
-            return true;
-          });
         }
 
         /* ---------- memory stack (stack tab): a column of slabs per tool group ---------- */
@@ -2962,69 +2864,6 @@
           S.hl = sl ? { g, sl, el } : null;
           LINK.k = 0;
         }
-
-        /* ---------- fake terminal: typed log of what the network is doing ---------- */
-        const NETLOG = (() => {
-          const el = document.createElement("div");
-          el.className = "net-log";
-          host.parentNode.appendChild(el);
-          const MAX = 9,
-            lines = [],
-            queue = [];
-          let typing = null,
-            idleT = 0;
-          const PROCS = ["relayd", "meshsync", "nodewatch", "tx.queue", "auth.gw", "dns.cache"];
-          const pick = (a) => a[Math.floor(Math.random() * a.length)];
-          const hex = (n) => Math.floor(Math.random() * 16 ** n).toString(16).padStart(n, "0");
-          const IDLE = [
-            () => `[${pick(PROCS)}] pid ${1000 + Math.floor(Math.random() * 8999)} heartbeat ok`,
-            () => `$ ping ${pick(["relay.01", "relay.02", "relay.03", "relay.04"])} -c1  ${(Math.random() * 9 + 1).toFixed(1)}ms`,
-            () => `> sync route table  ${Math.floor(Math.random() * 40 + 12)} entries`,
-            () => `[auth.gw] session 0x${hex(6)} renewed`,
-            () => `> handshake node.${pad(Math.floor(Math.random() * 12) + 1)} :: tls ok`,
-            () => `[meshsync] ring latency ${(Math.random() * 3 + 0.4).toFixed(2)}ms`,
-            () => `$ ./${pick(["deploy", "healthcheck", "rotate-keys", "flush-cache"])}.sh  exit 0`,
-          ];
-          const push = (t) => queue.length < 6 && queue.push(t);
-          return {
-            packet(pk) {
-              pk.logged = true;
-              const [a, , b] = pk.path;
-              push(`${pk.out ? "tx" : "rx"} #${pad(pk.id % 10000, 4)} ${a.name} > ${b.name} ${64 * (1 + Math.floor(Math.random() * 16))}b`);
-            },
-            ack(pk) {
-              push(`   ack #${pad(pk.id % 10000, 4)} ${pk.path[pk.path.length - 1].name} ok`);
-            },
-            show(on) {
-              el.style.display = on ? "" : "none";
-              if (!on) {
-                lines.length = queue.length = 0;
-                typing = null;
-                el.textContent = "";
-              }
-            },
-            tick(dt) {
-              idleT -= dt;
-              if (idleT <= 0) {
-                idleT = rand(0.6, 1.4);
-                push(pick(IDLE)());
-              }
-              if (!typing && queue.length) {
-                typing = { text: queue.shift(), n: 0 };
-                lines.push("");
-                if (lines.length > MAX) lines.shift();
-              }
-              if (typing) {
-                typing.n = Math.min(typing.text.length, typing.n + dt * 90);
-                lines[lines.length - 1] = typing.text.slice(0, Math.floor(typing.n));
-                if (typing.n >= typing.text.length) typing = null;
-              }
-              el.innerHTML = lines
-                .map((l, i) => `<div style="opacity:${(0.35 + (0.65 * (i + 1)) / lines.length).toFixed(2)}">${l}${typing && i === lines.length - 1 ? "█" : ""}</div>`)
-                .join("");
-            },
-          };
-        })();
 
         /* ---------- two-tone dart ships ---------- */
         const PAIRS = [
@@ -3529,34 +3368,14 @@
         }
 
         /* ---------- MODES ---------- */
-        const loop = (sh) => {
-          const a = sh.a0 + S.t * sh.w * S.boost;
-          sh.roll = sh.w > 0 ? -0.45 : 0.45;
-          return [
-            Math.cos(a) * sh.rx,
-            sh.alt + Math.sin(a * 2 + sh.ph) * 1.1,
-            Math.sin(a) * sh.rz,
-          ];
-        };
         const MODES = {
           home: {
             enter() {
-              // server comes up first, then relays, then the nodes they serve
-              const N = (S.net = netLayout());
-              const up = (list, delay) =>
-                gsap.to(list, { k: 1, duration: 0.45, ease: "power2.out", stagger: 0.05, delay });
-              up(N.server, 0.15);
-              up(N.relays, 0.5);
-              up(N.nodes, 0.85);
-              spawn();
-              sculpt();
-              gsap.fromTo(
-                S,
-                { zoom: 1.25, pitch: 0.75 },
-                { yaw: Math.PI / 4, zoom: 1, pitch: 0.62, duration: 1.2, ease: "expo.out" },
-              );
+              S.ships = [];
             },
-            ship: loop,
+            ship() {
+              return [0, 0, 0];
+            },
           },
           work: {
             enter() {
@@ -3660,10 +3479,8 @@
           S.towers = [];
           S.city = [];
           S.board = null;
-          S.net = null;
           S.mem = null;
           S.hl = null;
-          NETLOG.show(m === "home");
           SC.blades = [];
           SC.lines = [];
           gsap.killTweensOf(S);
@@ -3676,10 +3493,7 @@
           app.view.style.visibility = THREE_TABS.includes(m)
             ? "hidden"
             : "visible";
-          if (m === "profile") PROF.show();
-          else PROF.hide();
-          if (m === "contact") FRIG.show();
-          else FRIG.hide();
+          showScene(m);
         }
         function setProject(seed, first) {
           S.city = [];
@@ -3752,10 +3566,6 @@
           if (!THREE_TABS.includes(S.mode)) {
             drawGround();
             if (S.board) drawCircuit(dt);
-            if (S.net) {
-              drawNet(S.net, dt);
-              NETLOG.tick(dt);
-            }
             if (S.city.length) drawCity(S.city);
             if (S.towers.length) drawTowers();
             if (S.mem) drawMem(S.mem, dt);
@@ -3813,14 +3623,12 @@
           setQuality(q) {
             S.trailLen = { high: 44, med: 18, low: 0 }[q];
             app.ticker.maxFPS = q === "low" ? 30 : 0;
-            PROF.quality(q);
-            FRIG.quality(q);
+            eachScene((s) => s.quality(q));
           },
           pointer(dx, dy) {
             S.tmyaw = dx * 0.6;
             S.tmpitch = dy * 0.18;
-            PROF.pointer(dx, dy);
-            FRIG.pointer(dx, dy);
+            eachScene((s) => s.pointer(dx, dy));
           },
           view: app.view,
         };
@@ -3839,10 +3647,7 @@
             st.mode = m;
             st.seed = null;
             if (real) return real.setMode(m);
-            if (m === "profile") PROF.show();
-            else PROF.hide();
-            if (m === "contact") FRIG.show();
-            else FRIG.hide();
+            showScene(m);
           },
           setProject(seed, first) {
             st.seed = seed;
@@ -3854,17 +3659,11 @@
           setQuality(q) {
             st.q = q;
             if (real) real.setQuality(q);
-            else {
-              PROF.quality(q);
-              FRIG.quality(q);
-            }
+            else eachScene((s) => s.quality(q));
           },
           pointer(dx, dy) {
             if (real) real.pointer(dx, dy);
-            else {
-              PROF.pointer(dx, dy);
-              FRIG.pointer(dx, dy);
-            }
+            else eachScene((s) => s.pointer(dx, dy));
           },
           boost(k) {
             real?.boost(k);
@@ -3889,6 +3688,77 @@
                 );
             };
             document.head.appendChild(sc);
+          },
+        };
+      })();
+
+      /* =========================================================
+   FAKE TERMINAL — typed log in the corner of the home viewport
+   ========================================================= */
+      const NETLOG = (() => {
+        const el = document.createElement("div");
+        el.className = "net-log";
+        el.style.display = "none";
+        $("#vp").appendChild(el);
+        const MAX = 9,
+          lines = [],
+          queue = [];
+        let on = false,
+          typing = null,
+          idleT = 0,
+          seq = 0;
+        const PROCS = ["relayd", "meshsync", "nodewatch", "tx.queue", "auth.gw", "dns.cache"];
+        const pick = (a) => a[Math.floor(Math.random() * a.length)];
+        const hex = (n) => Math.floor(Math.random() * 16 ** n).toString(16).padStart(n, "0");
+        const node = () => "node." + pad(Math.floor(Math.random() * 12) + 1);
+        const IDLE = [
+          () => `[${pick(PROCS)}] pid ${1000 + Math.floor(Math.random() * 8999)} heartbeat ok`,
+          () => `$ ping ${pick(["relay.01", "relay.02", "relay.03", "relay.04"])} -c1  ${(Math.random() * 9 + 1).toFixed(1)}ms`,
+          () => `> sync route table  ${Math.floor(Math.random() * 40 + 12)} entries`,
+          () => `[auth.gw] session 0x${hex(6)} renewed`,
+          () => `> handshake ${node()} :: tls ok`,
+          () => `[meshsync] ring latency ${(Math.random() * 3 + 0.4).toFixed(2)}ms`,
+          () => `$ ./${pick(["deploy", "healthcheck", "rotate-keys", "flush-cache"])}.sh  exit 0`,
+        ];
+        const push = (t) => queue.length < 6 && queue.push(t);
+        function packet() {
+          const out = Math.random() < 0.6,
+            id = pad(++seq % 10000, 4),
+            [a, b] = out ? ["srv.core", node()] : [node(), "srv.core"];
+          push(`${out ? "tx" : "rx"} #${id} ${a} > ${b} ${64 * (1 + Math.floor(Math.random() * 16))}b`);
+          push(`   ack #${id} ${b} ok`);
+        }
+        function tick(dt) {
+          idleT -= dt;
+          if (idleT <= 0) {
+            idleT = rand(0.3, 0.8);
+            if (Math.random() < 0.5) packet();
+            else push(pick(IDLE)());
+          }
+          if (!typing && queue.length) {
+            typing = { text: queue.shift(), n: 0 };
+            lines.push("");
+            if (lines.length > MAX) lines.shift();
+          }
+          if (typing) {
+            typing.n = Math.min(typing.text.length, typing.n + dt * 90);
+            lines[lines.length - 1] = typing.text.slice(0, Math.floor(typing.n));
+            if (typing.n >= typing.text.length) typing = null;
+          }
+          el.innerHTML = lines
+            .map((l, i) => `<div style="opacity:${(0.35 + (0.65 * (i + 1)) / lines.length).toFixed(2)}">${l}${typing && i === lines.length - 1 ? "█" : ""}</div>`)
+            .join("");
+        }
+        gsap.ticker.add((_, ms) => on && tick(ms / 1000));
+        return {
+          show(v) {
+            on = v;
+            el.style.display = v ? "" : "none";
+            if (!v) {
+              lines.length = queue.length = 0;
+              typing = null;
+              el.textContent = "";
+            }
           },
         };
       })();
@@ -4212,6 +4082,7 @@
 
         return {
           show() {
+            if (active) return;
             if (!built) {
               built = true;
               if (!build()) return;
@@ -4250,18 +4121,25 @@
       })();
 
       /* =========================================================
-   CONTACT FRIGATE — Three.js gray wireframe, no schematic overlays
+   WIRE SCENES — Three.js gray wireframe of an OBJ, no schematic overlays;
+   optional escort model that flies an orbit around it
    ========================================================= */
-      const FRIG = (() => {
+      function wireScene({ url, span, stagger = 0.05, escort = null }) {
         const NOOP = { show() {}, hide() {}, pointer() {}, quality() {} };
         if (!window.THREE || !THREE.OBJLoader) return NOOP;
         const T = THREE,
           host = $("#comp"),
-          MODEL = { url: "/public/models/frigate.obj", size: 13 };
+          orbit = (a) => [
+            Math.cos(a) * escort.rx,
+            escort.y + Math.sin(a * 2) * escort.bob,
+            Math.sin(a) * escort.rz,
+          ];
         let renderer,
           scene,
           camera,
           ship,
+          hull,
+          craft,
           active = false,
           built = false,
           loaded = false,
@@ -4291,26 +4169,38 @@
               opacity: 0.6,
             });
           ship = new T.Group();
+          hull = new T.Group();
+          ship.add(hull);
           scene.add(ship);
-          new T.OBJLoader().load(asset(MODEL.url), (obj) => {
-            const box = new T.Box3().setFromObject(obj),
-              c = box.getCenter(new T.Vector3()),
-              sz = box.getSize(new T.Vector3()),
-              k = MODEL.size / Math.max(sz.x, sz.y, sz.z);
-            obj.traverse((o) => {
-              if (!o.isMesh) return;
-              const geo = o.geometry;
-              geo.translate(-c.x, -c.y, -c.z);
-              geo.scale(k, k, k);
-              const g = new T.Group();
-              g.add(new T.LineSegments(new T.WireframeGeometry(geo), wireMat));
-              g.add(new T.LineSegments(new T.EdgesGeometry(geo, 18), edgeMat));
-              ship.add(g);
-              parts.push({ g, p: g.position.clone(), r: g.rotation.clone() });
+          let pending = 1;
+          const loadModel = (m, into) =>
+            new T.OBJLoader().load(asset(m.url), (obj) => {
+              const box = new T.Box3().setFromObject(obj),
+                c = box.getCenter(new T.Vector3()),
+                sz = box.getSize(new T.Vector3()),
+                k = m.span / Math.max(sz.x, sz.y, sz.z);
+              obj.traverse((o) => {
+                if (!o.isMesh) return;
+                const geo = o.geometry;
+                geo.translate(-c.x, -c.y, -c.z);
+                geo.scale(k, k, k);
+                const g = new T.Group();
+                g.add(new T.LineSegments(new T.WireframeGeometry(geo), wireMat));
+                g.add(new T.LineSegments(new T.EdgesGeometry(geo, 18), edgeMat));
+                into.add(g);
+                parts.push({ g, p: g.position.clone(), r: g.rotation.clone() });
+              });
+              if (--pending) return;
+              loaded = true;
+              if (active) assemble();
             });
-            loaded = true;
-            if (active) assemble();
-          });
+          if (escort) {
+            pending++;
+            craft = new T.Group();
+            ship.add(craft);
+            loadModel(escort, craft);
+          }
+          loadModel({ url, span }, hull);
           const grid = new T.GridHelper(44, 44, 0x6b776e, 0xa3aea5);
           grid.position.y = -2.6;
           grid.material.transparent = true;
@@ -4340,10 +4230,27 @@
           last = now;
           t += dt;
           size();
-          ship.rotation.y = t * 0.22 + mx * 1.2;
+          hull.rotation.y = t * 0.22;
+          ship.rotation.y = mx * 1.2;
           ship.rotation.x = my * 0.4;
           ship.rotation.z = Math.sin(t * 0.6) * 0.05;
           ship.position.y = Math.sin(t * 0.9) * 0.25;
+          if (craft) {
+            // nose along the orbit tangent, banked into the turn
+            const a = t * escort.speed,
+              p = orbit(a),
+              n = orbit(a + 0.02),
+              dx = n[0] - p[0],
+              dy = n[1] - p[1],
+              dz = n[2] - p[2];
+            craft.position.set(p[0], p[1], p[2]);
+            craft.rotation.set(
+              -Math.atan2(dy, Math.hypot(dx, dz)),
+              Math.atan2(dx, dz),
+              0.35 + Math.sin(t * 1.3) * 0.08,
+              "YXZ",
+            );
+          }
           renderer.render(scene, camera);
           fA += dt ? 1 / dt : 60;
           if (++fN > 30) {
@@ -4369,7 +4276,7 @@
               z: p.z,
               duration: 1.1,
               ease: "back.out(1.7)",
-              delay: 0.15 + i * 0.05,
+              delay: 0.15 + i * stagger,
             });
             gsap.to(g.rotation, {
               x: r.x,
@@ -4377,7 +4284,7 @@
               z: r.z,
               duration: 1.1,
               ease: "back.out(1.7)",
-              delay: 0.15 + i * 0.05,
+              delay: 0.15 + i * stagger,
             });
           });
           const cam = { x: 34, y: 24, z: 30 };
@@ -4398,6 +4305,7 @@
 
         return {
           show() {
+            if (active) return;
             if (!built) {
               built = true;
               if (!build()) return;
@@ -4428,7 +4336,35 @@
               );
           },
         };
-      })();
+      }
+
+      /* home: crew station with the interceptor patrolling around it; contact: command station */
+      const HOME = wireScene({
+          url: "/public/models/crewstation.obj",
+          span: 9,
+          stagger: 0.03,
+          escort: {
+            url: "/public/models/interceptor.obj",
+            span: 2.2,
+            rx: 6,
+            rz: 6.4,
+            y: 1.3,
+            bob: 0.6,
+            speed: 0.42,
+          },
+        }),
+        CONTACT = wireScene({
+          url: "/public/models/commandstation.obj",
+          span: 13,
+        });
+
+      /* the Three.js scenes, by tab */
+      const SCENES = { home: HOME, profile: PROF, contact: CONTACT };
+      function showScene(m) {
+        NETLOG.show(m === "home");
+        for (const k in SCENES) k === m ? SCENES[k].show() : SCENES[k].hide();
+      }
+      const eachScene = (fn) => Object.values(SCENES).forEach(fn);
 
       /* =========================================================
    SOUND — music player for the tracks in /public/sounds
@@ -4436,7 +4372,9 @@
       /* assets fetched on the splash screen; asset(url) hands back the preloaded copy when there is one */
       const PRELOAD = [
         { url: "/public/models/prototype.obj", label: "model prototype.obj", w: 3 },
-        { url: "/public/models/frigate.obj", label: "model frigate.obj", w: 1 },
+        { url: "/public/models/crewstation.obj", label: "model crewstation.obj", w: 1 },
+        { url: "/public/models/interceptor.obj", label: "model interceptor.obj", w: 1 },
+        { url: "/public/models/commandstation.obj", label: "model commandstation.obj", w: 1 },
         // audio is not preloaded: the tracks are 4-21MB and the player streams them fine
       ];
       const ASSETS = {};
@@ -5027,65 +4965,57 @@
             }),
         },
         stack: {
-          // block grid
+          // memory columns: slabs drop and pile up bottom-first, then pop off top-first
           build: () => {
             let s = "";
-            for (let y = 0; y < 7; y++)
-              for (let x = 0; x < 10; x++)
-                s += `<div style="left:${x * 10}%;top:${(y * 100) / 7}%;width:10.2%;height:${100 / 7 + 0.3}%;background:#232523"></div>`;
+            for (let y = 0; y < 9; y++)
+              for (let x = 0; x < 6; x++)
+                s += `<div style="left:${(x * 100) / 6}%;top:${(y * 100) / 9}%;width:${100 / 6 + 0.2}%;height:${100 / 9 + 0.3}%;background:#232523"></div>`;
             return s;
           },
           cover: (tl, els) =>
             tl.fromTo(
               els,
-              { scale: 0, rotation: 90 },
+              { y: "-110vh" },
               {
-                scale: 1,
-                rotation: 0,
-                duration: 0.35,
-                ease: "back.out(2.5)",
-                stagger: { each: 0.006, from: "random" },
+                y: 0,
+                duration: 0.26,
+                ease: "power3.in",
+                stagger: (i) => (8 - Math.floor(i / 6)) * 0.04 + (i % 6) * 0.03,
               },
             ),
           uncover: (tl, els) =>
             tl.to(els, {
-              y: "110vh",
-              rotation: () => rand(-60, 60),
-              duration: 0.6,
+              y: "-110vh",
+              duration: 0.28,
               ease: "power3.in",
-              stagger: { each: 0.005, from: "random" },
+              stagger: (i) => Math.floor(i / 6) * 0.035 + (5 - i % 6) * 0.02,
             }),
         },
         contact: {
-          // radial burst wedges
+          // signal rings: an iris closes on the word, then rings blink out from the centre
           build: () =>
-            Array.from({ length: 12 }, (_, i) => {
-              const a1 = (i / 12) * Math.PI * 2,
-                a2 = ((i + 1.05) / 12) * Math.PI * 2,
-                p = (a) =>
-                  `${50 + Math.cos(a) * 120}% ${50 + Math.sin(a) * 120}%`;
-              return `<div style="inset:0;background:#232523;clip-path:polygon(50% 50%,${p(a1)},${p(a2)})"></div>`;
+            Array.from({ length: 9 }, (_, i) => {
+              const o = (i * 50) / 9,
+                n = i === 8 ? 50 : ((i + 1) * 50) / 9 + 0.2,
+                sq = (a) =>
+                  `${a}% ${a}%,${100 - a}% ${a}%,${100 - a}% ${100 - a}%,${a}% ${100 - a}%,${a}% ${a}%`;
+              return `<div style="inset:0;background:#232523;clip-path:polygon(evenodd,${sq(o)},${sq(n)})"></div>`;
             }).join(""),
-          cover: (tl, els) =>
-            tl.fromTo(
-              els,
-              { scale: 0, rotation: -120, transformOrigin: "50% 50%" },
-              {
-                scale: 1,
-                rotation: 0,
-                duration: 0.5,
-                ease: "expo.out",
-                stagger: 0.025,
-              },
-            ),
+          cover: (tl, els) => {
+            // hard-edged: each ring snaps on at full opacity, then settles
+            gsap.set(els, { opacity: 0 });
+            return tl
+              .fromTo(els, { scale: 1.3 }, { scale: 1, duration: 0.3, ease: "power3.out", stagger: 0.045 })
+              .to(els, { opacity: 1, duration: 0.01, stagger: 0.045 }, "<");
+          },
           uncover: (tl, els) =>
             tl.to(els, {
-              scale: 3,
-              rotation: 60,
+              scale: 1.18,
               opacity: 0,
-              duration: 0.5,
-              ease: "power3.in",
-              stagger: 0.02,
+              duration: 0.14,
+              ease: "steps(2)",
+              stagger: { each: 0.045, from: "end" },
             }),
         },
       };
@@ -5183,51 +5113,40 @@
           );
         },
         stack(el) {
-          // blocks pop in random order and overshoot
+          // rows are pushed on from the bottom up, each slamming down onto the last
+          const c = cellsOf(el);
+          return gsap.timeline().fromTo(
+            c.map((o) => o.r),
+            { y: -40, fillOpacity: 0 },
+            {
+              y: 0,
+              fillOpacity: 1,
+              duration: 0.2,
+              ease: "power3.in",
+              delay: (i) => ((40 - c[i].y) / 40) * 0.42 + Math.random() * 0.05,
+            },
+          );
+        },
+        contact(el) {
+          // signal lock: resolves outward from the centre column, flickering as it tunes in
+          const c = cellsOf(el),
+            xs = c.map((o) => o.x),
+            cx = (Math.max(...xs) + Math.min(...xs)) / 2,
+            md = Math.max(...xs.map((x) => Math.abs(x - cx))) || 1,
+            r = c.map((o) => o.r);
           return gsap
             .timeline()
             .fromTo(
-              el.querySelectorAll(".gc"),
-              { scale: 0, transformOrigin: "50% 50%" },
+              r,
+              { fillOpacity: 0 },
               {
-                scale: 1,
-                duration: 0.5,
-                ease: "elastic.out(1,.35)",
-                stagger: {
-                  each: 0.5 / el.querySelectorAll(".gc").length,
-                  from: "random",
-                },
+                fillOpacity: 1,
+                duration: 0.14,
+                ease: "steps(3)",
+                delay: (i) => (Math.abs(c[i].x - cx) / md) * 0.42 + Math.random() * 0.06,
               },
-            );
-        },
-        contact(el) {
-          // bursts out from the centre, spinning into place
-          const c = cellsOf(el),
-            cx =
-              (Math.max(...c.map((o) => o.x)) +
-                Math.min(...c.map((o) => o.x))) /
-              2,
-            cy = 20,
-            md = Math.max(...c.map((o) => Math.hypot(o.x - cx, o.y - cy))) || 1;
-          return gsap.timeline().fromTo(
-            c.map((o) => o.r),
-            {
-              x: (i) => (cx - c[i].x) * 0.9,
-              y: (i) => (cy - c[i].y) * 0.9,
-              scale: 0,
-              rotation: 180,
-              transformOrigin: "50% 50%",
-            },
-            {
-              x: 0,
-              y: 0,
-              scale: 1,
-              rotation: 0,
-              duration: 0.5,
-              ease: "back.out(2.2)",
-              delay: (i) => (Math.hypot(c[i].x - cx, c[i].y - cy) / md) * 0.35,
-            },
-          );
+            )
+            .to(r, { fillOpacity: 0.35, duration: 0.05, repeat: 1, yoyo: true, ease: "steps(1)" });
         },
       };
       function typeOut(el, text, dur = 0.4) {
